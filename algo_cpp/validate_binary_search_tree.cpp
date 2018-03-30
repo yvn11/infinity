@@ -15,8 +15,9 @@ public:
         if (root->val < mi || root->val > ma) {
           return false;
         }
-        return this->isValidBST(root->left, mi, root->val-1)
-          && this->isValidBST(root->right, root->val+1, ma);
+
+        return (root->val == INT_MIN ? !root->left : this->isValidBST(root->left, mi, root->val-1))
+          && (root->val == INT_MAX ? !root->right : this->isValidBST(root->right, root->val+1, ma));
     }
     
     bool isValidBST(TreeNode* root) {
@@ -26,12 +27,12 @@ public:
 
 int main() {
   Solution s;
-  TreeNode *root = new TreeNode(10), *p;
+  TreeNode *root = new TreeNode(INT_MIN), *p;
   
-  root->left = new TreeNode(4);
-  root->right = new TreeNode(18);
-  root->right->left = new TreeNode(7);
-  root->right->right = new TreeNode(20);
+  root->left = new TreeNode(INT_MIN);
+  //root->right = new TreeNode(18);
+  //root->right->left = new TreeNode(7);
+  //root->right->right = new TreeNode(20);
   cout << s.isValidBST(root) << endl;
   return 0;
 }
