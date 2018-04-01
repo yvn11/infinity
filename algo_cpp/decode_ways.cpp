@@ -10,11 +10,8 @@ public:
         if (!s.length())
           return 0;
 
-        if (s.length() == 1)
-          if (s[0] == '0')
+        if (s[0] == '0')
             return 0;
-          else
-            return 1;
 
         vector<int> mem(s.length()+1, 0);
         mem[0] = 1;
@@ -37,6 +34,7 @@ int main() {
   cout << s.numDecodings("0") << endl;
   cout << s.numDecodings("10") << endl;
   cout << s.numDecodings("26") << endl;
+  cout << s.numDecodings("01") << endl;
   return 0;
 }
 
