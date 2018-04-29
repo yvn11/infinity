@@ -13,7 +13,7 @@ public:
     if (!root)
       return ret;
 
-    TreeNode *p = NULL;
+    TreeNode *p = nullptr;
     queue<TreeNode*> q;
     q.push(root);
     

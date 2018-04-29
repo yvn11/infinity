@@ -25,7 +25,7 @@ public:
         if (!root)
             return ret;
         
-        TreeNode* p = root, *q = NULL;
+        TreeNode* p = root, *q = nullptr;
         stack<TreeNode*> s;
         push_left(p, s);
 
@@ -39,7 +39,7 @@ public:
             p = p->right;
           } else {
             ret.push_back(p->val);
-            p = NULL;
+            p = nullptr;
           }
 
           push_left(p, s);

@@ -9,9 +9,9 @@ public:
     
     ListNode* insertionSortList(ListNode* head) {
         if (!head)
-            return NULL;
+            return nullptr;
 
-        ListNode* ret = new ListNode(INT_MIN), *p = ret, *c = head, *n = NULL;
+        ListNode* ret = new ListNode(INT_MIN), *p = ret, *c = head, *n = nullptr;
 
         while (c) {
           n = c->next;

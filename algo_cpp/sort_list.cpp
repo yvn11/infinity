@@ -49,7 +49,7 @@ public:
           tail = tail->next->next;
       }
 
-      p->next = NULL;
+      p->next = nullptr;
       ListNode* l = sortList(head);
       ListNode* r = sortList(mid);
       return merge(l, r);

@@ -8,7 +8,7 @@ class Solution {
 public:
     TreeNode* convert(ListNode* begin, ListNode* end) {
         if (!begin || begin == end)
-            return NULL;
+            return nullptr;
 
         if (begin->next == end)
           return new TreeNode(begin->val);
@@ -27,7 +27,7 @@ public:
     }
 
     TreeNode* sortedListToBST(ListNode* head) {
-      return convert(head, NULL);
+      return convert(head, nullptr);
     }
 };
 
@@ -35,9 +35,9 @@ void delete_list(ListNode* head) {
   if (!head)
     return;
   delete_list(head->next);
-  head->next = NULL;
+  head->next = nullptr;
   delete(head);
-  head = NULL;
+  head = nullptr;
 }
 
 void delete_tree(TreeNode* root) {
@@ -45,11 +45,11 @@ void delete_tree(TreeNode* root) {
     return ;
 
   delete_tree(root->left);
-  root->left = NULL;
+  root->left = nullptr;
   delete_tree(root->right);
-  root->right = NULL;
+  root->right = nullptr;
   delete(root);
-  root = NULL;
+  root = nullptr;
 }
 
 int main() {

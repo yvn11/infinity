@@ -13,7 +13,7 @@ public:
 
       queue<TreeNode*> q;
       q.push(root);
-      TreeNode *p = NULL;
+      TreeNode *p = nullptr;
 
       while (!q.empty()) {
         p = q.front();

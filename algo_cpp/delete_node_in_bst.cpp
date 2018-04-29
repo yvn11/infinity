@@ -19,7 +19,7 @@ public:
     }
     
     TreeNode* del_node(TreeNode *root, int key) {
-        TreeNode *q = NULL;
+        TreeNode *q = nullptr;
         
         if (!root)
           return root;

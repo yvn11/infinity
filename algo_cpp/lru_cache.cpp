@@ -12,7 +12,7 @@ struct Block {
     Block() {}
 
     Block(int key, int val) 
-        : key(key), val(val), prev(NULL), next(NULL) {
+        : key(key), val(val), prev(nullptr), next(nullptr) {
         
     }
 };
@@ -24,12 +24,12 @@ private:
     unordered_map<int, Block*> mem;
     Block *head;
 public:
-    LRUCache(int capacity):cap(capacity),head(NULL) {
+    LRUCache(int capacity):cap(capacity),head(nullptr) {
     }
     
     ~LRUCache() {
         delete(head);
-        head = NULL;
+        head = nullptr;
     }
     
     void set_head(Block *node) {
@@ -60,7 +60,7 @@ public:
         head->prev->next = head;
         mem.erase(p->key);
         delete(p);
-        p = NULL;
+        p = nullptr;
     }
 
     int get(int key) {

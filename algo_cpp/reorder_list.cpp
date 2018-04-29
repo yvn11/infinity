@@ -23,7 +23,7 @@ public:
           return;
 
         p = mid->next;
-        ListNode *t = p->next, *q = NULL, *s = NULL;
+        ListNode *t = p->next, *q = nullptr, *s = nullptr;
         
         while (t) {
             q = t->next;
@@ -31,7 +31,7 @@ public:
             p = t; t = q;
         }
         
-        mid->next->next = NULL;
+        mid->next->next = nullptr;
         q = head;
         
         while (p) {
@@ -43,7 +43,7 @@ public:
         }
         
         if (q->next)
-          q->next = NULL;
+          q->next = nullptr;
     }
 };
 

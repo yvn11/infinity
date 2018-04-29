@@ -24,7 +24,7 @@ public:
             return root->right;
         
         root->right->right = root->left;
-        root->left = NULL;
+        root->left = nullptr;
         return root->right->right;
     }
     
@@ -55,7 +55,7 @@ public:
             if (p->left) {
                 swap(p);
                 s.push(p->left);
-                p->left = NULL;
+                p->left = nullptr;
                 p = p->right;
                 continue;
             }

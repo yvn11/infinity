@@ -15,7 +15,7 @@ public:
 
   TreeNode* maximumBinaryTree(vector<int>& nums, int begin, int end) {
     if (end < begin)
-      return NULL;
+      return nullptr;
 
     if (begin == end)
       return new TreeNode(nums[begin]);

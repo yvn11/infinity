@@ -37,7 +37,7 @@ public:
         if (!root)
             return;
         
-        TreeNode *p = NULL, *q = NULL, *prev = NULL, *last = NULL;
+        TreeNode *p = nullptr, *q = nullptr, *prev = nullptr, *last = nullptr;
         this->find_mistake(root, &prev, &p, &q, &last);
 
         if (last && p) {

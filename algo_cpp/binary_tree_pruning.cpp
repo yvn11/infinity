@@ -16,7 +16,7 @@ public:
 
         if (root->val == 0 && !root->left && !root->right) {
           delete root;
-          return NULL;
+          return nullptr;
         }
         return root;
     }
