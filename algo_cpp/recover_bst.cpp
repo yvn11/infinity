@@ -52,15 +52,6 @@ public:
 };
 
 
-void print_inorder(TreeNode* root) {
-  if (!root)
-    return;
-
-  print_inorder(root->left);
-  cout << root->val << ',';
-  print_inorder(root->right);
-}
-
 int main() {
   Solution s;
   TreeNode *root = new TreeNode(1);
@@ -74,6 +65,6 @@ int main() {
 */
   s.recoverTree(root);
 
-  print_inorder(root);
+  print_inorder(root, cout);
   return 0;
 }

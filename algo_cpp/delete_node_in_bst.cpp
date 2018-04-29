@@ -56,14 +56,6 @@ public:
     }
 };
 
-void print_inorder(TreeNode* root) {
-  if (!root)
-    return;
-
-  print_inorder(root->left);
-  cout << root->val << ',';
-  print_inorder(root->right);
-}
 
 int main() {
   Solution s;
@@ -84,7 +76,7 @@ int main() {
   root->right->right->right->right = new TreeNode(46);
   root->right->right->left->right->left = new TreeNode(35);
   root = s.deleteNode(root, val);
-  print_inorder(root);
+  print_inorder(root, cout);
 
   return 0;
 }

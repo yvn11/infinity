@@ -21,14 +21,6 @@ public:
     }
 };
 
-void print_inorder(TreeNode* root) {
-  if (!root)
-    return;
-
-  print_inorder(root->left);
-  cout << root->val << ',';
-  print_inorder(root->right);
-}
 
 int main() {
   Solution s;
@@ -45,7 +37,7 @@ int main() {
   root->left->right->right = new TreeNode(8);
 
   root = s.invertTree(root);
-  print_inorder(root);
+  print_inorder(root, cout);
   
   return 0;
 }
