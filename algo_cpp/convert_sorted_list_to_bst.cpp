@@ -4,8 +4,6 @@
 
 using namespace std;
 
-void print_inorder(TreeNode* root);
-
 class Solution {
 public:
     TreeNode* convert(ListNode* begin, ListNode* end) {
@@ -32,15 +30,6 @@ public:
       return convert(head, NULL);
     }
 };
-
-void print_inorder(TreeNode* root) {
-  if (!root)
-    return;
-
-  print_inorder(root->left);
-  cout << root->val << ',';
-  print_inorder(root->right);
-}
 
 void delete_list(ListNode* head) {
   if (!head)
@@ -81,7 +70,7 @@ int main() {
   cout << endl;
 
   TreeNode* root = s.sortedListToBST(head);
-  print_inorder(root);
+  print_inorder(root, cout);
   cout << endl;
   delete_list(head);
   delete_tree(root);
@@ -93,7 +82,7 @@ int main() {
   head->next->next->next->next = new ListNode(9);
 
   root = s.sortedListToBST(head);
-  print_inorder(root);
+  print_inorder(root, cout);
   cout << endl;
   delete_list(head);
   delete_tree(root);
