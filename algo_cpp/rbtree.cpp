@@ -66,8 +66,9 @@ void left_rotate(Node* node) {
     node->left = node;
     node->right = nullptr;
   } else {
-    node->right->left = node;
-    node->right = nullptr;
+    Node *p = node->right;
+    node->right = p->left;
+    p->left = node;
   }
 }
 
@@ -80,8 +81,9 @@ void right_rotate(Node* node) {
     node->left->right = node;
     node->left = nullptr;
   } else {
-    node->left->right = node;
-    node->left = nullptr;
+    Node *p = node->left;
+    node->left = p->right;
+    p->right = node;
   }
 }
 
