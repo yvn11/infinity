@@ -5,87 +5,6 @@
 
 using namespace std;
 
-bool is_black(Node* node) {
-  if (!node)
-    return true;
-  return node->color & BLACK;
-}
-
-void set_black(Node* node) {
-  if (node)
-    node->color |= BLACK;
-}
-
-void set_red(Node* node) {
-  if (node)
-    node->color |= RED;
-}
-
-void swap_color(Node* a, Node* b) {
-  if (a && b) {
-    swap(a->color, b->color);
-  }
-}
-
-bool is_leftchild(Node* node) {
-  if (node->parent) {
-    return node == node->parent->left;
-  }
-  return false;
-}
-
-bool is_rightchild(Node* node) {
-  if (node->parent) {
-    return node == node->parent->right;
-  }
-  return false;
-}
-
-Node* grandparent(Node* node) {
-  if (node && node->parent) {
-    return node->parent->parent;
-  }
-  return nullptr;
-}
-
-Node* uncle(Node* node) {
-  if (node && node->parent) {
-    Node* g = grandparent(node);
-    if (!g) return nullptr;
-    return is_leftchild(node->parent) ? g->right : g->left;
-  }
-  return nullptr;
-}
-
-void left_rotate(Node* node) {
-  if (!node)
-    return;
-
-  if (node->parent) {
-    node->parent->left = node->right;
-    node->left = node;
-    node->right = nullptr;
-  } else {
-    Node *p = node->right;
-    node->right = p->left;
-    p->left = node;
-  }
-}
-
-void right_rotate(Node* node) {
-  if (!node)
-    return;
-
-  if (node->parent) {
-    node->parent->right = node->left;
-    node->left->right = node;
-    node->left = nullptr;
-  } else {
-    Node *p = node->left;
-    node->left = p->right;
-    p->right = node;
-  }
-}
 
 void RBTree::insert(int key) {
   if (!_root) {
@@ -96,7 +15,7 @@ void RBTree::insert(int key) {
 
   Node* x = new Node(key);
   insert(_root, x);
-  rebalance(x);
+  insert_rebalance(x);
 }
 
 Node* RBTree::insert(Node* root, Node* x) {
@@ -113,7 +32,7 @@ Node* RBTree::insert(Node* root, Node* x) {
   return root;
 }
 
-void RBTree::rebalance(Node* x) {
+void RBTree::insert_rebalance(Node* x) {
   if (is_black(x->parent))
     return;
 
@@ -147,34 +66,90 @@ void RBTree::rebalance(Node* x) {
   }
 }
 
-ostream& operator<< (ostream &o, Node &node) {
-    return o << "[" << node.key 
-      << '|' << (is_black(&node) ? "b" : "r") 
-      << '|' << (is_leftchild(&node) ? "l" : (is_rightchild(&node) ? "r" : "rt")) << "]";
+Node* RBTree::find(Node* root, int key) {
+  if (!root || root->key == key)
+    return root;
+
+  if (key < root->key) {
+    return find(root->left, key);
+  }
+  return find(root->right, key);
 }
 
-void print_tree(ostream &o, Node* root) {
-  if (!root)
+Node* RBTree::find(int key) {
+  return find(_root, key);
+}
+
+void RBTree::remove(int key) {
+  Node* node = find(key); 
+  if (!node)
     return;
 
-  Node* node = nullptr;
-  queue<Node*> q;
-  q.push(root);
+  Node* u = remove(node);
+  remove_rebalance(u);
+}
 
-  while (!q.empty()) {
-    int count = q.size();
-    while (count--) {
-      node = q.front();
-      q.pop();
-      o << *node << ',';
-      if (node->left)
-        q.push(node->left);
-      if (node->right)
-        q.push(node->right);
+
+Node* RBTree::remove(Node* node) {
+  if (is_leaf(node)) {
+    delete node;
+    return nullptr;
+  }
+
+  Node* u = nullptr;
+  if (node->left)
+    u = rightmost(node->left);
+  else
+    u = leftmost(node->right);
+
+  swap_node(node, u);
+  delete u;
+  return node;
+}
+
+void RBTree::remove_rebalance(Node* u) {
+  if (!u)
+    return;
+
+  if (u == _root) {
+    set_black(u);
+    return;
+  }
+    
+  Node* s = sibling(u);
+
+  if (is_black(s) && (!is_black(s->left) || !is_black(s->right))) {
+    Node* r = !is_black(s->left) ? s->left : s->right;
+    if (is_leftchild(s) && is_leftchild(r)) {
+      right_rotate(s->parent);
+      set_black(r);
+    } else if (is_leftchild(s) && is_rightchild(r)) {
+      left_rotate(s);
+      right_rotate(r->parent);
+      set_black(r);
+    } else if (is_rightchild(s) && is_leftchild(r)) {
+      right_rotate(s);
+      left_rotate(r->parent);
+      set_black(r);
+    } else if (is_rightchild(s) && is_rightchild(r)) {
+      left_rotate(s->parent);
+      set_black(r);
     }
-    o << endl;
+  } else if (is_black(s) && is_black(s->left) && is_black(s->right)) {
+    set_red(s);
+  } else if (!is_black(s)) {
+    if (is_rightchild(s)) {
+      Node* p = s->left;
+      left_rotate(s->parent);
+      swap_color(s, p);
+    } else if (is_leftchild(s)) {
+      Node* p = s->right;
+      right_rotate(s->parent);
+      swap_color(s, p);
+    }
   }
 }
+
 
 int main() {
   RBTree obj;
@@ -183,6 +158,8 @@ int main() {
   obj.insert(30);
   obj.insert(35);
   obj.insert(7);
+  obj.print_tree();
+  obj.remove(35);
   obj.print_tree();
   return 0;
 }
