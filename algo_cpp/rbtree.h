@@ -17,7 +17,7 @@ class RBTree {
     Node* insert(Node *root, Node *x);
     void insert_rebalance(Node* x); 
     void remove(int key);
-    Node* remove(Node* root);
+    void remove(Node* root);
     void remove_rebalance(Node* u); 
     Node* find(int key);
     Node* find(Node* root, int key);

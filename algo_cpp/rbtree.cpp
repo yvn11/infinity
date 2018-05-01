@@ -85,26 +85,29 @@ void RBTree::remove(int key) {
   if (!node)
     return;
 
-  Node* u = remove(node);
-  remove_rebalance(u);
+  remove(node);
+  //remove_rebalance(u);
 }
 
-
-Node* RBTree::remove(Node* node) {
+void RBTree::remove(Node* node) {
   if (is_leaf(node)) {
+    if (is_leftchild(node))
+      node->parent->left = nullptr;
+    else if (is_rightchild(node))
+      node->parent->right = nullptr;
     delete node;
-    return nullptr;
+    return;
   }
 
   Node* u = nullptr;
+
   if (node->left)
     u = rightmost(node->left);
   else
     u = leftmost(node->right);
 
   swap_node(node, u);
-  delete u;
-  return node;
+  remove(u);
 }
 
 void RBTree::remove_rebalance(Node* u) {
@@ -160,6 +163,8 @@ int main() {
   obj.insert(7);
   obj.print_tree();
   obj.remove(35);
+  obj.print_tree();
+  obj.remove(20);
   obj.print_tree();
   return 0;
 }
