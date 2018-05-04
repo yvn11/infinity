@@ -119,36 +119,38 @@ void RBTree::remove_rebalance(Node* u) {
     return;
   }
     
-  Node* s = sibling(u);
-
-  if (is_black(s) && (!is_black(s->left) || !is_black(s->right))) {
-    Node* r = !is_black(s->left) ? s->left : s->right;
-    if (is_leftchild(s) && is_leftchild(r)) {
-      right_rotate(s->parent);
-      set_black(r);
-    } else if (is_leftchild(s) && is_rightchild(r)) {
-      left_rotate(s);
-      right_rotate(r->parent);
-      set_black(r);
-    } else if (is_rightchild(s) && is_leftchild(r)) {
-      right_rotate(s);
-      left_rotate(r->parent);
-      set_black(r);
-    } else if (is_rightchild(s) && is_rightchild(r)) {
-      left_rotate(s->parent);
-      set_black(r);
-    }
-  } else if (is_black(s) && is_black(s->left) && is_black(s->right)) {
-    set_red(s);
-  } else if (!is_black(s)) {
-    if (is_rightchild(s)) {
-      Node* p = s->left;
-      left_rotate(s->parent);
-      swap_color(s, p);
-    } else if (is_leftchild(s)) {
-      Node* p = s->right;
-      right_rotate(s->parent);
-      swap_color(s, p);
+  while (is_black(u) && u != _root) {
+    Node* s = sibling(u);
+  
+    if (is_black(s) && (!is_black(s->left) || !is_black(s->right))) {
+      Node* r = !is_black(s->left) ? s->left : s->right;
+      if (is_leftchild(s) && is_leftchild(r)) {
+        right_rotate(s->parent);
+        set_black(r);
+      } else if (is_leftchild(s) && is_rightchild(r)) {
+        left_rotate(s);
+        right_rotate(r->parent);
+        set_black(r);
+      } else if (is_rightchild(s) && is_leftchild(r)) {
+        right_rotate(s);
+        left_rotate(r->parent);
+        set_black(r);
+      } else if (is_rightchild(s) && is_rightchild(r)) {
+        left_rotate(s->parent);
+        set_black(r);
+      }
+    } else if (is_black(s) && is_black(s->left) && is_black(s->right)) {
+      set_red(s);
+    } else if (!is_black(s)) {
+      if (is_rightchild(s)) {
+        Node* p = s->left;
+        left_rotate(s->parent);
+        swap_color(s, p);
+      } else if (is_leftchild(s)) {
+        Node* p = s->right;
+        right_rotate(s->parent);
+        swap_color(s, p);
+      }
     }
   }
 }
