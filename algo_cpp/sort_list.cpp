@@ -4,8 +4,6 @@
 
 using namespace std;
 
-void print_list(ListNode* head);
-
 class Solution {
 public:
     
@@ -56,15 +54,6 @@ public:
     }
 };
 
-void print_list(ListNode* head) {
-  ListNode* p = head;
-  while (p) {
-    cout << p->val << ',';
-    p = p->next;
-  }
-  cout << endl;
-}
-
 int main() {
   Solution s;
   ListNode* head = new ListNode(4);
@@ -74,8 +63,8 @@ int main() {
   head->next->next->next->next = new ListNode(3);
   head->next->next->next->next->next = new ListNode(5);
 
-  print_list(head);
+  print_list(cout, head);
   head = s.sortList(head);
-  print_list(head);
+  print_list(cout, head);
   return 0;
 }

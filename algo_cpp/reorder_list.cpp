@@ -3,7 +3,6 @@
 
 using namespace std;
 
-void print_list(ListNode* head);
 
 class Solution {
 public:
@@ -47,16 +46,6 @@ public:
     }
 };
 
-void print_list(ListNode *head) {
-  ListNode *p = head;
-
-  while (p) {
-    cout << p->val << ',';
-    p = p->next;
-  }
-  cout << endl;
-}
-
 int main() {
   Solution s;
   ListNode *head = new ListNode(1), *p;
@@ -67,9 +56,9 @@ int main() {
     p = p->next;
   }
 
-  print_list(head);
+  print_list(cout, head);
   s.reorderList(head);
-  print_list(head);
+  print_list(cout, head);
   
   return 0;
 }
