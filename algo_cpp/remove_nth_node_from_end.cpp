@@ -9,19 +9,19 @@ public:
         ListNode *t = head, *del = head;
         int len = 0;
 
-        while (t != NULL) {
+        while (t != nullptr) {
             len++;
             t = t->next;
         }
 
         if (len == 1 && n == 1) {
-            head = NULL;
+            head = nullptr;
             return head;
         }
 
         if (len == 2) {
             if (n == 1) {
-                head->next = NULL;
+                head->next = nullptr;
             }else {
                 head = head->next;
             }
@@ -44,7 +44,7 @@ public:
 
         t = del->next;
         del->next = del->next->next;
-        t = NULL;
+        t = nullptr;
 
 
         return head;
@@ -62,7 +62,7 @@ int main() {
   }
 
   p = head;
-  while (p != NULL) {
+  while (p != nullptr) {
     cout << p->val << ',';
     p = p->next;
   }
@@ -70,7 +70,7 @@ int main() {
 
   head = s.removeNthFromEnd(head, 3);
   p = head;
-  while (p != NULL) {
+  while (p != nullptr) {
     cout << p->val;
     p = p->next;
   }

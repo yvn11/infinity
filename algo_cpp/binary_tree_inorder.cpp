@@ -25,7 +25,6 @@ public:
         TreeNode* p = root;
         stack<TreeNode*> s;
         s.push(p);
-        push_left(p->left, s);
         
         while (!s.empty()) {
           p = s.top();

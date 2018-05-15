@@ -25,7 +25,7 @@ public:
         if (!root)
             return ret;
         
-        TreeNode* p = root, *q = NULL;
+        TreeNode* p = root, *q = nullptr;
         stack<TreeNode*> s;
         push_left(p, s);
 
@@ -39,7 +39,7 @@ public:
             p = p->right;
           } else {
             ret.push_back(p->val);
-            p = NULL;
+            p = nullptr;
           }
 
           push_left(p, s);
@@ -54,7 +54,6 @@ int main() {
   TreeNode *root = new TreeNode(1);
   root->right = new TreeNode(2);
   root->right->left = new TreeNode(3);
-//  root->right->left = new TreeNode(3);
   /*
   root->left = new TreeNode(2);
   root->right = new TreeNode(3);
