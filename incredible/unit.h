@@ -42,11 +42,11 @@ public:
   Unit(size_t n_inputs, size_t n_outputs) : _name("unit")
   {
     _inputs.reserve(n_inputs);
-    while (n_inputs--)
+    for (size_t i = 0; i < n_inputs; ++i)
       _inputs.push_back(make_shared<INPUT>(0));
 
     _outputs.reserve(n_outputs);
-    while (n_outputs--)
+    for (size_t i = 0; i < n_outputs; ++i)
       _outputs.push_back(make_shared<OUTPUT>(0));
   }
   /* Initialize with inputs and outputs from other units or 
@@ -63,7 +63,9 @@ public:
   Unit(const vector<shared_ptr<OUTPUT>> &outputs, size_t n_outputs)
   : _inputs(outputs), _name("unit")
   {
-    _outputs.resize(n_outputs);
+    _outputs.reserve(n_outputs);
+    for (size_t i = 0; i < n_outputs; ++i)
+      _outputs.push_back(make_shared<OUTPUT>(0));
   }
 
   virtual ~Unit() {}
