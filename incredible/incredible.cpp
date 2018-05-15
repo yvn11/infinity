@@ -1,12 +1,13 @@
 /* Incredible Unit
  * Author: Zex Li <top_zlynch@yahoo.com>
  */
-//#include <iostream>
+#include <iostream>
 #include <sstream>
 #include <vector>
-#include "unit.h"
+#include "unit_math.h"
 
 using namespace Incredible;
+using namespace std;
 
 const string STOP_SIGN("POTS");
 
@@ -47,7 +48,8 @@ public:
         cin >> *in;
         if (!cin || cin.eof()) break;
 
-        unit2.run_all();
+        auto res = unit2.run_all();
+        cout << "===" << res << "===" << endl;
         cout << "unit1:" << unit1 << endl;
         cout << "unit3:" << unit3 << endl;
         cout << "unit2:" << unit2 << endl;
