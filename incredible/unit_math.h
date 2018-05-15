@@ -153,4 +153,103 @@ class Negate : public Unit<INPUT, OUTPUT> {
     }
 };
 
+/* Perform sum on inputs */
+template<typename INPUT, typename OUTPUT>
+class Sum : public Unit<INPUT, OUTPUT> {
+  public:
+    typedef Sum<INPUT, OUTPUT> TYPE;
+    typedef Unit<INPUT, OUTPUT> BASE;
+    Sum() : BASE() { BASE::name("Sum"); }
+    Sum(size_t n_inputs, size_t n_outputs) : BASE(n_inputs, n_outputs) { BASE::name("Sum"); }
+    Sum(vector<shared_ptr<INPUT>> &inputs, vector<shared_ptr<OUTPUT>> &outputs) : BASE(inputs, outputs) { BASE::name("Sum"); };
+    Sum(vector<shared_ptr<OUTPUT>> &outputs, size_t n_outputs) : BASE(outputs, n_outputs) { BASE::name("Sum"); };
+
+    OpResult run() override {
+      if (BASE::inputs().size() < 1)
+        return NoEnoughInputs();
+
+      if (BASE::outputs().size() < 1)
+        return NoEnoughSpace();
+
+      *BASE::outputs()[0] = accumulate(BASE::inputs().begin(), BASE::inputs().end(),
+          INPUT(0), [](const INPUT res, const auto a) {return res+(*a);});
+      return OutputUpdated();
+    }
+};
+
+/* Perform average on inputs */
+template<typename INPUT, typename OUTPUT>
+class Avg : public Unit<INPUT, OUTPUT> {
+  public:
+    typedef Avg<INPUT, OUTPUT> TYPE;
+    typedef Unit<INPUT, OUTPUT> BASE;
+    Avg() : BASE() { BASE::name("Avg"); }
+    Avg(size_t n_inputs, size_t n_outputs) : BASE(n_inputs, n_outputs) { BASE::name("Avg"); }
+    Avg(vector<shared_ptr<INPUT>> &inputs, vector<shared_ptr<OUTPUT>> &outputs) : BASE(inputs, outputs) { BASE::name("Avg"); };
+    Avg(vector<shared_ptr<OUTPUT>> &outputs, size_t n_outputs) : BASE(outputs, n_outputs) { BASE::name("Avg"); };
+
+    OpResult run() override {
+      if (BASE::inputs().size() < 1)
+        return NoEnoughInputs();
+
+      if (BASE::outputs().size() < 1)
+        return NoEnoughSpace();
+
+      *BASE::outputs()[0] = accumulate(BASE::inputs().begin(), BASE::inputs().end(),
+          INPUT(0), [](const INPUT res, const auto a) {return res+(*a);}) / BASE::inputs().size();
+      return OutputUpdated();
+    }
+};
+
+/* Perform maximum on inputs */
+template<typename INPUT, typename OUTPUT>
+class Max : public Unit<INPUT, OUTPUT> {
+  public:
+    typedef Max<INPUT, OUTPUT> TYPE;
+    typedef Unit<INPUT, OUTPUT> BASE;
+    Max() : BASE() { BASE::name("Max"); }
+    Max(size_t n_inputs, size_t n_outputs) : BASE(n_inputs, n_outputs) { BASE::name("Max"); }
+    Max(vector<shared_ptr<INPUT>> &inputs, vector<shared_ptr<OUTPUT>> &outputs) : BASE(inputs, outputs) { BASE::name("Max"); };
+    Max(vector<shared_ptr<OUTPUT>> &outputs, size_t n_outputs) : BASE(outputs, n_outputs) { BASE::name("Max"); };
+
+    OpResult run() override {
+      if (BASE::inputs().size() < 1)
+        return NoEnoughInputs();
+
+      if (BASE::outputs().size() < 1)
+        return NoEnoughSpace();
+
+      *BASE::outputs()[0] = **max_element(
+          BASE::inputs().begin(), BASE::inputs().end(),
+                  [](auto a, auto b) {return (*a < *b);});
+      return OutputUpdated();
+    }
+};
+
+/* Perform minimum on inputs */
+template<typename INPUT, typename OUTPUT>
+class Min : public Unit<INPUT, OUTPUT> {
+  public:
+    typedef Min<INPUT, OUTPUT> TYPE;
+    typedef Unit<INPUT, OUTPUT> BASE;
+    Min() : BASE() { BASE::name("Min"); }
+    Min(size_t n_inputs, size_t n_outputs) : BASE(n_inputs, n_outputs) { BASE::name("Min"); }
+    Min(vector<shared_ptr<INPUT>> &inputs, vector<shared_ptr<OUTPUT>> &outputs) : BASE(inputs, outputs) { BASE::name("Min"); };
+    Min(vector<shared_ptr<OUTPUT>> &outputs, size_t n_outputs) : BASE(outputs, n_outputs) { BASE::name("Min"); };
+
+    OpResult run() override {
+      if (BASE::inputs().size() < 1)
+        return NoEnoughInputs();
+
+      if (BASE::outputs().size() < 1)
+        return NoEnoughSpace();
+
+      *BASE::outputs()[0] = **min_element(
+          BASE::inputs().begin(), BASE::inputs().end(),
+                  [](auto a, auto b) {return (*a < *b);});
+      return OutputUpdated();
+    }
+};
+
+
 } // namespace Incredible 
