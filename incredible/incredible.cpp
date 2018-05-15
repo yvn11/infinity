@@ -1,13 +1,14 @@
 /* Incredible Unit
  * Author: Zex Li <top_zlynch@yahoo.com>
  */
-#include <iostream>
+//#include <iostream>
+#include <sstream>
 #include <vector>
 #include "unit.h"
 
 using namespace Incredible;
 
-const std::string STOP_SIGN("POTS");
+const string STOP_SIGN("POTS");
 
 typedef Add<double, double> UNIT_DD_ADD;
 typedef Negate<double, double> UNIT_DD_NEG;
@@ -16,8 +17,7 @@ typedef Mul<double, double> UNIT_DD_MUL;
 class App {
 
 public:
-  App() {
-  }
+  App() {}
 
   /* Start a graph to complete the following computation 
    *
@@ -39,15 +39,20 @@ public:
       unit3.inputs()[0]
     };
 
-    while (true) {
-      for (auto &in : inputs) {
-        std::cin >> *in;
+    string line;
+    stringstream ss(line);
+
+    do {
+      for (auto in : inputs) {
+        cin >> *in;
+        if (!cin || cin.eof()) continue;
+
         unit2.run_all();
         cout << "unit1:" << unit1 << endl;
         cout << "unit3:" << unit3 << endl;
         cout << "unit2:" << unit2 << endl;
       }
-    }
+    } while (!cin.eof() && cin);
   }
 };
 
