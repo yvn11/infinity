@@ -6,11 +6,11 @@ using namespace std;
 class Solution {
 public:
     ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
-        ListNode *ret=NULL, *p=NULL;
+        ListNode *ret=nullptr, *p=nullptr;
         int s=0, r=0;
         bool with_r = false;
         
-        while (l1 != NULL || l2 != NULL) {
+        while (l1 != nullptr || l2 != nullptr) {
             s = 0;
             if (l1) s += l1->val;
             if (l2) s += l2->val;
@@ -28,7 +28,7 @@ public:
                 r = 0;
             }
             
-            if (ret == NULL) {
+            if (ret == nullptr) {
                 ret = new ListNode(s);
                 p = ret;
             } else {    
@@ -69,7 +69,7 @@ int main() {
 
   ListNode *head = s.addTwoNumbers(num1, num2);
   p = head;
-  while (p != NULL) {
+  while (p != nullptr) {
     cout << p->val << ',';
     p = p->next;
   }

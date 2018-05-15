@@ -8,9 +8,9 @@ class Solution {
 public:
     ListNode* rotateRight(ListNode* head, int k) {
         int n = 0;
-        ListNode *p = head, *new_hd = NULL;
+        ListNode *p = head, *new_hd = nullptr;
         
-        while (p != NULL) {
+        while (p != nullptr) {
             p = p->next;
             n++;
         }
@@ -25,10 +25,10 @@ public:
         }
 
         new_hd = p->next;
-        p->next = NULL;
+        p->next = nullptr;
         
         p = new_hd;
-        while (p && p->next != NULL) {
+        while (p && p->next != nullptr) {
             p = p->next;
         }
         
@@ -48,7 +48,7 @@ int main() {
   }
 
   p = head;
-  while (p != NULL) {
+  while (p != nullptr) {
     cout << p->val << ',';
     p = p->next;
   }
@@ -56,7 +56,7 @@ int main() {
 
   head = s.rotateRight(head, 2);
   p = head;
-  while (p != NULL) {
+  while (p != nullptr) {
     cout << p->val << ',';
     p = p->next;
   }
