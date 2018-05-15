@@ -45,7 +45,7 @@ public:
     do {
       for (auto in : inputs) {
         cin >> *in;
-        if (!cin || cin.eof()) continue;
+        if (!cin || cin.eof()) break;
 
         unit2.run_all();
         cout << "unit1:" << unit1 << endl;
