@@ -19,7 +19,7 @@ class Unit {
   size_t _key;
   vector<shared_ptr<INPUT>> _inputs;
   vector<shared_ptr<OUTPUT>> _outputs;
-  vector<Unit<INPUT, OUTPUT>> _depends;
+  vector<shared_ptr<Unit<INPUT, OUTPUT>>> _depends;
   string _name;
 
 public:
@@ -41,8 +41,11 @@ public:
    */
   Unit(size_t n_inputs, size_t n_outputs) : _name("unit")
   {
+    _inputs.reserve(n_inputs);
     while (n_inputs--)
       _inputs.push_back(make_shared<INPUT>(0));
+
+    _outputs.reserve(n_outputs);
     while (n_outputs--)
       _outputs.push_back(make_shared<OUTPUT>(0));
   }
@@ -89,20 +92,21 @@ public:
     return _name;
   }
 
-  void add_dependency(Unit<INPUT, OUTPUT>& unit) {
+  void add_dependency(shared_ptr<Unit<INPUT, OUTPUT>> unit) {
     _depends.push_back(unit);
   }
 
   /* Start operation on inputs and store the result in outputs. An operation 
    * result is returned to indicate operation status.
    */
-  virtual OpResult run(vector<shared_ptr<INPUT>> &inputs, vector<shared_ptr<OUTPUT>> &outputs) { return OpResult(0, "Done"); };
-  /* TODO: dependencies */
-  virtual OpResult run() {
-    for (auto &unit : _depends) {
-      unit.run();
-    }
-    return run(_inputs, _outputs);
+  virtual OpResult run() { return OpResult(0, "Done"); }
+  /* Run after all dependencies are done
+   */
+  virtual OpResult run_all() {
+    if (std::any_of(_depends.begin(), _depends.end(), 
+          [&](auto &unit) { return (*unit).run().code != 0; }))
+      return OpResult(4, "Dependency failed");
+    return run();
   }
 };
 

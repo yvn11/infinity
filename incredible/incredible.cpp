@@ -30,8 +30,8 @@ public:
     UNIT_DD_MUL unit2(0, 1);
     unit2.add_input(unit1.outputs().at(0));
     unit2.add_input(unit3.outputs().at(0));
-//    unit2.add_dependency(unit1);
-//    unit2.add_dependency(unit3);
+    unit2.add_dependency(make_shared<UNIT_DD_ADD>(unit1));
+    unit2.add_dependency(make_shared<UNIT_DD_NEG>(unit3));
 
     vector<shared_ptr<double>> inputs = {
       unit1.inputs()[0],
@@ -42,7 +42,7 @@ public:
     while (true) {
       for (auto &in : inputs) {
         std::cin >> *in;
-        unit1.run(); unit3.run(); unit2.run();
+        unit2.run_all();
         cout << "unit1:" << unit1 << endl;
         cout << "unit3:" << unit3 << endl;
         cout << "unit2:" << unit2 << endl;
