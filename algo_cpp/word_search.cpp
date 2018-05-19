@@ -6,53 +6,47 @@ using namespace std;
 
 class Solution {
 public:
-    bool do_exist(vector<vector<char>> &board, string word,
-                 int m, int n, int ind, vector<vector<bool>> mem){
-        if (mem[m][n]) {
-          return false;
-        }
 
-        mem[m][n] = true;
-
-        if (board[m][n] != word[ind])
-          return false;
-
-        if (ind = word.length()) {
-            return true;
-        }
-
-        if (ind+1 >= word.length())
-            return false;
-        
-        if (m < board.size()-1 && word[ind+1] == board[m+1][n])
-          if (this->do_exist(board, word, m+1, n, ind+1, mem))
-            return true;
-        if (n < board[0].size()-1 && word[ind+1] == board[m][n+1])
-          if (this->do_exist(board, word, m, n+1, ind+1, mem))
-            return true;
-        if (m > 0 && word[ind+1] == board[m-1][n])
-          if (this->do_exist(board, word, m-1, n, ind+1, mem))
-            return true;
-        if (n > 0 && word[ind+1] == board[m][n-1])
-          if (this->do_exist(board, word, m, n-1, ind+1, mem))
-            return true;
+    bool find_word(vector<vector<char>>& board, string word,
+                   int ind, int m, int n) {
+      if (board[m][n] == '.')
         return false;
+      char c = board[m][n];
+
+      if (word[ind] != c)
+        return false;
+
+      if (ind == word.length()-1)
+        return true;
+
+      board[m][n] = '.';
+
+      if (m > 0)
+        if (find_word(board, word, ind+1, m-1, n)) return true;
+      if (m+1 < board.size())
+        if (find_word(board, word, ind+1, m+1, n)) return true;
+      if (n > 0)
+        if (find_word(board, word, ind+1, m, n-1)) return true;
+      if (n+1 < board[0].size())
+        if(find_word(board, word, ind+1, m, n+1)) return true;
+
+      board[m][n] = c;
+
+      return false;
     }
 
     bool exist(vector<vector<char>>& board, string word) {
-        int m = board.size(), n = board[0].size();
 
-        for (int i = 0; i < m; ++i) {
-            for (int j = 0; j < n; ++j) {
-                vector<vector<bool>> mem(m, vector<bool>(n, false));
-                bool ret = this->do_exist(board, word, i, j, 0, mem);
-                if (ret) 
-                  return true;
-            }
+      for (int i = 0; i < board.size(); ++i)
+        for (int j = 0; j < board[0].size(); ++j) {
+          if (find_word(board, word, 0, i, j))
+            return true;
         }
-        return false;
+
+      return false;
     }
 };
+
 
 int main() {
   Solution s;
