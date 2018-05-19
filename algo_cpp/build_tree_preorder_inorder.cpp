@@ -23,6 +23,7 @@ public:
       }
 
       root->left = buildTree(preorder, inorder, root_ind+1, begin, i-1);
+      // root_ind + (i-begin+1)
       root->right = buildTree(preorder, inorder, root_ind+i-begin+1, i+1, end);
       return root;
     }

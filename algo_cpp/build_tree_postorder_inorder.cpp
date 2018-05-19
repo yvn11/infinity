@@ -21,6 +21,7 @@ public:
         ++i;
       }
 
+      // root_ind-(end-i+1)
       root->left = buildTree(inorder, postorder, root_ind+i-end-1, begin, i-1);
       root->right = buildTree(inorder, postorder, root_ind-1, i+1, end);
 
