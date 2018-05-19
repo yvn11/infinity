@@ -33,6 +33,6 @@ int main() {
   root->left->right->left = new TreeNode(1);
 
   root = s.trimBST(root, 1, 3);
-  print_inorder(root, cout);
+  print_inorder(cout, root);
   return 0;
 }

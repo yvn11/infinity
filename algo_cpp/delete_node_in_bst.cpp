@@ -76,7 +76,7 @@ int main() {
   root->right->right->right->right = new TreeNode(46);
   root->right->right->left->right->left = new TreeNode(35);
   root = s.deleteNode(root, val);
-  print_inorder(root, cout);
+  print_inorder(cout, root);
 
   return 0;
 }

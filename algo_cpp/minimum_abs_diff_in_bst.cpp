@@ -57,6 +57,6 @@ int main() {
   root->left->right->left = new TreeNode(1);
 
   cout << s.getMinimumDifference(root) << endl;
-  print_inorder(root, cout);
+  print_inorder(cout, root);
   return 0;
 }

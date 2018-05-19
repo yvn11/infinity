@@ -34,7 +34,7 @@ int main() {
   root->right->right = new TreeNode(0);
   root = s.pruneTree(root);
 
-  print_inorder(root, cout);
+  print_inorder(cout, root);
 
   return 0;
 }

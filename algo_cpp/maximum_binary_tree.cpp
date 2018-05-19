@@ -35,7 +35,7 @@ int main() {
   vector<int> v = {3,2,1,6,0,5};
   //{32,3,5,1,16,7,3,9,11,4};
   TreeNode* root = s.constructMaximumBinaryTree(v);
-  print_inorder(root, cout);
+  print_inorder(cout, root);
   return 0;
 }
 

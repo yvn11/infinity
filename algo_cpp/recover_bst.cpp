@@ -65,6 +65,6 @@ int main() {
 */
   s.recoverTree(root);
 
-  print_inorder(root, cout);
+  print_inorder(cout, root);
   return 0;
 }

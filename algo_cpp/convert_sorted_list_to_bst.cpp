@@ -70,7 +70,7 @@ int main() {
   cout << endl;
 
   TreeNode* root = s.sortedListToBST(head);
-  print_inorder(root, cout);
+  print_inorder(cout, root);
   cout << endl;
   delete_list(head);
   delete_tree(root);
@@ -82,7 +82,7 @@ int main() {
   head->next->next->next->next = new ListNode(9);
 
   root = s.sortedListToBST(head);
-  print_inorder(root, cout);
+  print_inorder(cout, root);
   cout << endl;
   delete_list(head);
   delete_tree(root);

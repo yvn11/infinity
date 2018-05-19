@@ -37,7 +37,7 @@ int main() {
   root->left->right->right = new TreeNode(8);
 
   root = s.invertTree(root);
-  print_inorder(root, cout);
+  print_inorder(cout, root);
   
   return 0;
 }

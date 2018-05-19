@@ -7,11 +7,11 @@ struct TreeNode {
     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
 };
 
-void print_inorder(TreeNode* root, std::ostream &o) {
+void print_inorder(std::ostream &o, TreeNode* root) {
   if (!root)
     return;
 
-  print_inorder(root->left, o);
+  print_inorder(o, root->left);
   o << root->val << ',';
-  print_inorder(root->right, o);
+  print_inorder(o, root->right);
 }

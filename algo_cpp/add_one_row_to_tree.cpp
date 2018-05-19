@@ -42,6 +42,6 @@ int main() {
   root->left->right->left = new TreeNode(1);
 
   root = s.addOneRow(root, 10, 3);
-  print_inorder(root, cout);
+  print_inorder(cout, root);
   return 0;
 }
