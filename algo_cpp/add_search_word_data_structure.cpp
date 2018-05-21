@@ -1,17 +1,8 @@
 #include <iostream>
 #include <vector>
+#include "trie_node.h"
 
 using namespace std;
-
-struct TrieNode {
-  vector<TrieNode*> next;
-  string word;
-  
-  TrieNode() {
-    next.resize(26, nullptr);
-  }
-};
-
 
 class WordDictionary {
     TrieNode* root;

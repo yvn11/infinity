@@ -16,8 +16,8 @@ void print_trie(ostream &o, TrieNode *root) {
     return;
 
   for (auto n : root->next)
-    cout << n << ',';
-  cout << '#' << root->word << endl;
+    o << n << ',';
+  o << '#' << root->word << endl;
 
   for (auto n : root->next)
     print_trie(o, n);
