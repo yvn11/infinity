@@ -11,8 +11,8 @@ struct ListNode {
 void print_list(ostream &o, ListNode* head) {
   ListNode* p = head;
   while (p) {
-    cout << p->val << ',';
+    o << p->val << ',';
     p = p->next;
   }
-  cout << endl;
+  o << endl;
 }
