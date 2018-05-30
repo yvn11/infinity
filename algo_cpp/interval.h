@@ -1,3 +1,4 @@
+#pragma once
 struct Interval {
     int start;
     int end;
