@@ -1,5 +1,8 @@
-Just4Fun
+Infinity
 -----------------------------------------------------
 
-As the name suggests, this project is an algorithm playground.
+- algo\_cpp
+-- algorithm playground / cpp
 
+- algo\_rust
+-- algorithm playground / rust
