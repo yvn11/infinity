@@ -20,10 +20,12 @@ struct User {
 
 impl Operation for User {
     fn save(&self) {
+        log!("saving user {:?}", self.name);
         // write db
     }
 
     fn delete (&self) {
+        log!("deleting user {:?}", self.name);
         // write db
     }
 }

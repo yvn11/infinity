@@ -8,3 +8,5 @@ use common::shared;
 fn init() {
     log4rs.init_file(LOGGING_CONFIG_PATH, Default::default()).unwrap();
 }
+
+
