@@ -9,7 +9,7 @@ appenders:
   # An appender named "requests" that writes to a file with a custom pattern encoder
   requests:
     kind: file
-    path: "/var/log/tw/requests.log"
+    path: "/var/log/truth/requests.log"
     encoder:
       pattern: "{d} - {m}{n}"
 

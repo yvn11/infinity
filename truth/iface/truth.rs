@@ -2,7 +2,7 @@
 //
 extern crate http;
 
-use tw::iface::service;
+use truth::iface::service;
 use http::{Request, Response};
 
 struct Trust {
