@@ -1,0 +1,108 @@
+// Truth service definition
+syntax = "proto3";
+
+package truth;
+
+service TruthService {
+  // List available services
+  rpc ListServices(Request) returns (ServiceResponse);
+  // Server version
+  rpc Version(Request) returns (VersionResponse);
+  // Find peer by peer identifier
+  rpc FindPeerWithID(FindPeerRequest) returns (Peer);
+  // Find peer by peer name
+  rpc FindPeerWithName(FindPeerRequest) returns (Peer);
+  // Send a message
+  rpc SendMessage(Message) returns (OpStatus);
+  // List unread messages of peer
+  rpc ListUnreadMessage(Request) returns (MessageResponse);
+  }
+
+message DummyRequest {
+}
+
+message DummyResponse {
+}
+
+message FindPeerRequest {
+  // Sender identity
+  Peer sender = 1;
+  // ID of peer to find
+  string peer_id = 2; 
+  // Name of peer to find
+  string name = 3;
+}
+
+message VersionResponse {
+  OpStatus status = 1;
+  string version = 2;
+}
+
+message ServiceResponse {
+  OpStatus status = 1;
+  repeated Service services = 2;
+}
+
+message MessageResponse {
+  OpStatus status = 1;
+  repeated Message msgs = 2;
+}
+
+message Request {
+  // Sender identity
+  Peer sender = 1;
+}
+
+enum StatusCode {
+  Ok = 0;
+  NotFound = 1; 
+  ArgumentError = 2;
+  ServerException = 3;
+  AuthFailure = 4;
+  PrivilegeError = 5;
+}
+
+message OpStatus {
+  // Operation status code
+  StatusCode code = 1;
+  // Detailed description about status
+  string desc = 2;
+}
+
+message Service {
+  // Service identifier
+  string id = 1;
+  // Name of service
+  string name = 2;
+  // Short description about service
+  string desc = 3;
+}
+
+
+message Message {
+  // Message identifier
+  string id = 1;
+  // Message buffer
+  string content = 2;
+  // Sender identity
+  Peer sender = 3;
+  // Timestamp message being created
+  int64 created_at = 4;
+  // Timestamp message being read
+  int64 read_at = 5;
+  // Destroy message on timeout if timeout is set
+  int64 timeout = 6;
+}
+
+message Peer {
+  // Peer identifier
+  string id = 1;
+  // Name of peer
+  string name = 2;
+  // Short description about peer
+  string desc = 3;
+  // Timestamp indicates when peer joined 
+  int64 joined_at = 4;
+  // Last time peer login
+  int64 lastlog = 5;
+}
