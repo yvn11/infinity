@@ -1,12 +1,16 @@
 # Truth Makefile
 
 MKDIR		:= mkdir -p
+RM			:= rm -rf
 BUILD		:= build
 PROTOC	:= protoc
 GO_PROTO_OUT	:= src/truth_pb
 PROTO_PATH		:= protos
+GOPATH	:= $(shell pwd)
 
-.PHONY: proto truth
+.PHONY: proto truth clean truth_server truth_client
+
+all: truth
 
 proto:
 	$(MKDIR) $(GO_PROTO_OUT)
@@ -19,9 +23,10 @@ dependency:
 	#@ln -s /usr/share/gocode/src/* src/ 2> /dev/null
 
 truth_server: proto
-	@cd src/truth/server
-	GOPATH=/pri/lab/infinity/truth go build -o $(BUILD)/truth_server
+	GOPATH=$(GOPATH) go build -o $(BUILD)/truth/server $(GOPATH)/src/truth/server_app/truth.go
 
 truth_client: proto
-	@cd src/truth/client
-	GOPATH=/pri/lab/infinity/truth go build -o $(BUILD)/truth_client 
+	GOPATH=$(GOPATH) go build -o $(BUILD)/truth/client $(GOPATH)/src/truth/client/client.go
+
+clean:
+	$(RM) $(BUILD)
