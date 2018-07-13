@@ -1,0 +1,11 @@
+// Truth management service
+syntax = "proto3";
+
+package service;
+
+import "common.proto";
+
+service TruthManagement {
+  // List available services
+  rpc Stop(DummyRequest) returns (OpStatus);
+}

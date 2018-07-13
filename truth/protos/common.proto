@@ -1,0 +1,47 @@
+// common definition
+syntax = "proto3";
+
+package service;
+
+message DummyRequest {
+
+}
+
+message DummyResponse {
+
+}
+
+message VersionResponse {
+  OpStatus status = 1;
+  string version = 2;
+}
+
+message Service {
+  // Service identifier
+  string id = 1;
+  // Name of service
+  string name = 2;
+  // Short description about service
+  string desc = 3;
+}
+
+message ServiceResponse {
+  OpStatus status = 1;
+  repeated Service services = 2;
+}
+
+enum StatusCode {
+  Ok = 0;
+  NotFound = 1; 
+  ArgumentError = 2;
+  ServerException = 3;
+  AuthFailure = 4;
+  PrivilegeError = 5;
+}
+
+message OpStatus {
+  // Operation status code
+  StatusCode code = 1;
+  // Detailed description about status
+  string desc = 2;
+}

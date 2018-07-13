@@ -3,6 +3,8 @@ syntax = "proto3";
 
 package service;
 
+import "common.proto";
+
 service TruthService {
   // List available services
   rpc ListServices(Request) returns (ServiceResponse);
@@ -18,12 +20,6 @@ service TruthService {
   rpc ListUnreadMessage(Request) returns (MessageResponse);
   }
 
-message DummyRequest {
-}
-
-message DummyResponse {
-}
-
 message FindPeerRequest {
   // Sender identity
   Peer sender = 1;
@@ -31,16 +27,6 @@ message FindPeerRequest {
   string peer_id = 2; 
   // Name of peer to find
   string name = 3;
-}
-
-message VersionResponse {
-  OpStatus status = 1;
-  string version = 2;
-}
-
-message ServiceResponse {
-  OpStatus status = 1;
-  repeated Service services = 2;
 }
 
 message MessageResponse {
@@ -52,32 +38,6 @@ message Request {
   // Sender identity
   Peer sender = 1;
 }
-
-enum StatusCode {
-  Ok = 0;
-  NotFound = 1; 
-  ArgumentError = 2;
-  ServerException = 3;
-  AuthFailure = 4;
-  PrivilegeError = 5;
-}
-
-message OpStatus {
-  // Operation status code
-  StatusCode code = 1;
-  // Detailed description about status
-  string desc = 2;
-}
-
-message Service {
-  // Service identifier
-  string id = 1;
-  // Name of service
-  string name = 2;
-  // Short description about service
-  string desc = 3;
-}
-
 
 message Message {
   // Message identifier

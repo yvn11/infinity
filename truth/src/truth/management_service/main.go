@@ -4,14 +4,14 @@ import (
   "net"
   "log"
 
-  sv "truth/server"
+  sv "truth/management"
   pb "truth_pb"
   grpc "google.golang.org/grpc"
   reflection "google.golang.org/grpc/reflection"
 )
 
 const (
-  port = ":17351"
+  port = ":15357"
 )
 
 func main() {
@@ -21,7 +21,7 @@ func main() {
   }
 
   grpc_srv := grpc.NewServer()
-  pb.RegisterTruthServiceServer(grpc_srv, &sv.TruthServer{})
+  pb.RegisterTruthManagementServer(grpc_srv, &sv.TruthManagementServer{})
 	reflection.Register(grpc_srv)
 
   if err := grpc_srv.Serve(fd); err != nil {
