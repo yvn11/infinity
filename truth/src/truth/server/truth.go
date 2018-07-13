@@ -1,12 +1,13 @@
-package truth
+package main
 
 import (
-  "fmt"
+  "net"
   "log"
-  pb "truth/iface/service"
-  _ "truth/truth_server"
-  _ "github.com/grpc/grpc"
-  _ "github.com/grpc/reflection"
+
+  sv "truth/server"
+  pb "truth_pb"
+  grpc "google.golang.org/grpc"
+  reflection "google.golang.org/grpc/reflection"
 )
 
 const (
@@ -20,8 +21,9 @@ func main() {
   }
 
   grpc_srv := grpc.NewServer()
-  pb.RegisterTruthServiceServer(grpc_srv, &TruthServer{})
+  pb.RegisterTruthServiceServer(grpc_srv, &sv.TruthServer{})
 	reflection.Register(grpc_srv)
+
   if err := grpc_srv.Serve(fd); err != nil {
     log.Fatalf("failed to start server: %v", err)
   }

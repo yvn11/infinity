@@ -1,7 +1,7 @@
 // Truth service definition
 syntax = "proto3";
 
-package truth;
+package service;
 
 service TruthService {
   // List available services
