@@ -6,3 +6,4 @@ Cargo.lock
 */target
 */*.pb.*
 */*.swp
+*/build
