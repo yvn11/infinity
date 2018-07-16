@@ -65,3 +65,24 @@ message OpStatus {
   // Detailed description about status
   string desc = 2;
 }
+
+message Message {
+  // Message identifier
+  string id = 1;
+  // Message buffer
+  string content = 2;
+  // Sender identity
+  Peer sender = 3;
+  // Timestamp message being created
+  int64 created_at = 4;
+  // Timestamp message being read
+  int64 read_at = 5;
+  // Destroy message on timeout if timeout is set
+  int64 timeout = 6;
+}
+
+message MessageResponse {
+  OpStatus status = 1;
+  repeated Message msgs = 2;
+}
+
