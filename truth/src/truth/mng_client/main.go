@@ -26,7 +26,7 @@ func dial_remote(host string, port int32) {
   }
   defer conn.Close()
 
-  cli := pb.NewTruthServiceClient(conn)
+  cli := pb.NewTruthManagementClient(conn)
 
   ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
   defer cancel()

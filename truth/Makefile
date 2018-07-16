@@ -16,7 +16,7 @@ proto:
 	$(MKDIR) $(GO_PROTO_OUT)
 	$(PROTOC) -I $(PROTO_PATH) --go_out=plugins=grpc:$(GO_PROTO_OUT) $(PROTO_PATH)/*.proto
 
-truth: dependency public_service public_client mng_service mng_client
+truth: dependency public_service public_client mng_service mng_client rest_service
 
 dependency:
 	@echo resolving dependency
@@ -29,10 +29,13 @@ public_client: proto
 	GOPATH=$(GOPATH) go build -o $(BUILD)/truth/public_client $(GOPATH)/src/truth/public_client/main.go
 
 mng_service: proto
-	GOPATH=$(GOPATH) go build -o $(BUILD)/truth/management $(GOPATH)/src/truth/management_service/main.go
+	GOPATH=$(GOPATH) go build -o $(BUILD)/truth/mng $(GOPATH)/src/truth/mng_service/main.go
 
 mng_client: proto
-	GOPATH=$(GOPATH) go build -o $(BUILD)/truth/management_client $(GOPATH)/src/truth/management_client/main.go
+	GOPATH=$(GOPATH) go build -o $(BUILD)/truth/mng_client $(GOPATH)/src/truth/mng_client/main.go
+
+rest_service: proto
+	GOPATH=$(GOPATH) go build -o $(BUILD)/truth/rest_server $(GOPATH)/src/truth/rest_server/main.go
 
 clean:
-	$(RM) $(BUILD)
+	$(RM) $(BUILD) $(GO_PROTO_OUT)

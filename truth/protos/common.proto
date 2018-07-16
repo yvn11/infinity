@@ -11,6 +11,26 @@ message DummyResponse {
 
 }
 
+message Peer {
+  // Peer identifier
+  string id = 1;
+  // Name of peer
+  string name = 2;
+  // Short description about peer
+  string desc = 3;
+  // Timestamp indicates when peer joined 
+  int64 joined_at = 4;
+  // Last time peer login
+  int64 lastlog = 5;
+  // Authentication
+  string passphase = 6;
+}
+
+message Request {
+  // Sender identity
+  Peer sender = 1;
+}
+
 message VersionResponse {
   OpStatus status = 1;
   string version = 2;

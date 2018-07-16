@@ -41,6 +41,7 @@ func dial_remote(host string, port int32) {
   } else {
     log.Printf("remote version: [%v]", ver)
   }
+  conn.Close()
 }
 
 func main() {

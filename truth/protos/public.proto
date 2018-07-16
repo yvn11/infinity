@@ -34,11 +34,6 @@ message MessageResponse {
   repeated Message msgs = 2;
 }
 
-message Request {
-  // Sender identity
-  Peer sender = 1;
-}
-
 message Message {
   // Message identifier
   string id = 1;
@@ -54,15 +49,3 @@ message Message {
   int64 timeout = 6;
 }
 
-message Peer {
-  // Peer identifier
-  string id = 1;
-  // Name of peer
-  string name = 2;
-  // Short description about peer
-  string desc = 3;
-  // Timestamp indicates when peer joined 
-  int64 joined_at = 4;
-  // Last time peer login
-  int64 lastlog = 5;
-}

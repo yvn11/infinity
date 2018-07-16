@@ -4,6 +4,10 @@ import (
   "net"
   "log"
 
+  "os"
+  "os/signal"
+  "syscall"
+
   sv "truth/public"
   pb "truth_pb"
   grpc "google.golang.org/grpc"
@@ -27,4 +31,9 @@ func main() {
   if err := grpc_srv.Serve(fd); err != nil {
     log.Fatalf("failed to start server: %v", err)
   }
+  defer grpc_srv.GracefulStop()
+
+  sig_chan := make(chan os.Signal, 1)
+  signal.Notify(sig_chan, syscall.SIGINT, syscall.SIGTERM)
+  log.Printf("Public service stopped")
 }

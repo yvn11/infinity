@@ -4,7 +4,7 @@ import (
   "net"
   "log"
 
-  sv "truth/management"
+  sv "truth/mng"
   pb "truth_pb"
   grpc "google.golang.org/grpc"
   reflection "google.golang.org/grpc/reflection"

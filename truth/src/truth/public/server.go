@@ -1,3 +1,4 @@
+// public service over rpc
 package server
 
 import (
@@ -44,10 +45,4 @@ func (s *TruthServer) SendMessage(ctx context.Context, in *pb.Message) (*pb.OpSt
 func (s *TruthServer) ListUnreadMessage(ctx context.Context, in *pb.Request) (*pb.MessageResponse, error){
   log.Printf("ListUnreadMessage (%v, %v)", ctx, in)
   return &pb.MessageResponse{&pb.OpStatus{pb.StatusCode_Ok, ""}, nil}, nil
-}
-
-// Stop public service
-func (c *TruthServer) Stop(ctx context.Context, in *pb.DummyRequest) (*pb.OpStatus, error) {
-  log.Printf("Stop (%v, %v)", ctx, in)
-  return &pb.OpStatus{pb.StatusCode_PrivilegeError, "Cannot invoke stop from public service"}, nil
 }
