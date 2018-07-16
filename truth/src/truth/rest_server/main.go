@@ -5,6 +5,10 @@ import (
   "fmt"
   "net/http"
 
+  "os"
+  "os/signal"
+  "syscall"
+
   "github.com/rs/cors"
   "github.com/gorilla/mux"
 
@@ -14,11 +18,10 @@ import (
 
 const (
   api_root = "/api/v1"
-  truth_port = "17830"
 )
 
 func start_server() {
-  log.Printf("Truth rest server %s", cfg.VERSION)
+  log.Printf("Truth rest server %s @ %s", cfg.VERSION, cfg.REST_PUBLIC_PORT)
 
   router := mux.NewRouter()
   router.Headers("Context-Type", "application/json")
@@ -34,7 +37,17 @@ func start_server() {
   })
   cors_hdr := cors_opt.Handler(router)
 
-  http.ListenAndServe(fmt.Sprintf(":%d", truth_port), cors_hdr)
+  port := fmt.Sprintf(":%s", cfg.REST_PUBLIC_PORT)
+  err := http.ListenAndServe(port, cors_hdr)
+  if err != nil {
+    log.Fatal("Failed to start rest server: ", err)
+    return
+  }
+
+  sig_chan := make(chan os.Signal, 1)
+  signal.Notify(sig_chan, syscall.SIGINT, syscall.SIGTERM)
+  //http.Shutdown()
+  log.Printf("Rest service stopped")
 }
 
 func main() {

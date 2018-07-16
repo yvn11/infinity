@@ -8,18 +8,17 @@ import (
   "os/signal"
   "syscall"
 
+  cfg "truth/config"
   sv "truth/public"
   pb "truth_pb"
   grpc "google.golang.org/grpc"
   reflection "google.golang.org/grpc/reflection"
 )
 
-const (
-  port = ":17351"
-)
-
 func main() {
-  fd, err := net.Listen("tcp", port)
+  log.Printf("Truth public server %s @ %s", cfg.VERSION, cfg.RPC_PUBLIC_PORT)
+
+  fd, err := net.Listen("tcp", cfg.RPC_PUBLIC_PORT)
   if err != nil {
     log.Fatalf("failed to listen: %v", err)
   }

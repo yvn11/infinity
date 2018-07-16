@@ -8,7 +8,7 @@ GO_PROTO_OUT	:= src/truth_pb
 PROTO_PATH		:= protos
 GOPATH	:= $(shell pwd)
 
-.PHONY: proto truth clean truth_server truth_client
+.PHONY: proto truth clean dependency
 
 all: truth
 
