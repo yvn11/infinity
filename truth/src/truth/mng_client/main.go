@@ -15,6 +15,14 @@ const (
   truth_port = 15357
 )
 
+
+var (
+  sender = pb.Peer{
+      Id: "truth_keeper_0001",
+      Name: "Truth Keeper",
+    }
+  )
+
 func dial_remote(host string, port int32) {
   var opts []grpc.DialOption
   opts = append(opts, grpc.WithInsecure())
@@ -30,16 +38,23 @@ func dial_remote(host string, port int32) {
 
   ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
   defer cancel()
+
   ver, err := cli.Version(ctx, &pb.Request{
-    Sender: &pb.Peer{
-      Id: "truth_keeper_0001",
-      Name: "Truth Keeper",
-  }})
+    Sender: &sender})
 
   if err != nil {
     log.Printf("failed to invoke Version: %v", err)
   } else {
     log.Printf("remote version: [%v]", ver)
+  }
+
+  rsp, err := cli.SysInfo(ctx, &pb.Request{
+    Sender: &sender})
+
+  if err != nil {
+    log.Printf("failed to invoke SysInfo: %v", err)
+  } else {
+    log.Printf("ru: [%v]", rsp)
   }
 }
 

@@ -10,4 +10,29 @@ service TruthManagement {
   rpc Stop(Request) returns (OpStatus);
   // Server version
   rpc Version(Request) returns (VersionResponse);
+  // System resources
+  rpc SysInfo(Request) returns (SysinfoResponse);
+}
+
+message Sysinfo {
+  int64 Uptime = 1;
+  uint64 Totalram = 3;
+  uint64 Freeram = 4;
+  uint64 Sharedram = 5;
+  uint64 Bufferram = 6;
+  uint64 Totalswap = 7;
+  uint64 Freeswap = 8;
+  uint32 Procs = 9;
+  uint32 Pad = 10;
+  uint64 Totalhigh = 11;
+  uint64 Freehigh = 12;
+  uint32 Unit = 13;
+  uint64 Load1 = 14;
+  uint64 Load5 = 15;
+  uint64 Load15 = 16;
+}
+
+message SysinfoResponse {
+  OpStatus status = 1;
+  Sysinfo sysinfo = 2;
 }

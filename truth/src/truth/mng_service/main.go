@@ -3,6 +3,7 @@ package main
 import (
   "net"
   "log"
+  "fmt"
 
   cfg "truth/config"
   sv "truth/mng"
@@ -13,8 +14,8 @@ import (
 
 func main() {
   log.Printf("Truth management server %s @ %s", cfg.VERSION, cfg.RPC_MNG_PORT)
-
-  fd, err := net.Listen("tcp", cfg.RPC_MNG_PORT)
+  port := fmt.Sprintf(":%s", cfg.RPC_MNG_PORT)
+  fd, err := net.Listen("tcp", port)
   if err != nil {
     log.Fatalf("failed to listen: %v", err)
   }
