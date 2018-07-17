@@ -29,7 +29,7 @@ func (c *TruthManagementServer) SysInfo(ctx context.Context, in *pb.Request) (*p
   var ret syscall.Sysinfo_t
 
   if err := syscall.Sysinfo(&ret); err != nil {
-    log.Println("Getrusage failed", err)
+    log.Println("syscall.Sysinfo failed", err)
     return &pb.SysinfoResponse{&pb.OpStatus{
       pb.StatusCode_ServerException, ""}, nil}, err
   }
