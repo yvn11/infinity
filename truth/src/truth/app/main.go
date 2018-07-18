@@ -27,7 +27,7 @@ func main() {
 func start_app() {
   app := cli.NewApp()
   app.Name = cfg.APP_NAME
-  app.Usage = fmt.Sprintf("<subcommand>", app.Name)
+  app.Usage = fmt.Sprintf("%s <subcommand>", app.Name)
   app.Version = cfg.VERSION
   app.Commands = []cli.Command{
     {
@@ -43,7 +43,7 @@ func start_app() {
   }
   app.Authors = []cli.Author{
     {
-      Name: "Turth keeper",
+      Name: "Truth keeper",
       Email: "truth@feet.net",
     },
   }

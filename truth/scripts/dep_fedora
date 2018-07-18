@@ -33,7 +33,6 @@ golang-github-gliderlabs-ssh-devel
 golang-github-jellevandenhooff-dkim-devel
 golang-github-klauspost-crc32-devel
 golang-github-Shopify-sarama-devel
-golang-bin
 golang-golangorg-crypto-devel
 golang-golang-org-net-devel
 golang-github-shurcool-htmlg-devel
@@ -63,6 +62,7 @@ golang-github-prometheus-client_golang-devel
 golang-github-gonum-blas-devel
 golang-github-gonum-matrix-devel
 golang-github-aclements-gg-devel
+compat-golang-github-chzyer-readline-devel
 golang-github-kr-fs-devel
 golang-github-spf13-afero-devel
 golang-github-mitchellh-mapstructure-devel
@@ -78,8 +78,8 @@ golang-google-golang-org-api-devel
 golang-x-perf-devel
 golang-google-golangorg-cloud-devel
 golang-github-shurcool-issues-devel
-golang-googlecode-gogoprotobuf-0.4-0.6.20180307git100ba4e.fc28.x86_64
 golang-github-gogo-protobuf-devel
+golang-github-urfave-cli-devel
 golang-github-gorilla-mux-devel
 golang-github-shurcooL-sanitized_anchor_name-devel
 golang-github-shurcool-flavored-markdown-devel
@@ -106,7 +106,7 @@ golang-github-googleapis-gax-devel
 golang-github-shurcool-notificationsapp-devel
 golang-opencensus-devel
 golang-github-shurcool-issuesapp-devel
-golang-src-1.10.3-1.fc28.noarch
+golang-github-BurntSushi-toml-devel
 golang-github-golang-sys-devel
 golang-golangorg-tools-devel
 golang-googlecode-goprotobuf-devel
