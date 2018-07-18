@@ -37,5 +37,8 @@ mng_client: proto
 rest_service: proto
 	GOPATH=$(GOPATH) go build -o $(BUILD)/truth/rest_server $(GOPATH)/src/truth/rest_server/main.go
 
+truth_app: proto
+	GOPATH=$(GOPATH) go build -o $(BUILD)/truth/app $(GOPATH)/src/truth/app/main.go
+
 clean:
 	$(RM) $(BUILD) $(GO_PROTO_OUT)
