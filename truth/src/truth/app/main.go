@@ -4,18 +4,88 @@ import (
   "log"
   "fmt"
   "os"
+  "net"
 
   "github.com/urfave/cli"
+  //"bitbucket.org/avd/go-ipc/mq"
+  //"github.com/libp2p/go-libp2p-peer"
+  _ "truth/app"
+  esha3 "github.com/ethereum/go-ethereum/crypto/sha3"
+  "golang.org/x/crypto/sha3"
   cfg "truth/config"
 )
 
+const (
+  truth_mq_path = "/tmp/truth_prio.mq"
+  max_mq_size = 100
+  max_msg_size = 128
+)
+
+func invoke_rpc(ctx *cli.Context) error {
+  log.Printf("invoke_rpc (%v)", ctx.Args())
+  if len(ctx.Args()) == 0 {
+    log.Fatal("method not given")
+    return cli.ShowCommandHelp(ctx, ctx.Command.Name)
+  }
+  return nil
+}
+
 func show_help(ctx *cli.Context) error {
   log.Printf("show_help (%v)", ctx.Command)
+
+  return nil
+}
+
+func show_sys(ctx *cli.Context) error {
+  log.Printf("show_sys (%v)", ctx.Command)
+  data := []byte{32, 67, 15, 0, 9, 0, 10, 15}
+//  data = make([]byte, 32)
+  h := sha3.Sum256(data)
+  log.Printf("%v", h)
+
   return nil
 }
 
 func show_network(ctx *cli.Context) error {
   log.Printf("show_network (%v)", ctx.Command)
+  nss, err := net.LookupNS("google.com")
+  if err != nil {
+    log.Fatal("Lookup NS failed", err)
+  }
+
+  for i, ns := range nss {
+    log.Println(i, ns.Host)
+  }
+
+  ifs, err := net.Interfaces()
+  if err != nil {
+    log.Fatal("list interfaces failed", err)
+  }
+
+  for _, iface := range ifs {
+    log.Printf(`
+       Index: %d
+       Name: %s
+       MTU: %d
+       Flag: %s
+       MAC: %s`,
+      iface.Index,
+      iface.Name,
+      iface.MTU,
+      iface.Flags,
+      iface.HardwareAddr)
+  }
+
+  addrs, err := net.InterfaceAddrs()
+  if err != nil {
+    log.Fatal("list interfaces addrs failed", err)
+  }
+
+  for _, a := range addrs {
+    log.Printf("%s: %s", a.Network(), a.String())
+  }
+
+
   return nil
 }
 
@@ -31,7 +101,12 @@ func start_app() {
   app.Version = cfg.VERSION
   app.Commands = []cli.Command{
     {
-      Name: "sn",
+      Name: "sys",
+      Usage: "show sys information",
+      Action: show_sys,
+    },
+    {
+      Name: "net",
       Usage: "show network information",
       Action: show_network,
     },
@@ -39,6 +114,11 @@ func start_app() {
       Name: "help",
       Usage: "show help message",
       Action: show_help,
+    },
+    {
+      Name: "call",
+      Usage: "call <method>",
+      Action: invoke_rpc,
     },
   }
   app.Authors = []cli.Author{
