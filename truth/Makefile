@@ -42,3 +42,6 @@ truth_app: proto
 
 clean:
 	$(RM) $(BUILD) $(GO_PROTO_OUT)
+
+test:
+	GOPATH=`pwd` GLOG_alsologstderr=true go run src/truth/app/test.go -log_dir /tmp -alsologtostderr=true
