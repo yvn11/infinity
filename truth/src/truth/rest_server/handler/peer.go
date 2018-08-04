@@ -2,7 +2,7 @@ package truth
 
 import (
   "fmt"
-  "log"
+  "github.com/golang/glog"
   "encoding/json"
   "net/http"
 
@@ -11,7 +11,7 @@ import (
 )
 
 func FindPeer(w http.ResponseWriter, req *http.Request) {
-  log.Printf("FindPeer (%v, %v)", w, req)
+  glog.Info("FindPeer (%v, %v)", w, req)
   w.Header().Set("Content-Type", "application/json")
 
   peers := []pb.Peer{}
@@ -20,7 +20,7 @@ func FindPeer(w http.ResponseWriter, req *http.Request) {
     "peers": peers})
 
   if err != nil {
-    log.Printf("json marshal failed: %v", err)
+    glog.Info("json marshal failed: %v", err)
     http.Error(w, "Internal server error", http.StatusInternalServerError)
     return
   }

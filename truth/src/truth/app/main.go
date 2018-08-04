@@ -1,7 +1,7 @@
 package main
 
 import (
-  "log"
+  "github.com/golang/glog"
   "fmt"
   "os"
   "net"
@@ -22,48 +22,48 @@ const (
 )
 
 func invoke_rpc(ctx *cli.Context) error {
-  log.Printf("invoke_rpc (%v)", ctx.Args())
+  glog.Info("invoke_rpc (%v)", ctx.Args())
   if len(ctx.Args()) == 0 {
-    log.Fatal("method not given")
+    glog.Fatal("method not given")
     return cli.ShowCommandHelp(ctx, ctx.Command.Name)
   }
   return nil
 }
 
 func show_help(ctx *cli.Context) error {
-  log.Printf("show_help (%v)", ctx.Command)
+  glog.Info("show_help (%v)", ctx.Command)
 
   return nil
 }
 
 func show_sys(ctx *cli.Context) error {
-  log.Printf("show_sys (%v)", ctx.Command)
+  glog.Info("show_sys (%v)", ctx.Command)
   data := []byte{32, 67, 15, 0, 9, 0, 10, 15}
 //  data = make([]byte, 32)
   h := sha3.Sum256(data)
-  log.Printf("%v", h)
+  glog.Info("%v", h)
 
   return nil
 }
 
 func show_network(ctx *cli.Context) error {
-  log.Printf("show_network (%v)", ctx.Command)
+  glog.Info("show_network (%v)", ctx.Command)
   nss, err := net.LookupNS("google.com")
   if err != nil {
-    log.Fatal("Lookup NS failed", err)
+    glog.Fatal("Lookup NS failed", err)
   }
 
   for i, ns := range nss {
-    log.Println(i, ns.Host)
+    glog.Info(i, ns.Host)
   }
 
   ifs, err := net.Interfaces()
   if err != nil {
-    log.Fatal("list interfaces failed", err)
+    glog.Fatal("list interfaces failed", err)
   }
 
   for _, iface := range ifs {
-    log.Printf(`
+    glog.Info(`
        Index: %d
        Name: %s
        MTU: %d
@@ -78,11 +78,11 @@ func show_network(ctx *cli.Context) error {
 
   addrs, err := net.InterfaceAddrs()
   if err != nil {
-    log.Fatal("list interfaces addrs failed", err)
+    glog.Fatal("list interfaces addrs failed", err)
   }
 
   for _, a := range addrs {
-    log.Printf("%s: %s", a.Network(), a.String())
+    glog.Info("%s: %s", a.Network(), a.String())
   }
 
 
@@ -90,7 +90,7 @@ func show_network(ctx *cli.Context) error {
 }
 
 func main() {
-  log.Printf("Truth App %s", cfg.VERSION)
+  glog.Info("Truth App %s", cfg.VERSION)
   start_app()
 }
 

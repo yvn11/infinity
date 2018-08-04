@@ -2,7 +2,7 @@ package truth
 
 import (
   "fmt"
-  "log"
+  "github.com/golang/glog"
   "encoding/json"
   "net/http"
 
@@ -11,7 +11,7 @@ import (
 )
 
 func UnreadMsg(w http.ResponseWriter, req *http.Request) {
-  log.Printf("UnreadMsg (%v, %v)", w, req)
+  glog.Info("UnreadMsg (%v, %v)", w, req)
   w.Header().Set("Content-Type", "application/json")
   msgs := []pb.Message{}
 
@@ -19,7 +19,7 @@ func UnreadMsg(w http.ResponseWriter, req *http.Request) {
     "messages": msgs})
 
   if err != nil {
-    log.Printf("json marshal failed: %v", err)
+    glog.Info("json marshal failed: %v", err)
     http.Error(w, "Internal server error", http.StatusInternalServerError)
     return
   }
@@ -28,7 +28,7 @@ func UnreadMsg(w http.ResponseWriter, req *http.Request) {
 }
 
 func SendMsg(w http.ResponseWriter, req *http.Request) {
-  log.Printf("SendMsg (%v, %v)", w, req)
+  glog.Info("SendMsg (%v, %v)", w, req)
   w.Header().Set("Content-Type", "application/json")
   res := pb.OpStatus{pb.StatusCode_Ok, ""}
 
@@ -36,7 +36,7 @@ func SendMsg(w http.ResponseWriter, req *http.Request) {
     "status": res})
 
   if err != nil {
-    log.Printf("json marshal failed: %v", err)
+    glog.Info("json marshal failed: %v", err)
     http.Error(w, "Internal server error", http.StatusInternalServerError)
     return
   }

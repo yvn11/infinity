@@ -1,7 +1,7 @@
 package main
 
 import (
-  "log"
+  "github.com/golang/glog"
   "time"
   "fmt"
 
@@ -22,7 +22,7 @@ func dial_remote(host string, port int32) {
 
   conn, err := grpc.Dial(remote_addr, opts...)
   if err != nil {
-    log.Fatalf("failed to dial [%s]: %v", remote_addr, err)
+    glog.Fatalf("failed to dial [%s]: %v", remote_addr, err)
   }
   defer conn.Close()
 
@@ -37,9 +37,9 @@ func dial_remote(host string, port int32) {
   }})
 
   if err != nil {
-    log.Printf("failed to invoke Version: %v", err)
+    glog.Info("failed to invoke Version: %v", err)
   } else {
-    log.Printf("remote version: [%v]", ver)
+    glog.Info("remote version: [%v]", ver)
   }
   conn.Close()
 }

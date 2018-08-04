@@ -2,7 +2,7 @@ package truth
 
 import (
   "fmt"
-  "log"
+  "github.com/golang/glog"
   "encoding/json"
   "net/http"
 
@@ -11,14 +11,14 @@ import (
 )
 
 func Version(w http.ResponseWriter, req *http.Request) {
-  log.Printf("Version (%v, %v)", w, req)
+  glog.Infof("Version (%v, %v)", w, req)
   w.Header().Set("Content-Type", "application/json")
 
   rsp, err := json.Marshal(map[string]string{
     "version": cfg.VERSION })
 
   if err != nil {
-    log.Printf("json marshal failed: %v", err)
+    glog.Infof("json marshal failed: %v", err)
     http.Error(w, "Internal server error", http.StatusInternalServerError)
     return
   }
@@ -27,7 +27,7 @@ func Version(w http.ResponseWriter, req *http.Request) {
 }
 
 func ListServices(w http.ResponseWriter, req *http.Request) {
-  log.Printf("ListServices (%v, %v)", w, req)
+  glog.Infof("ListServices (%v, %v)", w, req)
   w.Header().Set("Content-Type", "application/json")
   services := []pb.Service{}
 
@@ -35,7 +35,7 @@ func ListServices(w http.ResponseWriter, req *http.Request) {
     "services": services })
 
   if err != nil {
-    log.Printf("json marshal failed: %v", err)
+    glog.Infof("json marshal failed: %v", err)
     http.Error(w, "Internal server error", http.StatusInternalServerError)
     return
   }

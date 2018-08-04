@@ -2,7 +2,7 @@ package main
 
 import (
   "net"
-  "log"
+  "github.com/golang/glog"
   "fmt"
 
   cfg "truth/config"
@@ -13,11 +13,11 @@ import (
 )
 
 func main() {
-  log.Printf("Truth management server %s @ %s", cfg.VERSION, cfg.RPC_MNG_PORT)
+  glog.Infof("Truth management server %s @ %s", cfg.VERSION, cfg.RPC_MNG_PORT)
   port := fmt.Sprintf(":%s", cfg.RPC_MNG_PORT)
   fd, err := net.Listen("tcp", port)
   if err != nil {
-    log.Fatalf("failed to listen: %v", err)
+    glog.Fatalf("failed to listen: %v", err)
   }
 
   grpc_srv := grpc.NewServer()
@@ -25,6 +25,6 @@ func main() {
 	reflection.Register(grpc_srv)
 
   if err := grpc_srv.Serve(fd); err != nil {
-    log.Fatalf("failed to start server: %v", err)
+    glog.Fatalf("failed to start server: %v", err)
   }
 }

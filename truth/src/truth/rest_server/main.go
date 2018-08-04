@@ -1,7 +1,7 @@
 package main
 
 import (
-  "log"
+  "github.com/golang/glog"
   "fmt"
   "net/http"
 
@@ -21,7 +21,7 @@ const (
 )
 
 func start_server() {
-  log.Printf("Truth rest server %s @ %s", cfg.VERSION, cfg.REST_PUBLIC_PORT)
+  glog.Info("Truth rest server %s @ %s", cfg.VERSION, cfg.REST_PUBLIC_PORT)
 
   router := mux.NewRouter()
   router.Headers("Context-Type", "application/json")
@@ -40,14 +40,14 @@ func start_server() {
   port := fmt.Sprintf(":%s", cfg.REST_PUBLIC_PORT)
   err := http.ListenAndServe(port, cors_hdr)
   if err != nil {
-    log.Fatal("Failed to start rest server: ", err)
+    glog.Fatal("Failed to start rest server: ", err)
     return
   }
 
   sig_chan := make(chan os.Signal, 1)
   signal.Notify(sig_chan, syscall.SIGINT, syscall.SIGTERM)
   //http.Shutdown()
-  log.Printf("Rest service stopped")
+  glog.Info("Rest service stopped")
 }
 
 func main() {

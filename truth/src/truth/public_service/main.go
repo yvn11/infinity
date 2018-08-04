@@ -2,7 +2,7 @@ package main
 
 import (
   "net"
-  "log"
+  "github.com/golang/glog"
 
   "os"
   "os/signal"
@@ -16,11 +16,11 @@ import (
 )
 
 func main() {
-  log.Printf("Truth public server %s @ %s", cfg.VERSION, cfg.RPC_PUBLIC_PORT)
+  glog.Info("Truth public server %s @ %s", cfg.VERSION, cfg.RPC_PUBLIC_PORT)
 
   fd, err := net.Listen("tcp", cfg.RPC_PUBLIC_PORT)
   if err != nil {
-    log.Fatalf("failed to listen: %v", err)
+    glog.Errorf("failed to listen: %v", err)
   }
 
   grpc_srv := grpc.NewServer()
@@ -28,11 +28,11 @@ func main() {
 	reflection.Register(grpc_srv)
 
   if err := grpc_srv.Serve(fd); err != nil {
-    log.Fatalf("failed to start server: %v", err)
+    glog.Errorf("failed to start server: %v", err)
   }
   defer grpc_srv.GracefulStop()
 
   sig_chan := make(chan os.Signal, 1)
   signal.Notify(sig_chan, syscall.SIGINT, syscall.SIGTERM)
-  log.Printf("Public service stopped")
+  glog.Info("Public service stopped")
 }
