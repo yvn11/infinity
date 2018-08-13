@@ -4,6 +4,7 @@ import (
   "os"
   "io/ioutil"
   "flag"
+  "bytes"
   "github.com/golang/glog"
   elli "crypto/elliptic"
   "crypto/ecdsa"
@@ -12,6 +13,7 @@ import (
   "crypto/sha256"
   "encoding/pem"
   "crypto/x509"
+  "golang.org/x/crypto/ssh"
 )
 
 func do_ecdsa() {
@@ -114,9 +116,43 @@ func load_key() {
   glog.Info(rest)
 }
 
+func conn_ssh() {
+  host_key_callback := ssh.InsecureIgnoreHostKey()
+  cfg := &ssh.ClientConfig {
+    User: "wrcpp",
+    Auth: []ssh.AuthMethod {
+      ssh.Password("linuxdev"),
+    },
+    HostKeyCallback: host_key_callback,
+  }
+
+  cli, err := ssh.Dial("tcp", "192.168.100.94:13027", cfg)
+  if err != nil {
+    glog.Error("failed to setup ssh connection: ", err)
+  }
+  defer cli.Close()
+  glog.Info("cli: ", cli)
+
+  sess, err := cli.NewSession()
+  if err != nil {
+    glog.Error("failed to create session: ", err)
+  }
+  var buf bytes.Buffer
+  sess.Stdout = &buf
+  sess.Run("/bin/hostname")
+  glog.Info(buf.String())
+}
+
 func main() {
   flag.Parse()
   glog.Info("Truth started")
+  chan_adap()
+  do_ecdsa()
+  do_rsa()
+  conn_ssh()
+}
+
+func chan_adap() {
   cha := make(chan int32)
   chb := make(chan float32)
 
@@ -152,7 +188,4 @@ func main() {
   glog.Info("P256", elli.P256())
   glog.Info("P384", elli.P384())
   glog.Info("P521", elli.P521())
-
-  do_ecdsa()
-  do_rsa()
 }
