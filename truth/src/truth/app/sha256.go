@@ -1,12 +1,16 @@
-package sha
+package main
 
 import (
   "fmt"
+  "io/ioutil"
+  "flag"
+  "crypto/sha256"
 )
 
 var (
+  MSGBLKSIZE256 = 64
   // Constants
-  K = []int{
+  K = []uint32{
         0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
         0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
         0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
@@ -25,7 +29,7 @@ var (
         0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
       }
   // Initial hash value
-  H = []int{
+  H = []uint32{
         0x6a09e667,
         0xbb67ae85,
         0x3c6ef372,
@@ -37,99 +41,110 @@ var (
       }
 )
 
-func shr(x int, n uint) int {
+func shr(x uint32, n uint32) uint32 {
   return (x >> n)
 }
 
-func rotr(x int, n uint) int {
+func rotr(x uint32, n uint32) uint32 {
   return (x >> n) | (x << (32-n))
 }
 
-func rotl(x int, n uint) int {
+func rotl(x uint32, n uint32) uint32 {
   return (x << n) | (x >> (32-n))
 }
+
 // CH( x, y, z) = (x AND y) XOR ( (NOT x) AND z)
-func ch(x, y, z int) int {
-  return (x & y) ^ (^x & z)
+func ch(x, y, z uint32) uint32 {
+  return (x & y) ^ ((^x) & z)
 }
 
 //MAJ( x, y, z) = (x AND y) XOR (x AND z) XOR (y AND z)
-func maj(x, y, z int) int {
+func maj(x, y, z uint32) uint32 {
   return (x & y) ^ (x & z) ^ (y & z)
 }
 
 //bsig0(x) = ROTR^2(x) XOR ROTR^13(x) XOR ROTR^22(x)
-func bsig0(x int) int {
+func bsig0(x uint32) uint32 {
   return rotr(x, 2) ^ rotr(x, 13) ^ rotr(x, 22)
 }
 
 //bsig1(x) = ROTR^6(x) XOR ROTR^11(x) XOR ROTR^25(x)
-func bsig1(x int) int {
+func bsig1(x uint32) uint32 {
   return rotr(x, 6) ^ rotr(x, 11) ^ rotr(x, 25)
 }
 
 //ssig0(x) = ROTR^7(x) XOR ROTR^18(x) XOR SHR^3(x)
-func ssig0(x int) int {
+func ssig0(x uint32) uint32 {
   return rotr(x, 7) ^ rotr(x, 18) ^ shr(x, 3)
 }
 
 //ssig1(x) = ROTR^17(x) XOR ROTR^19(x) XOR SHR^10(x)
-func ssig1(x int) int {
+func ssig1(x uint32) uint32 {
   return rotr(x, 17) ^ rotr(x, 19) ^ shr(x, 10)
 }
 
-func nbyte(v int, n uint) int {
+func nbyte(v uint32, n uint32) uint32 {
   loffs := 4 * n
   return ((v & (0xf << loffs)) >> loffs)
 }
 
-func set_byte(v *int, n uint, new_val int) {
+func set_byte(v *uint32, n uint32, new_val uint32) {
   loffs := 4 * n
   *v = (*v) & (^(0xf << loffs))
   *v = (*v) | (new_val << loffs)
 }
 
-func padding(data []byte) []int {
-  msg_len := len(data) * 8
-  ret := make([]int, len(data))
-  ret = append(ret, 0x10000000)
+func padding(data []byte) []byte {
+  msg_len := byte(len(data) * 8)
+  ret := make([]byte, MSGBLKSIZE256)
 
-  for ;len(ret)*8 < 448 && 0 != (len(ret)*8) % 512; {
+  for i, d := range data {
+    ret[i] = byte(d)
+  }
+  ret = append(ret, 0x80)
+
+  for ;len(ret)*8+1+int(msg_len) < 448 && 0 != (len(ret)*8) % 512; {
     ret = append(ret, 0x0)
   }
-
+  // TODO add length
   ret[len(ret)-1] = ret[len(ret)-1] | msg_len
   return ret
 }
 
-func compute(M []int) []int {
-  N := 16
-  Hinit := H
+func compute(M []byte) []uint32 {
+  var (
+    Hinit = make([]uint32, len(H))
+    a, b, c, d, e, f, g, h, t1, t2 uint32
+    N = uint32(MSGBLKSIZE256)
+    W = make([]uint32, MSGBLKSIZE256)
+  )
 
-  for i := 1; i < N; i++ {
-    // Prepare the message schedule W:
-    W := make([]int, 512)
-    for u := uint(0); u < 16; u++ {
-      W[u] = nbyte(M[i], u)
+  for i, d := range H {
+    Hinit[i] = d
+  }
+
+  for i := uint32(1); i < N; i++ {
+
+    // Prepare the message schedule W
+    for t := uint32(0); t < 16; t++ {
+      W[t] = uint32(M[t])
     }
-    for u := 16; u < 64; u++ {
-      W[u] = ssig1(W[u-2]) + W[u-7] + ssig0(u-15) + W[u-16]
+    for t := uint32(16); t < 64; t++ {
+      W[t] = ssig1(W[t-2]) + W[t-7] + ssig0(t-15) + W[t-16]
     }
-
-    // Initialize the working variables:
-    a := nbyte(Hinit[i-1], 0)
-    b := nbyte(Hinit[i-1], 1)
-    c := nbyte(Hinit[i-1], 2)
-    d := nbyte(Hinit[i-1], 3)
-    e := nbyte(Hinit[i-1], 4)
-    f := nbyte(Hinit[i-1], 5)
-    g := nbyte(Hinit[i-1], 6)
-    h := nbyte(Hinit[i-1], 7)
-
-    // Perform the main hash computation:
-    for u := 0; u < 64; u++ {
-      t1 := h + bsig1(e) + ch(e,f,g) + K[u] + W[u]
-      t2 := bsig0(a) + maj(a,b,c)
+    // Initialize the working variables
+    a = Hinit[0]
+    b = Hinit[1]
+    c = Hinit[2]
+    d = Hinit[3]
+    e = Hinit[4]
+    f = Hinit[5]
+    g = Hinit[6]
+    h = Hinit[7]
+    // Perform the main hash computation
+    for t := uint32(0); t < 64; t++ {
+      t1 = h + bsig1(e) + ch(e,f,g) + K[t] + W[t]
+      t2 = bsig0(a) + maj(a,b,c)
       h = g
       g = f
       f = e
@@ -139,27 +154,51 @@ func compute(M []int) []int {
       b = a
       a = t1 + t2
     }
-
-    // Compute the intermediate hash value H(i):
-    set_byte(&Hinit[i], 0, a + nbyte(Hinit[i-1], 0))
-    set_byte(&Hinit[i], 1, a + nbyte(Hinit[i-1], 1))
-    set_byte(&Hinit[i], 2, a + nbyte(Hinit[i-1], 2))
-    set_byte(&Hinit[i], 3, a + nbyte(Hinit[i-1], 3))
-    set_byte(&Hinit[i], 4, a + nbyte(Hinit[i-1], 4))
-    set_byte(&Hinit[i], 5, a + nbyte(Hinit[i-1], 5))
-    set_byte(&Hinit[i], 6, a + nbyte(Hinit[i-1], 6))
-    set_byte(&Hinit[i], 7, a + nbyte(Hinit[i-1], 7))
+    // Compute the uintermediate hash value H(i)
+    Hinit[0] += a
+    Hinit[1] += b
+    Hinit[2] += c
+    Hinit[3] += d
+    Hinit[4] += e
+    Hinit[5] += f
+    Hinit[6] += g
+    Hinit[7] += h
    }
    return Hinit
  }
 
- func digest(data []byte) []int {
-   pad := padding(data)
-   return compute(pad)
- }
-/**
- func main() {
-   res := digest([]byte("comute with algorithm sha256"))
-   fmt.Println(res)
- }
-*/
+func fill_bytes(data []uint32) []byte {
+  ret := make([]byte, len(data)*4)
+
+  fmt.Printf("%x", data)
+  fmt.Println()
+  for i := uint32(0); i < uint32(len(ret)); i++ {
+    ret[i] = byte(data[i>>2] >> 8 * (3-(i & 0x03)))
+  }
+  return ret
+}
+
+func digest(data []byte) []byte {
+  pad := padding(data)
+  di := compute(pad)
+  return fill_bytes(di)
+}
+
+func main() {
+  var (
+    file_path string
+  )
+
+  flag.StringVar(&file_path, "f", file_path, "file path")
+  flag.Parse()
+
+  data, err := ioutil.ReadFile(file_path)
+  if err != nil {
+    fmt.Println(err)
+    return
+  }
+  data = []byte("abc")
+  res := digest(data)
+  fmt.Printf("%x\n", res)
+  fmt.Printf("%x\n", sha256.Sum256(data))
+}
