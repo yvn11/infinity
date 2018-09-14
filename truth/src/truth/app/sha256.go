@@ -83,7 +83,7 @@ func ssig1(x uint32) uint32 {
   return rotr(x, 17) ^ rotr(x, 19) ^ shr(x, 10)
 }
 
-func nbyte(v uint32, n uint32) uint32 {
+func nth_byte(v uint32, n uint32) uint32 {
   loffs := 4 * n
   return ((v & (0xf << loffs)) >> loffs)
 }
@@ -106,8 +106,11 @@ func padding(data []byte) []byte {
   for ;len(ret)*8+1+int(msg_len) < 448 && 0 != (len(ret)*8) % 512; {
     ret = append(ret, 0x0)
   }
-  // TODO add length
-  ret[len(ret)-1] = ret[len(ret)-1] | msg_len
+
+  ret[len(ret)-4] = ret[len(ret)-4] | (msg_len >> 24)
+  ret[len(ret)-3] = ret[len(ret)-3] | (msg_len >> 16)
+  ret[len(ret)-2] = ret[len(ret)-2] | (msg_len >> 18)
+  ret[len(ret)-1] = ret[len(ret)-1] | (msg_len)
   return ret
 }
 
