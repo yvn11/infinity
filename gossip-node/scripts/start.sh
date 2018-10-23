@@ -1,7 +1,7 @@
 #!/bin/bash
 
 begin=10000
-end=11000
+end=10010
 i=$begin
 
 while [ $i -lt $end ] ; do

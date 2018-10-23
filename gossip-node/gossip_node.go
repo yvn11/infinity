@@ -1,11 +1,12 @@
 package main
 
 import (
-  "github.com/clockworksoul/smudge"
   "net"
   "fmt"
   "flag"
   "time"
+  "sync"
+  "github.com/clockworksoul/smudge"
 )
 
 var (
@@ -15,7 +16,7 @@ var (
   self = ""
   listen_port = flag.Int("p", 0, "listen port")
   begin_port = flag.Int("b", 10000, "begin port")
-  end_port = flag.Int("e", 65535, "begin port")
+  end_port = flag.Int("e", 10010, "end port")
 )
 
 type StatusListenerImpl struct {}
@@ -49,6 +50,22 @@ func createNodes() {
   }
 }
 
+func onUnreachable() {
+  t := time.NewTimer(2*time.Second)
+  <-t.C
+  lr.Logf(smudge.LogInfo, "%v", time.Now())
+}
+
+
+func daemon() {
+  wg := sync.WaitGroup{}
+  for i := 10; i > 0; i-- {
+    wg.Add(1)
+    go onUnreachable()
+  }
+  wg.Wait()
+}
+
 func main() {
   flag.Parse()
 
@@ -60,6 +77,7 @@ func main() {
   lr.Log(smudge.LogInfo, self)
   lr.Logf(smudge.LogInfo, "cluster: %s\n", smudge.GetClusterName())
 
+  //daemon()
   createNodes()
   smudge.AddStatusListener(StatusListenerImpl{})
   smudge.AddBroadcastListener(BroadcastListenerImpl{})
