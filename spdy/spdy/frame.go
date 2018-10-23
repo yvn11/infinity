@@ -4,65 +4,118 @@
 package spdy
 
 import (
+  "errors"
   "math"
+  "zlib"
+  "bytes"
+  "io"
+  "encoding/binary"
 )
 
 type StreamID uint32
 
-func validStreamID(id uint32) error {
+func validateStreamID(id StreamID) error {
   if id == 0 {
-    return fmt.Errorf("Stream ID must not be zero")
+    return ErrZeroStreamID
   }
-  if id > uint32(math.MaxInt32) {
-    return fmt.Errorf("Stream ID too large")
+  if id > StreamID(math.MaxInt32) {
+    return ErrLargeStreamID
   }
   return nil
 }
 
+func compress(buf *bytes.Buffer) error {
+  w, err := zlib.NewWriterLevelDict(buf, zlib.BestCompression, HeaderDict)
+  if err != nil {
+    return err
+  }
+  defer w.Close()
+  return w.Flush()
+}
+
+func decompress(data []byte) ([]byte, error) {
+  buf := bytes.NewReader(data)
+  r, err := zlib.NewReaderDict(buf, HeaderDict)
+  if err != nil {
+    return nil, err
+  }
+  defer r.Close()
+
+  ret := new(bytes.Buffer)
+  if _, err := io.Copy(ret, r); err != nil {
+    return nil, err
+  }
+  return ret.Bytes(), nil
+}
+
 var (
-  SPDY_VERSION = uint32(3)
+  SpdyVersion = uint32(3)
+  Endian = binary.BigEndian
+)
+
+var(
+  ErrFrameSizeExceed = errors.New("Frame length exceeded")
+  ErrZeroStreamID = errors.New("Stream ID must not be zero")
+  ErrLargeSteamID = errors.New("Stream ID exceeded")
+  ErrInvalidStatusCode = errors.New("Invalid status code")
+  ErrInvalidWindowSizeDelta = errors.New("Illegal Window size delta")
 )
 
 const (
-  MAX_FRAME_SIZE = (1<<24)-1
-  NUL = byte(0)
+  MaxFrameSize = (1<<24)-1
+  MinWindowSizeDelta = 1
+  MaxWindowSizeDelta = (1<<31) - 1 // (0x7fffffff)
+  Nul = byte(0)
 )
+
+type Flag uint8
 
 const (
-  FlagFin = uint8(0x01) // the last frame
-  FlagCompress = uint8(0x02) // data has been compressed
-  FlagUnidirectional = uint8(0x02) // puts receipient in half-close state
-  FlagSettingsPersistValue = uint8(0x01)
-  FlagSettingsPersisted = uint8(0x02)
+  FlagFin Flag = 0x01 // the last frame
+  FlagCompress Flag = 0x02 // data has been compressed
+  FlagUnidirectional Flag = 0x02 // puts receipient in half-close state
+  FlagSettingsClearSettings Flag = 0x01
 )
+
+type IDFlag uint8
 
 const (
-  StatusSynReplyProtocolErr uint32 = iota + 1
-  StatusSynReplyInvalidStream
-  StatusSynReplyRefusedStream
-  StatusSynReplyUnsupportedVersion
-  StatusSynReplyCancel
-  StatusSynReplyInternalErr
-  StatusSynReplyFlowControlErr
-  StatusSynReplyStreamInUse
-  StatusSynReplyStreamAlreadyClosed
-  StatusSynReplyInvalidCredentials
-  StatusSynReplyFrameTooLarge
+  IDFlagSettingsPersistValue IDFlag = 0x01
+  IDFlagSettingsPersisted IDFlag = 0x02
 )
 
+type RstStatus uint32
+
+const (
+  StatusRstProtocolErr RstStatus = iota + 1
+  StatusRstInvalidStream
+  StatusRstRefusedStream
+  StatusRstUnsupportedVersion
+  StatusRstCancel
+  StatusRstInternalErr
+  StatusRstFlowControlErr
+  StatusRstStreamInUse
+  StatusRstStreamAlreadyClosed
+  StatusRstInvalidCredentials
+  StatusRstFrameTooLarge
+)
+
+type Type uint16
 // Frame type
 const (
-  TypeSynStream = uint16(0x0001) // Open a new stream
-  TypeSynReply = uint16(0x0002) // Remote acknowledgement of a new, open stream
-  TypeRstStream = uint16(0x0003) // Close a stream
-  TypeSettings = uint16(0x0004)
-  TypePing = uint16(0x0006)
-  TypeGoaway = uint16(0x0007)
-  TypeHeaders = uint16(0x0008)
-  TypeWindowUpdate = uint16(0x0009)
+  TypeSynStream Type = 0x0001 // Open a new stream
+  TypeSynReply Type = 0x0002 // Remote acknowledgement of a new, open stream
+  TypeRstStream Type = 0x0003 // Close a stream
+  TypeSettings Type = 0x0004
+  TypePing Type = 0x0006
+  TypeGoaway Type = 0x0007
+  TypeHeaders Type = 0x0008
+  TypeWindowUpdate Type = 0x0009
+  TypeCredential Type = 0x000B
 )
 
-type Pairs map[uint32]string
+type NameVal map[string]string
+type IDVal map[uint32]uint32
 
 /**
    +----------------------------------+
@@ -74,11 +127,11 @@ type Pairs map[uint32]string
    +----------------------------------+
 */
 type ControlFrameHeader struct {
-  Control bool // indicates the frame is control frame or not
-  Version uint32
-  Type uint32
-  Flags uint32
-  Len uint32 // data length
+  ctrl bool // indicates the frame is ctrl frame or not
+  ver uint16
+  t Type
+  flags Flag
+  l uint32 // data length
 }
 
 /**
@@ -90,11 +143,12 @@ type ControlFrameHeader struct {
    |               Data               |
    +----------------------------------+
 */
-type DataFrameHeader struct {
-  Control bool // indicates the frame is control frame or not
-  StreamID uint32
-  Flags uint32
-  Len uint32 // data length
+type DataFrame struct {
+  ctrl bool // indicates the frame is ctrl frame or not
+  ID StreamID
+  f Flag
+  l uint32 // data length
+  data []byte
 }
 
 /**
@@ -125,10 +179,10 @@ type SynStreamFrame {
   Header ControlFrameHeader
   ID StreamID
   AssoID StreamID
-  Priority uint8
-  Unused uint8
-  Slot uint8
-  Entries Pairs
+  Priority uint8 // 3 bits
+  // 5 bits unused
+  Slot uint8 // 8 bits
+  Entries NameVal
 }
 
 /**
@@ -154,7 +208,7 @@ type SynStreamFrame {
 type SynReplyFrame {
   Header ControlFrameHeader
   AssoID StreamID
-  Entries Pairs
+  Entries NameVal
 }
 
 /**
@@ -171,7 +225,7 @@ type SynReplyFrame {
 type RstStreamFrame {
   Header ControlFrameHeader
   AssoID StreamID
-  StatusCode uint32
+  StatusCode RstStatus
 }
 
 /**
@@ -198,19 +252,15 @@ type RstStreamFrame {
 type HeadersFrame {
   Header ControlFrameHeader
   ID StreamID
-  Entries Pairs
+  Entries NameVal
 }
 
-type GoawayFrame {
-  Header ControlFrameHeader
-  LastID StreamID
-  StatusCode uint32
-}
+type GoawayStatus uint32
 
 const (
-  STATUS_GOAWAY_OK = uint32(0)
-  STATUS_GOAWAY_PROTOCOL_ERROR = uint32(1)
-  STATUS_GOAWAY_INTERNAL_ERROR = uint32(11)
+  StatusGoawayOK GoawayStatus = 0
+  StatusGoawayProtocolErr GoawayStatus = 1
+  StatusGoawayInternalErr GoawayStatus = 11
 )
 
 /**
@@ -224,20 +274,10 @@ const (
    |          Status code             |
    +----------------------------------+
 */
-func NewGoawayFrame() *GoawayFrame {
-  return &GoawayFrame{
-    Header: ControlFrameHeader{
-      Control: 1,
-      Version: SPDY_VERSION,
-      Type: TypeGoaway,
-      Len: 8,
-    }
-  }
-}
-
-type PingFrame struct {
+type GoawayFrame {
   Header ControlFrameHeader
-  ID StreamID
+  LastID StreamID
+  StatusCode GoawayStatus
 }
 
 /**
@@ -249,33 +289,24 @@ type PingFrame struct {
    |            32-bit ID             |
    +----------------------------------+
 */
-func NewPingFrame() *PingFrame {
-  return &PingFrame{
-    Header: ControlFrameHeader{
-      Control: 1,
-      Version: SPDY_VERSION,
-      Type: TypeSettings,
-      Len: 4,
-    }
-  }
+type PingFrame struct {
+  Header ControlFrameHeader
+  ID StreamID
 }
+
+type SettingsID uint32
 
 const (
-  ID_SETTINGS_UPLOAD_BANDWIDTH = uint32(1) // The value should be the integral number of kb/s
-  ID_SETTINGS_DOWNLOAD_BANDWIDTH = uint32(2) // The value should be the integral number of kb/s
-  ID_SETTINGS_ROUND_TRIP_TIME = uint32(3) // The value is represented in milliseconds
-  ID_SETTINGS_MAX_CONCURRENT_STREAMS = uint32(4) // Value range 100 ~ inf
-  ID_SETTINGS_CURRENT_CWND = uint32(5) // Inform peer the current TCP CWND value
-  ID_SETTINGS_DOWNLOAD_RETRANS_RATE = uint32(6) // the retransmission rate
+  SettingsUploadBandwidth SettingsID = iota + 1 // The value should be the integral number of kb/s
+  SettingsDownloadBandwidth // The value should be the integral number of kb/s
+  SettingsRoundTripTime // The value is represented in milliseconds
+  SettingsMaxConcurrentStreams // Value range 100 ~ inf
+  SettingsCurrentCWND // Inform peer the current TCP CWND value
+  SettingsDownloadRetransRate // the retransmission rate
                                                // (bytes retransmitted / total bytes transmitted)
-  ID_SETTINGS_INITIAL_WINDOW_SIZE = uint32(7)
-  ID_SETTINGS_CLIENT_CERTIFICATE_VECTOR_SIZE = uint32(8)
+  SettingsInitialWindowSize
+  SettingsClientCertificateVectorSize
 )
-
-type SettingsFrame struct {
-  Header ControlFrameHeader
-  Entries Pairs
-}
 
 /**
    +----------------------------------+
@@ -288,21 +319,11 @@ type SettingsFrame struct {
    |          ID/Value Pairs          |
    |             ...                  |
 */
-func NewSettingsFrame() *SettingsFrame {
-  return &SettingsFrame{
-    Header: ControlFrameHeader{
-      Control: 1,
-      Version: SPDY_VERSION,
-      Type: TypePing,
-      Len: 4,
-    }
-  }
-}
-
-type WindowUpdate struct {
+type SettingsFrame struct {
   Header ControlFrameHeader
-  ID StreamID
-  DeltaSize uint32 // 1 ~ 2^31 - 1 (0x7fffffff) bytes
+  // Entry ID = ID Flag(8 bits) + Settings ID(24)
+  // ID-value mapping
+  Entries IDVal
 }
 
 /**
@@ -316,15 +337,10 @@ type WindowUpdate struct {
    |X|  Delta-Window-Size (31-bits)   |
    +----------------------------------+
 */
-func NewWindowUpdateFrame() *WindowUpdateFrame {
-  return &WindowUpdateFrame{
-    Header: ControlFrameHeader{
-      Control: 1,
-      Version: SPDY_VERSION,
-      Type: TypeWindowUpdate,
-      Len: 8,
-    }
-  }
+type WindowUpdate struct {
+  Header ControlFrameHeader
+  ID StreamID
+  DeltaSize uint32 // 1 ~ 2^31 - 1 (0x7fffffff) bytes
 }
 
 /**
@@ -344,21 +360,15 @@ func NewWindowUpdateFrame() *WindowUpdateFrame {
   |            Certificate           |  |
   +----------------------------------+ <+
 */
-
 type CredFrame struct {
   Header ControlFrameHeader
-  Slot uint32
+  Slot uint16
   Proof string
   Certificates []string
 }
 
-func NewCredFrame() *CredFrame {
-  return &CredFrame{
-    Header: ControlFrameHeader{
-      Control: 1,
-      Version: SPDY_VERSION,
-      Type: TypeSettings,
-      Len: 4,
-    }
-  }
+type RawFrame interface {
+  F
+  Write(conn *net.Conn) (error)
+  Read(conn *net.Conn) (interface{}, error)
 }

@@ -24,14 +24,14 @@ func (q *FrameQueue) Swap(a, b int) bool {
 }
 
 func (q *FrameQueue) Len() int {
-  return q.Len()
+  return len(q)
 }
 
-func (q *FrameQueue) Push(f Frame) {
-
+func (q *FrameQueue) Push(f *Frame) {
+  *q = append(*q, f)
 }
 
-func (q *FrameQueue) Pop() Frame {
+func (q *FrameQueue) Pop() *Frame {
   last := len(q)-1
   ret := q[last]
   *q := *q[:last]
