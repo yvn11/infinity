@@ -6,7 +6,7 @@ package spdy
 import (
   "errors"
   "math"
-  "zlib"
+  "compress/zlib"
   "bytes"
   "io"
   "encoding/binary"
