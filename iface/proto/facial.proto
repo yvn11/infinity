@@ -1,0 +1,15 @@
+// Parameter format
+
+syntax = "proto3";
+
+package iface.algo;
+import "param.proto";
+
+service Facial {
+// Detect facial regions and landmarks
+rpc FacialDetect(param.FacialDetectParams) returns (param.FacialDetectResponse) {}
+// Extract feature from given image
+rpc ExtractFeature(param.ExtractFeatureParams) returns (param.ExtractFeatureResponse) {}
+// Get similarity score of given features
+rpc Similarity(param.SimilarityParams) returns (param.SimilarityResponse) {}
+}
