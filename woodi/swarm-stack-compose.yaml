@@ -1,0 +1,74 @@
+version: "3"
+
+services:
+  kafka-0:
+    image: wurstmeister/kafka:2.12-2.1.0
+    networks:
+      - kfk-overlay
+    volumes:
+      - kfk-data:/kafka
+    ports:
+      - 17810:17810
+      - 17812:17812
+    environment:
+      - KAFKA_ZOOKEEPER_CONNECT=192.168.100.203:2181,192.168.100.189:2181,192.168.100.220:2181
+      - KAFKA_ADVERTISED_LISTENERS=INTERNAL://192.168.100.189:17810,PUBLIC://192.168.100.189:17812
+      - KAFKA_BROKER_ID=-1
+      - KAFKA_CLEANUP_POLICY=compact
+      - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
+      - KAFKA_LISTENERS=INTERNAL://:17810,PUBLIC://:17812
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,PUBLIC:PLAINTEXT
+      - KAFKA_PORT=17810
+    deploy:
+      placement:
+        constraints: [node.labels.kfknode == 0]
+
+  kafka-1:
+    image: wurstmeister/kafka:2.12-2.1.0
+    networks:
+      - kfk-overlay
+    volumes:
+      - kfk-data:/kafka
+    ports:
+      - 17810:17810
+      - 17812:17812
+    environment:
+      - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
+      - KAFKA_LISTENERS=INTERNAL://:17810,PUBLIC://:17812
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,PUBLIC:PLAINTEXT
+      - KAFKA_PORT=17810
+      - KAFKA_ZOOKEEPER_CONNECT=192.168.100.203:2181,192.168.100.189:2181,192.168.100.220:2181
+      - KAFKA_ADVERTISED_LISTENERS=INTERNAL://192.168.100.35:17810,PUBLIC://192.168.100.35:17812
+      - KAFKA_BROKER_ID=-1
+      - KAFKA_CLEANUP_POLICY=compact
+    deploy:
+      placement:
+        constraints: [node.labels.kfknode == 1]
+
+  kafka-2:
+    image: wurstmeister/kafka:2.12-2.1.0
+    networks:
+      - kfk-overlay
+    volumes:
+      - kfk-data:/kafka
+    ports:
+      - 17810:17810
+      - 17812:17812
+    environment:
+      - KAFKA_PORT=17810
+      - KAFKA_ZOOKEEPER_CONNECT=192.168.100.203:2181,192.168.100.189:2181,192.168.100.220:2181
+      - KAFKA_ADVERTISED_LISTENERS=INTERNAL://192.168.100.94:17810,PUBLIC://192.168.100.94:17812
+      - KAFKA_BROKER_ID=-1
+      - KAFKA_CLEANUP_POLICY=compact
+      - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
+      - KAFKA_LISTENERS=INTERNAL://:17810,PUBLIC://:17812
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,PUBLIC:PLAINTEXT
+    deploy:
+      placement:
+        constraints: [node.labels.kfknode == 2]
+
+networks:
+  kfk-overlay:
+
+volumes:
+  kfk-data:
