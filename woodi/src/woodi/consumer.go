@@ -11,6 +11,13 @@ import (
 func main() {
   cfg := sarama.NewConfig()
   cfg.Consumer.Return.Errors = true
+  ver, err := sarama.ParseKafkaVersion("2.1.0")
+  if err != nil {
+    fmt.Print("failed to parse kafka version", err)
+    return
+  }
+
+  cfg.Version = ver
 
   fmt.Println("version: ", cfg.Version)
   cons, err := sarama.NewConsumer(woodi.BROKERS, nil)

@@ -15,6 +15,7 @@ def run_async(hdr_name):
         print("++ [terminate] {}".format(hdr_name))
     except Exception as ex:
         print("!! [error] {}".format(ex))
+        raise
 
 def start():
     pool = []

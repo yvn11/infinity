@@ -40,6 +40,7 @@ class FeedDict(Input):
         id: unique ID
         input_x: Batch of raw text for data provider
         """
+        print("sent to: ", self.topic)
         return {'future':self.pro.send(self.topic, msgpack.dumps(kwargs))}
 
     def convert(self, **kwargs):

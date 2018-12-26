@@ -24,4 +24,4 @@ class IMsg(FDProducer):
                  }
 
     def rand_msg(self):
-        return self.chat_db[random.randint(0, len(self.chat_db))]
+        return self.chat_db[random.randint(0, len(self.chat_db)-1)]
