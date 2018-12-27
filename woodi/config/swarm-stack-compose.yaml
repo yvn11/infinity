@@ -1,74 +1,138 @@
 version: "3"
 
 services:
-  kafka-0:
+  zk-1:
+    image: zookeeper:3.5
+    hostname: zk-1
+    restart: always
+    volumes:
+      - zk-data:/data
+      - zk-datalog:/datalog
+      - zk-logs:/logs
+#      - /zk-conf:/conf
+    deploy:
+      placement:
+        constraints: [node.labels.zknode == 1]
+    ports:
+      - 2181:2181
+    environment:
+      - ZOO_MY_ID=1
+      - ZOO_SERVERS=server.1=0.0.0.0:2888:3888;2181 server.2=zk-2:2888:3888;2182 server.3=zk-3:2888:3888;2181
+  zk-2:
+    image: zookeeper:3.5
+    hostname: zk-2
+    restart: always
+    volumes:
+      - zk-data:/data
+      - zk-datalog:/datalog
+      - zk-logs:/logs
+#      - /zk-conf:/conf
+    deploy:
+      placement:
+        constraints: [node.labels.zknode == 2]
+    ports:
+      - 2182:2181
+    environment:
+      - ZOO_MY_ID=2
+      - ZOO_SERVERS=server.1=zk-1:2888:3888;2181 server.2=0.0.0.0:2888:3888;2181 server.3=zk-3:2888:3888;2181
+  zk-3:
+    image: zookeeper:3.5
+    hostname: zk-3
+    restart: always
+    volumes:
+      - zk-data:/data
+      - zk-datalog:/datalog
+      - zk-logs:/logs
+#      - /zk-conf:/conf
+    deploy:
+      placement:
+        constraints: [node.labels.zknode == 3]
+    ports:
+      - 2183:2181
+    environment:
+      - ZOO_MY_ID=3
+      - ZOO_SERVERS=server.1=zk-1:2888:3888;2181 server.2=zk-2:2888:3888;2181 server.3=0.0.0.0:2888:3888;2181
+
+  kafka-1:
     image: wurstmeister/kafka:2.12-2.1.0
-    networks:
-      - kfk-overlay
+    hostname: kafka-1
+    restart: always
+    depends_on:
+      - zk-1
+      - zk-2
+      - zk-3
     volumes:
       - kfk-data:/kafka
     ports:
-      - 17810:17810
       - 17812:17812
     environment:
-      - KAFKA_ZOOKEEPER_CONNECT=192.168.100.203:2181,192.168.100.189:2181,192.168.100.220:2181
-      - KAFKA_ADVERTISED_LISTENERS=INTERNAL://192.168.100.189:17810,PUBLIC://192.168.100.189:17812
-      - KAFKA_BROKER_ID=-1
+      - KAFKA_ZOOKEEPER_CONNECT=zk-1:2181,zk-2:2182,zk-3:2183
+      - KAFKA_ADVERTISED_LISTENERS=INT://:17810,EXT://192.168.100.220:17812
+      - KAFKA_INTER_BROKER_LISTENER_NAME=INT
+      - KAFKA_BROKER_ID=0
       - KAFKA_CLEANUP_POLICY=compact
-      - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
-      - KAFKA_LISTENERS=INTERNAL://:17810,PUBLIC://:17812
-      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,PUBLIC:PLAINTEXT
+      - KAFKA_LISTENERS=INT://:17810,EXT://:17812
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,INT:PLAINTEXT,EXT:PLAINTEXT
       - KAFKA_PORT=17810
     deploy:
       placement:
         constraints: [node.labels.kfknode == 0]
-
-  kafka-1:
+  kafka-2:
     image: wurstmeister/kafka:2.12-2.1.0
-    networks:
-      - kfk-overlay
+    hostname: kafka-2
+    restart: always
+    depends_on:
+      - zk-1
+      - zk-2
+      - zk-3
     volumes:
       - kfk-data:/kafka
     ports:
-      - 17810:17810
-      - 17812:17812
+      - 17813:17812
     environment:
-      - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
-      - KAFKA_LISTENERS=INTERNAL://:17810,PUBLIC://:17812
-      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,PUBLIC:PLAINTEXT
-      - KAFKA_PORT=17810
-      - KAFKA_ZOOKEEPER_CONNECT=192.168.100.203:2181,192.168.100.189:2181,192.168.100.220:2181
-      - KAFKA_ADVERTISED_LISTENERS=INTERNAL://192.168.100.35:17810,PUBLIC://192.168.100.35:17812
-      - KAFKA_BROKER_ID=-1
+      - KAFKA_ZOOKEEPER_CONNECT=zk-1:2181,zk-2:2182,zk-3:2183
+      - KAFKA_ADVERTISED_LISTENERS=INT://:17810,EXT://192.169.100.35:17813
+      - KAFKA_INTER_BROKER_LISTENER_NAME=INT
+      - KAFKA_BROKER_ID=1
       - KAFKA_CLEANUP_POLICY=compact
+      - KAFKA_LISTENERS=INT://:17810,EXT://:17812
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,INT:PLAINTEXT,EXT:PLAINTEXT
+      - KAFKA_PORT=17810
     deploy:
       placement:
         constraints: [node.labels.kfknode == 1]
-
-  kafka-2:
+  kafka-3:
     image: wurstmeister/kafka:2.12-2.1.0
-    networks:
-      - kfk-overlay
+    hostname: kafka-3
+    restart: always
+    depends_on:
+      - zk-1
+      - zk-2
+      - zk-3
     volumes:
       - kfk-data:/kafka
     ports:
-      - 17810:17810
-      - 17812:17812
+      - 17814:17812
     environment:
-      - KAFKA_PORT=17810
-      - KAFKA_ZOOKEEPER_CONNECT=192.168.100.203:2181,192.168.100.189:2181,192.168.100.220:2181
-      - KAFKA_ADVERTISED_LISTENERS=INTERNAL://192.168.100.94:17810,PUBLIC://192.168.100.94:17812
-      - KAFKA_BROKER_ID=-1
+      - KAFKA_ZOOKEEPER_CONNECT=zk-1:2181,zk-2:2182,zk-3:2183
+      - KAFKA_ADVERTISED_LISTENERS=INT://:17810,EXT://192.168.100.94:17814
+      - KAFKA_INTER_BROKER_LISTENER_NAME=INT
+      - KAFKA_BROKER_ID=3
       - KAFKA_CLEANUP_POLICY=compact
-      - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
-      - KAFKA_LISTENERS=INTERNAL://:17810,PUBLIC://:17812
-      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,PUBLIC:PLAINTEXT
+      - KAFKA_LISTENERS=INT://:17810,EXT://:17812
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,INT:PLAINTEXT,EXT:PLAINTEXT
+      - KAFKA_PORT=17810
     deploy:
       placement:
         constraints: [node.labels.kfknode == 2]
 
 networks:
-  kfk-overlay:
+  core-overlay:
+    external: true
 
 volumes:
   kfk-data:
+  zk-data:
+  zk-datalog:
+  zk-logs:
+#  zk-conf:
