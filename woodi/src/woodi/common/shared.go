@@ -1,6 +1,12 @@
 package woodi
 
+import (
+  "flag"
+  "github.com/Shopify/sarama"
+)
+
 var (
+  KAFKA_VERSION = sarama.V2_1_0_0
   TOPIC_IMSG = "chat_imsg"
-  BROKERS = []string{"192.168.100.189:17812","192.168.100.35:17812","192.168.100.94:17812"}
+  Brokers = flag.String("brokers", "localhost:9092", "broker list splitted by ','")
 )

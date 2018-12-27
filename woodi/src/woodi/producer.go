@@ -2,20 +2,27 @@ package main
 
 import (
   "github.com/Shopify/sarama"
-  "fmt"
+  "github.com/golang/glog"
   "os"
+  "time"
   "os/signal"
   "woodi/common"
+  "flag"
+  "strings"
 )
 
 func main() {
+  flag.Parse()
   cfg := sarama.NewConfig()
+  cfg.Version = woodi.KAFKA_VERSION
   cfg.Producer.Return.Successes = true
-  fmt.Println("version: ", cfg.Version)
+  glog.Info("version: ", cfg.Version)
 
-  pro, err := sarama.NewAsyncProducer(woodi.BROKERS, cfg)
+  brks := strings.Split(*woodi.Brokers, ",")
+  glog.Info("brokers: ", brks)
+  pro, err := sarama.NewAsyncProducer(brks, cfg)
   if err != nil {
-    fmt.Println("create producer failed: ", err)
+    glog.Error("create producer failed: ", err)
     return
   }
   defer pro.Close()
@@ -29,20 +36,21 @@ func main() {
     msg := &sarama.ProducerMessage{
       Topic: woodi.TOPIC_IMSG,
       Value: sarama.StringEncoder("today "),
+      Timestamp: time.Now(),
     }
     if sent_nr > 10 { break }
     select {
     case pro.Input() <-msg:
-      fmt.Printf("sent[%d]: %v\n", sent_nr, msg)
+      glog.Infof("sent[%d]: %v\n", sent_nr, msg)
       sent_nr++
     case <-sig:
       pro.AsyncClose()
-      fmt.Println("producer quit")
+      glog.Info("producer quit")
       break
     case r := <-pro.Successes():
-      fmt.Println("ok: ", r)
+      glog.Info("ok: ", r)
     case r := <-pro.Errors():
-      fmt.Println("err: ", r)
+      glog.Info("err: ", r)
     }
   }
 }

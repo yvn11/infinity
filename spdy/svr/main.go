@@ -5,6 +5,7 @@ import (
   "net"
   "flag"
   "spdy"
+  "github.com/golang/glog"
 )
 
 var (
@@ -24,14 +25,14 @@ func main() {
   flag.Parse()
   l, err := net.Listen("tcp", fmt.Sprint(":%d", listen_port))
   if err != nil {
-    fmt.Println("launch failed", err)
+    glog.Error("launch failed", err)
     return
   }
 
   for {
     conn, err := net.Accept()
     if err != nil {
-      fmt.Println("accept failed: ", err)
+      glog.Error("accept failed: ", err)
       break
     }
     go forward_spdy(conn)

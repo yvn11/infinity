@@ -10,7 +10,8 @@ import logging
 def run_async(hdr_name):
     try:
         hdr = globals().get(hdr_name)()
-        _ = list(hdr.run_async())
+        res = list(hdr.run_async())
+        [print(r['future'].get()) for r in res]
     except KeyboardInterrupt:
         print("++ [terminate] {}".format(hdr_name))
     except Exception as ex:

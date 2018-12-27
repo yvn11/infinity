@@ -2,27 +2,27 @@ package main
 
 import (
   "github.com/Shopify/sarama"
-  "fmt"
+  "github.com/golang/glog"
   "os"
   "os/signal"
+  "flag"
+  "strings"
   "woodi/common"
 )
 
 func main() {
+  flag.Parse()
   cfg := sarama.NewConfig()
+
+  cfg.Version = woodi.KAFKA_VERSION
   cfg.Consumer.Return.Errors = true
-  ver, err := sarama.ParseKafkaVersion("2.1.0")
-  if err != nil {
-    fmt.Print("failed to parse kafka version", err)
-    return
-  }
 
-  cfg.Version = ver
-
-  fmt.Println("version: ", cfg.Version)
-  cons, err := sarama.NewConsumer(woodi.BROKERS, nil)
+  glog.Info("version: ", cfg.Version)
+  brks := strings.Split(*woodi.Brokers, ",")
+  glog.Info("brokers: ", brks)
+  cons, err := sarama.NewConsumer(brks, nil)
   if err != nil {
-    fmt.Println("create consumer failed: ", err)
+    glog.Error("create consumer failed: ", err)
     return
   }
   defer cons.Close()
@@ -32,7 +32,7 @@ func main() {
 
   partCons, err := cons.ConsumePartition(woodi.TOPIC_IMSG, 0, sarama.OffsetNewest)
   if err != nil {
-    fmt.Println("get partition consumer failed: ", err)
+    glog.Error("get partition consumer failed: ", err)
     return
   }
   defer partCons.Close()
@@ -42,14 +42,17 @@ func main() {
   for {
     select {
     case msg := <-partCons.Messages():
+      if msg == nil { continue }
       recv_nr++;
-      fmt.Printf("got[%d]: %v", recv_nr, msg)
+      glog.Infof("[%d] %v %v:%v\n", recv_nr, msg.Timestamp, msg.Key, msg.Value)
     case <-sig:
       partCons.AsyncClose()
-      fmt.Println("consumer quit")
+      glog.Info("consumer quit")
       break
     case r := <-partCons.Errors():
-      fmt.Println("err: ", r)
+      if r != nil {
+        glog.Error("err: ", r)
+      }
     }
   }
 }
