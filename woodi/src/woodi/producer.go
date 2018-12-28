@@ -20,25 +20,30 @@ func main() {
 
   brks := strings.Split(*woodi.Brokers, ",")
   glog.Info("brokers: ", brks)
+  glog.Info("topics: ", woodi.TOPIC_IMSG)
   pro, err := sarama.NewAsyncProducer(brks, cfg)
   if err != nil {
     glog.Error("create producer failed: ", err)
     return
   }
-  defer pro.Close()
-
+  /**
+  defer func() {
+    if err := pro.Close(); err != nil {
+      glog.Error("failed to close producer: ", err)
+    }}()
+  */
   sig := make(chan os.Signal, 1)
   signal.Notify(sig, os.Interrupt)
 
   var sent_nr int
-
+  ProducerLoop:
   for {
     msg := &sarama.ProducerMessage{
       Topic: woodi.TOPIC_IMSG,
-      Value: sarama.StringEncoder("today "),
+      Value: sarama.StringEncoder(time.Now().String()),
       Timestamp: time.Now(),
     }
-    if sent_nr > 10 { break }
+    //if sent_nr > 10 { break }
     select {
     case pro.Input() <-msg:
       glog.Infof("sent[%d]: %v\n", sent_nr, msg)
@@ -46,7 +51,7 @@ func main() {
     case <-sig:
       pro.AsyncClose()
       glog.Info("producer quit")
-      break
+      break ProducerLoop
     case r := <-pro.Successes():
       glog.Info("ok: ", r)
     case r := <-pro.Errors():

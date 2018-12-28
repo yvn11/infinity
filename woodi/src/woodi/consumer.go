@@ -20,13 +20,18 @@ func main() {
   glog.Info("version: ", cfg.Version)
   brks := strings.Split(*woodi.Brokers, ",")
   glog.Info("brokers: ", brks)
+  glog.Info("topics: ", woodi.TOPIC_IMSG)
   cons, err := sarama.NewConsumer(brks, nil)
   if err != nil {
     glog.Error("create consumer failed: ", err)
     return
   }
-  defer cons.Close()
-
+  /**
+  defer func() {
+    if err := cons.Close(); err != nil {
+      glog.Error("failed to close consumer: ", err)
+    }}()
+  */
   sig := make(chan os.Signal, 1)
   signal.Notify(sig, os.Interrupt)
 
@@ -35,10 +40,9 @@ func main() {
     glog.Error("get partition consumer failed: ", err)
     return
   }
-  defer partCons.Close()
 
   var recv_nr int
-
+  ConsumerLoop:
   for {
     select {
     case msg := <-partCons.Messages():
@@ -48,7 +52,7 @@ func main() {
     case <-sig:
       partCons.AsyncClose()
       glog.Info("consumer quit")
-      break
+      break ConsumerLoop
     case r := <-partCons.Errors():
       if r != nil {
         glog.Error("err: ", r)
