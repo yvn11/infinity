@@ -1,36 +1,41 @@
 version: "3"
 
 services:
-  zk-0:
+  zk1:
     image: zookeeper:3.5
-    hostname: zk-0
+    hostname: zk1
     restart: always
+    networks:
+      - core-overlay
     volumes:
       - zk-data:/data
       - zk-datalog:/datalog
       - zk-logs:/logs
       #- /zk-conf:/conf
+    ports:
+      - 2171:2181
     deploy:
       placement:
-        constraints: [node.labels.kfknode == 0]
+        constraints: [node.labels.kfknode == 1]
     environment:
       - ZOO_MY_ID=1
       - ZOO_SERVERS=server.1=0.0.0.0:2888:3888;2181
-      #server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
 
-  kafka-0:
+  kafka1:
     image: wurstmeister/kafka:2.12-2.1.0
-    hostname: kafka-0
+    hostname: kafka1
     restart: always
+    networks:
+      - core-overlay
     depends_on:
-      - zk-0
+      - zk1
     volumes:
       - kfk-data:/kafka
     ports:
       - 17810:17810
       - 17812:17812
     environment:
-      - KAFKA_ZOOKEEPER_CONNECT=zk-0:2181
+      - KAFKA_ZOOKEEPER_CONNECT=zk1:2171
       - KAFKA_ADVERTISED_LISTENERS=INT://:17810,EXT://192.168.100.220:17812
       - KAFKA_INTER_BROKER_LISTENER_NAME=INT
       - KAFKA_BROKER_ID=0
@@ -44,6 +49,8 @@ services:
 
 networks:
   core-overlay:
+    external: true
+  host:
     external: true
 
 volumes:
