@@ -4,13 +4,8 @@ services:
   k1:
     image: wurstmeister/kafka:2.12-2.1.0
     hostname: k1
-    #restart: always
     networks:
       - core-overlay
-    #depends_on:
-      #- zk1
-      #- zk2
-      #- zk3
     volumes:
       - kfk-data:/kafka
     ports:
@@ -32,13 +27,8 @@ services:
   k2:
     image: wurstmeister/kafka:2.12-2.1.0
     hostname: k2
-    #restart: always
     networks:
       - core-overlay
-    #depends_on:
-      #- zk1
-      #- zk2
-      #- zk3
     volumes:
       - kfk-data:/kafka
     ports:
@@ -60,13 +50,8 @@ services:
   k3:
     image: wurstmeister/kafka:2.12-2.1.0
     hostname: k3
-    #restart: always
     networks:
       - core-overlay
-    #depends_on:
-      #- zk1
-      #- zk2
-      #- zk3
     volumes:
       - kfk-data:/kafka
     ports:

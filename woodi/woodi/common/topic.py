@@ -2,4 +2,4 @@
 # Author: Zex Li <top_zlynch@yahoo.com>
 
 class Topic:
-    CHAT_IMSG = 'chat_imsg'
+    CHAT_IMSG = 'user_imsg'
