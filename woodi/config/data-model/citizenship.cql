@@ -1,3 +1,4 @@
+USE aggregate;
 INSERT INTO citizenship (code,country,source,created_at,updated_at) values ('AFG','Afghanistan','https://www.educationcounts.govt.nz',toTimestamp(now()),toTimestamp(now()));
 INSERT INTO citizenship (code,country,source,created_at,updated_at) values ('ALB','Albania','https://www.educationcounts.govt.nz',toTimestamp(now()),toTimestamp(now()));
 INSERT INTO citizenship (code,country,source,created_at,updated_at) values ('DZA','Algeria','https://www.educationcounts.govt.nz',toTimestamp(now()),toTimestamp(now()));
