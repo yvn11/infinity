@@ -8,6 +8,7 @@ port=
 dev_pass=`uuidgen |awk -F- '{print $1$5}'`
 cqlsh -C -u $super_u -p $super_p -e "CREATE USER IF NOT EXISTS dev WITH PASSWORD '$dev_pass' NOSUPERUSER;
 GRANT MODIFY ON ALL KEYSPACES TO dev;
+GRANT CREATE ON ALL KEYSPACES TO dev;
 GRANT SELECT ON ALL KEYSPACES TO dev;" $host $port
 cat > .dev_pass << EOF
 $dev_pass

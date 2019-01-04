@@ -9,10 +9,10 @@ class AggrCli:
     def __init__(self):
         self.auth_provider = PlainTextAuthProvider(username=Config.cassandra_user, password=Config.cassandra_pass)
         self.conn = Cluster(Config.cassandra_servers, Config.cassandra_port, auth_provider=self.auth_provider)
-        self.sess = self.conn.connect(keyspace='aggregate')
+        self.sess = self.conn.connect(keyspace='woody')
     
     def cleanup(self):
-        print('aggr shutdown')
+        print('woody shutdown')
         if self.conn != None:
             self.conn.shutdown()
 
