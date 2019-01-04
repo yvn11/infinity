@@ -12,7 +12,7 @@ services:
         target: 7001
         mode: host
       # CQL client
-      - published: 9042
+      - published: 17001
       #17001
         target: 9042
         mode: host
@@ -52,7 +52,7 @@ services:
         target: 7001
         mode: host
       # CQL client
-      - published: 9042
+      - published: 17001
       #17001
         target: 9042
         mode: host
@@ -76,7 +76,7 @@ services:
 #      - CASSANDRA_RPC_ADDRESS=cass2
 #      - CASSANDRA_LISTEN_ADDRESS=cass2
 #      - CASSANDRA_BROADCAST_ADDRESS=cass2
-      - CASSANDRA_SEEDS=192.168.100.220
+      - CASSANDRA_SEEDS=cass1
     deploy:
       placement:
         constraints: [node.labels.zknode == 2]
@@ -92,8 +92,7 @@ services:
 #        target: 7001
 #        mode: host
       # CQL client
-      - published: 9042
-      #17001
+      - published: 17001
         target: 9042
         mode: host
         protocol: tcp
@@ -116,7 +115,7 @@ services:
 #      - CASSANDRA_RPC_ADDRESS=cass3
 #      - CASSANDRA_LISTEN_ADDRESS=cass3
 #      - CASSANDRA_BROADCAST_ADDRESS=cass3
-      - CASSANDRA_SEEDS=192.168.100.220
+      - CASSANDRA_SEEDS=cass1
     deploy:
       placement:
         constraints: [node.labels.zknode == 3]
