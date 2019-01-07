@@ -1,0 +1,14 @@
+FROM docker.io/centos:7
+
+ENV SPARK_VERSION=2.4.0
+ENV HADOOP_VERSION=2.7
+ENV SPARK_ROOT=/opt/spark
+
+RUN yum upgrade -y && yum update -y && yum install -y \
+  vim java-1.8.0-openjdk java-1.8.0-openjre
+RUN curl http://mirror.bit.edu.cn/apache/spark/spark-$SPARK_VERSION/spark-$SPARK_VERSION-bin-hadoop$HADOOP_VERSION.tgz \
+  -o /opt/spark_$HADOOP_VERSION-$SPARK_VERSION.tgz
+RUN du -h -l /opt/* && tar xf /opt/spark_$HADOOP_VERSION-$SPARK_VERSION.tgz -C /opt && ln -s /opt/spark_$HADOOP_VERSION-$SPARK_VERSION $SPARK_ROOT && \
+  rm -f /opt/spark_$HADOOP_VERSION-$SPARK_VERSION.tgz 
+
+WORKDIR /opt

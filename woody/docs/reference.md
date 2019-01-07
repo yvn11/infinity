@@ -1,0 +1,4 @@
+---------------------------------------
+- https://docs.datastax.com/en/cassandra/3.0/cassandra/dml/dmlHowDataWritten.html
+- https://wiki.apache.org/cassandra/ArchitectureSSTable
+- https://wiki.apache.org/cassandra/MemtableSSTable

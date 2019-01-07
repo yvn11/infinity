@@ -1,34 +1,4 @@
 {
-  "__inputs": [
-    {
-      "name": "DS_INFLUXDB",
-      "label": "influxdb",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "influxdb",
-      "pluginName": "InfluxDB"
-    }
-  ],
-  "__requires": [
-    {
-      "type": "grafana",
-      "id": "grafana",
-      "name": "Grafana",
-      "version": "5.2.0"
-    },
-    {
-      "type": "panel",
-      "id": "graph",
-      "name": "Graph",
-      "version": "5.0.0"
-    },
-    {
-      "type": "datasource",
-      "id": "influxdb",
-      "name": "InfluxDB",
-      "version": "5.0.0"
-    }
-  ],
   "annotations": {
     "list": [
       {
@@ -45,7 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": null,
+  "id": 2,
   "links": [],
   "panels": [
     {
@@ -66,7 +36,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_INFLUXDB}",
+      "datasource": null,
       "fill": 0,
       "gridPos": {
         "h": 9,
@@ -282,7 +252,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_INFLUXDB}",
+      "datasource": null,
       "fill": 1,
       "gridPos": {
         "h": 9,
@@ -439,7 +409,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_INFLUXDB}",
+      "datasource": null,
       "fill": 0,
       "gridPos": {
         "h": 9,
@@ -509,7 +479,7 @@
             {
               "key": "host",
               "operator": "=",
-              "value": "qa.smartlife.emdata.cn"
+              "value": "ubuntu-35"
             }
           ]
         },
@@ -552,7 +522,7 @@
             {
               "key": "host",
               "operator": "=",
-              "value": "qa.smartlife.emdata.cn"
+              "value": "ubuntu-35"
             }
           ]
         },
@@ -595,7 +565,7 @@
             {
               "key": "host",
               "operator": "=",
-              "value": "qa.smartlife.emdata.cn"
+              "value": "ubuntu-35"
             }
           ]
         }
@@ -655,7 +625,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_INFLUXDB}",
+      "datasource": null,
       "fill": 1,
       "gridPos": {
         "h": 9,
@@ -748,7 +718,7 @@
             {
               "key": "host",
               "operator": "=",
-              "value": "qa.smartlife.emdata.cn"
+              "value": "ubuntu-35"
             }
           ]
         }
@@ -812,7 +782,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_INFLUXDB}",
+      "datasource": null,
       "fill": 0,
       "gridPos": {
         "h": 9,
@@ -1028,7 +998,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_INFLUXDB}",
+      "datasource": null,
       "fill": 1,
       "gridPos": {
         "h": 9,
@@ -1185,7 +1155,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_INFLUXDB}",
+      "datasource": null,
       "fill": 0,
       "gridPos": {
         "h": 9,
@@ -1401,7 +1371,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_INFLUXDB}",
+      "datasource": null,
       "fill": 1,
       "gridPos": {
         "h": 9,
@@ -1558,7 +1528,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_INFLUXDB}",
+      "datasource": null,
       "fill": 0,
       "gridPos": {
         "h": 9,
@@ -1774,7 +1744,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_INFLUXDB}",
+      "datasource": null,
       "fill": 1,
       "gridPos": {
         "h": 9,
@@ -1929,7 +1899,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_INFLUXDB}",
+      "datasource": null,
       "fill": 0,
       "gridPos": {
         "h": 9,
@@ -2145,7 +2115,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_INFLUXDB}",
+      "datasource": null,
       "fill": 1,
       "gridPos": {
         "h": 9,
@@ -2292,8 +2262,8 @@
     "list": []
   },
   "time": {
-    "from": "now-1h",
-    "to": "now"
+    "from": "now-2d/d",
+    "to": "now-2d/d"
   },
   "timepicker": {
     "refresh_intervals": [

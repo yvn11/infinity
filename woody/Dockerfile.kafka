@@ -9,5 +9,6 @@ RUN yum upgrade -y && yum update -y && yum install -y \
 RUN curl http://mirror.bit.edu.cn/apache/kafka/$KAFKA_VERSION/kafka_$SCALA_VERSION-$KAFKA_VERSION.tgz \
   -o /opt/kafka_$SCALA_VERSION-$KAFKA_VERSION.tgz
 RUN du -h -l /opt/* && tar xf /opt/kafka_$SCALA_VERSION-$KAFKA_VERSION.tgz -C /opt && ln -s /opt/kafka_$SCALA_VERSION-$KAFKA_VERSION $KAFKA_ROOT && \
-  rm -f /opt/kafka_2.11-$KAFKA_VERSION.tgz 
+  rm -f /opt/kafka_$SCALA_VERSION-$KAFKA_VERSION.tgz 
 
+WORKDIR /opt
