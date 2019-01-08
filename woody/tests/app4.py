@@ -1,4 +1,3 @@
-	5 votes	vote down vote up
 def stream(ssc, pwords, nwords, duration):
     kstream = KafkaUtils.createDirectStream(
         ssc, topics = ['twitterstream'], kafkaParams = {"metadata.broker.list": 'localhost:9092'})

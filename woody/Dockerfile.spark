@@ -2,13 +2,24 @@ FROM docker.io/centos:7
 
 ENV SPARK_VERSION=2.4.0
 ENV HADOOP_VERSION=2.7
-ENV SPARK_ROOT=/opt/spark
+ENV SPARK_HOME=/opt/spark
+ENV SCALA_VERSION=2.11
+ENV SPARK_EXTERN=/opt/spark-extern
 
-RUN yum upgrade -y && yum update -y && yum install -y \
-  vim java-1.8.0-openjdk java-1.8.0-openjre
+RUN yum upgrade -y && yum update -y && \
+  yum install -y epel-release && \
+  yum update -y && yum install -y \
+  vim python36 python34-pip \
+  java-1.8.0-openjdk java-1.8.0-openjre &&\
+  pip3 install -U pip
+
 RUN curl http://mirror.bit.edu.cn/apache/spark/spark-$SPARK_VERSION/spark-$SPARK_VERSION-bin-hadoop$HADOOP_VERSION.tgz \
   -o /opt/spark_$HADOOP_VERSION-$SPARK_VERSION.tgz
-RUN du -h -l /opt/* && tar xf /opt/spark_$HADOOP_VERSION-$SPARK_VERSION.tgz -C /opt && ln -s /opt/spark_$HADOOP_VERSION-$SPARK_VERSION $SPARK_ROOT && \
-  rm -f /opt/spark_$HADOOP_VERSION-$SPARK_VERSION.tgz 
+RUN du -h -l /opt/* && tar xf /opt/spark_$HADOOP_VERSION-$SPARK_VERSION.tgz -C /opt && ln -s /opt/spark-$SPARK_VERSION-bin-hadoop$HADOOP_VERSION $SPARK_HOME && \
+  rm -f /opt/spark_$HADOOP_VERSION-$SPARK_VERSION.tgz  &&\
+  curl https://search.maven.org/remotecontent?filepath=org/apache/spark/spark-streaming-kafka-0-8-assembly_$SCALA_VERSION/$SPARK_VERSION/spark-streaming-kafka-0-8-assembly_$SCALA_VERSION-$SPARK_VERSION.jar -o spark-streaming-kafka-0-8-assembly_$SCALA_VERSION-$SPARK_VERSION.jar
+
+COPY requirements.txt /tmp/requirements.txt
+RUN pip3 install -r /tmp/requirements.txt && rm -f /tmp/requirements.txt
 
 WORKDIR /opt

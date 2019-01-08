@@ -7,8 +7,7 @@ services:
       - tele-net
     hostname: '{{.Node.Hostname}}'
     ports:
-      - protocol: tcp
-        published: 13000
+      - published: 13000
         target: 3000
         mode: host
     volumes:
@@ -23,8 +22,7 @@ services:
     networks:
       - tele-net
     ports:
-      - protocol: tcp
-        published: 13001
+      - published: 13001
         target: 8086
         mode: host
     volumes:
@@ -35,7 +33,6 @@ services:
   telegraf:
     image: telegraf:alpine
     hostname: '{{.Node.Hostname}}'
-    network_mode: host
     networks:
       - tele-net
     environment:
@@ -68,9 +65,10 @@ services:
   telegraf_global:
     image: telegraf:alpine
     hostname: '{{.Node.Hostname}}'
-    network_mode: host
     networks:
       - tele-net
+    depends_on:
+      - influxdb
     environment:
       - HOST_PROC=/host/proc
     volumes:
