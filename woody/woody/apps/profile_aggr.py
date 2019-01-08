@@ -3,6 +3,7 @@ from pyspark.streaming.context import StreamingContext
 from pyspark.streaming.kafka import KafkaUtils
 from woody.common.config import Config
 from py4j.protocol import Py4JJavaError
+from datetime import datetime
 
 class ProfileAggr(object):
     """Profile aggregates
@@ -23,17 +24,18 @@ class ProfileAggr(object):
             self.__class__.__name__,
             {"user_imsg": 3})
         """
-        print(kfk_params)
         self._ds = KafkaUtils.createDirectStream(self._ssc, ["user_imsg"], kfk_params)
-        self._ds.foreachRDD(self.foreach_rdd)
-	"""
-        lines = self._ds.map(lambda x: x[1])
-        lines.pprint()
-        lines.saveAsTextFiles(self.__class__.__name__)
-        """     
+        #self._ds.pprint()
+        fmt = "%Y-%m-%d %H:%M:%S"
+
+        dates = self._ds.flatMap(lambda x: [datetime.strptime(
+            ''.join(x[1].split('.')[:1]), fmt)]) dates.pprint()
+        dates = dates.map(lambda x: (x, 1)).reduceByKey(lambda x, y: y+x)
+        dates.pprint()
+        #dates.saveAsTextFiles(self.__class__.__name__)
+
     def foreach_rdd(self, time, rdd):
         print(time, rdd)
-        #TODO
 
     def run(self):
         try:
@@ -43,7 +45,9 @@ class ProfileAggr(object):
             print("start failed", e)
         except KeyboardInterrupt:
             print("shutdown")
-            self._ssc.stop()
+        #    self._ssc.stop()
+        except Exception as e:
+            print("unhandled: ", e)
 
 if __name__ == '__main__':
     app = ProfileAggr()
