@@ -8,3 +8,4 @@ class Config:
     kafka_brokers = environ.get("KAFKA_BROKERS", "")
     zoo_servers = environ.get("ZOO_SERVERS", "")
     ssc_duration = int(environ.get("SSC_DURATION", "1")) # batch duration in second
+    spark_master = environ.get("SPARK_MASTER", "local")

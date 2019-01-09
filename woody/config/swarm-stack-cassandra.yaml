@@ -40,7 +40,7 @@ services:
       - CASSANDRA_SEEDS=cass1
     deploy:
       placement:
-        constraints: [node.labels.zknode == 1]
+        constraints: [node.labels.cassnode == 1]
   cass2:
     image: docker.io/cassandra:3.11
     hostname: cass2
@@ -81,7 +81,7 @@ services:
       - CASSANDRA_SEEDS=cass1
     deploy:
       placement:
-        constraints: [node.labels.zknode == 2]
+        constraints: [node.labels.cassnode == 2]
   cass3:
     image: docker.io/cassandra:3.11
     hostname: cass3
@@ -122,7 +122,7 @@ services:
       - CASSANDRA_SEEDS=cass1
     deploy:
       placement:
-        constraints: [node.labels.zknode == 3]
+        constraints: [node.labels.cassnode == 3]
 
 volumes:
   cassandra-data:
