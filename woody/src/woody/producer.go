@@ -16,6 +16,7 @@ func main() {
   cfg := sarama.NewConfig()
   cfg.Version = woody.KAFKA_VERSION
   cfg.Producer.Return.Successes = true
+  cfg.Producer.Partitioner = sarama.NewRandomPartitioner
   glog.Info("version: ", cfg.Version)
 
   brks := strings.Split(*woody.Brokers, ",")
@@ -40,8 +41,10 @@ func main() {
   for {
     msg := &sarama.ProducerMessage{
       Topic: woody.TOPIC_IMSG,
-      Value: sarama.StringEncoder(time.Now().String()),
+      Key: sarama.StringEncoder(time.Now().String()),
+      Value: sarama.StringEncoder("checked in"),
       Timestamp: time.Now(),
+      Partition: 1,
     }
     //if sent_nr > 10 { break }
     select {

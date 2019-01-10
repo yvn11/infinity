@@ -5,6 +5,7 @@ services:
     hostname: cass1
     networks:
       - cassandra-net
+      - zk-net
     ports:
       # message service, storage_port
       - published: 7000
@@ -46,6 +47,7 @@ services:
     hostname: cass2
     networks:
       - cassandra-net
+      - zk-net
     ports:
       # message service, storage_port
       - published: 7000
@@ -87,6 +89,7 @@ services:
     hostname: cass3
     networks:
       - cassandra-net
+      - zk-net
     ports:
       # message service, storage_port
       - published: 7000
@@ -130,3 +133,6 @@ volumes:
 
 networks:
   cassandra-net:
+  zk-net:
+    external:
+      name: kfk_zk-net

@@ -12,6 +12,8 @@ class ProfileAggr(object):
     def __init__(self):
         self._sc = SparkContext(appName=self.__class__.__name__+str(randint(10,20)))
         self._sc.setLogLevel('WARN')
+        self._sc.setLocalProperty("spark.scheduler.mode", "FAIR")
+        self._sc.setLocalProperty("spark.scheduler.pool", "pool_dev")
         self._ssc = StreamingContext(self._sc, Config.ssc_duration)
         self._from_kfk()
 
@@ -22,9 +24,11 @@ class ProfileAggr(object):
             }
         self._ds = KafkaUtils.createDirectStream(self._ssc, ["user_imsg"], kfk_params)
         fmt = "%Y-%m-%d %H:%M:%S"
-
-        dates = self._ds.flatMap(lambda x: [datetime.strptime(
-            ''.join(x[1].split('.')[:1]), fmt)])
+        #dates = self._ds.flatMap(lambda x: [datetime.strptime(
+        #    ''.join(x[1].split('.')[:1]), fmt)])
+        # <datetime>: "checked in"
+        dates = self._ds.map(lambda x: datetime.strptime(
+            ''.join(x[0].split('.')[:1]), fmt))
         dates = dates.map(lambda x: (x, 1)).reduceByKey(lambda x, y: y+x)
         dates.pprint()
         #dates.saveAsTextFiles(self.__class__.__name__)
