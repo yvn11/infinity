@@ -1,0 +1,44 @@
+version: "3.4"
+
+services:
+  aggregator:
+    image: zlynch/click-stream:1.0
+    hostname: clickstream-aggregator
+    networks:
+      - zk-net
+    environment:
+      PYTHONPATH: /opt/woody
+      # outside cluster: 192.168.70.220,192.168.70.189,192.168.70.35
+      #                  17001
+      CASSANDRA_SERVERS: cass1,cass2,cass3
+      CASSANDRA_PORT: 9042
+      CASSANDRA_USER: dev
+      CASSANDRA_PASS: dcb5c69fedb78e9a29a3
+      # outside cluster: 192.168.70.220:17812,192.168.70.35:17812,192.168.70.94:17812
+      KAFKA_BROKERS: k1:17812,k2:17812,k3:17812
+      SPARK_HOME: /opt/spark
+      SPARK_MASTER: spark://spark1:7077
+      SPARK_SCHED_MODE: FAIR
+      SPARK_SCHED_POOL: clickstream
+      SPARK_SCHED_FILE: /opt/spark/conf/fairscheduler.xml
+    ports:
+      - published: 18881
+        target: 4040
+        mode: host
+    command: /opt/spark/bin/spark-submit --master spark://spark1:7077 --jars /opt/spark-extern/spark-streaming-kafka-0-8-assembly_2.11-2.4.0.jar woody/apps/clickstream.py
+  producer:
+    image: zlynch/click-stream-producer:1.0
+    hostname: clickstream-producer
+    networks:
+      - zk-net
+    # outside cluster: 192.168.70.220:17812,192.168.70.35:17812,192.168.70.94:17812
+    command: build/click_stream_producer -alsologtostderr -brokers k1:17812,k2:17812,k3:17812
+    deploy:
+      placement:
+        constraints: [node.hostname != core.master]
+      replicas: 0
+
+networks:
+  zk-net:
+    external:
+      name: kfk_zk-net

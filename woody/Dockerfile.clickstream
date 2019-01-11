@@ -20,6 +20,11 @@ RUN echo "<?xml version=\"1.0\"?> \
     <weight>2</weight> \
     <minShare>1</minShare> \
   </pool> \
+  <pool name=\"clickstream\"> \
+    <schedulingMode>FAIR</schedulingMode> \
+    <weight>3</weight> \
+    <minShare>1</minShare> \
+  </pool> \
 </allocations>" > /opt/spark/conf/fairscheduler.xml
 
 CMD ["scripts/aggr_cli.sh"]

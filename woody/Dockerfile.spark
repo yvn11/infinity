@@ -9,7 +9,7 @@ ENV SPARK_EXTERN=/opt/spark-extern
 RUN yum upgrade -y && yum update -y && \
   yum install -y epel-release && \
   yum update -y && yum install -y \
-  vim python36 python34-pip \
+  vim python36 python34-pip redhat-rpm-config python3-devel \
   java-1.8.0-openjdk java-1.8.0-openjre &&\
   pip3 install -U pip
 

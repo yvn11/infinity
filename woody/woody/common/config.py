@@ -9,3 +9,6 @@ class Config:
     zoo_servers = environ.get("ZOO_SERVERS", "")
     ssc_duration = int(environ.get("SSC_DURATION", "1")) # batch duration in second
     spark_master = environ.get("SPARK_MASTER", "local")
+    spark_sched_mode = environ.get("SPARK_SCHED_MODE", "FAIR")
+    spark_sched_pool = environ.get("SPARK_SCHED_POOL", "dev")
+    spark_sched_file = environ.get("SPARK_SCHED_FILE", "/opt/spark/conf/fairscheduler.xml")

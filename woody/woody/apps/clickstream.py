@@ -1,19 +1,23 @@
 from pyspark.context import SparkContext
+from pyspark.conf import SparkConf
 from pyspark.streaming.context import StreamingContext
 from pyspark.streaming.kafka import KafkaUtils
 from woody.common.config import Config
 from py4j.protocol import Py4JJavaError
 from datetime import datetime
 from random import randint
+import json 
 
-class ProfileAggr(object):
-    """Profile aggregates
+class ClickStreamAggr(object):
+    """ClickStream aggregates
     """
     def __init__(self):
-        self._sc = SparkContext(appName=self.__class__.__name__+str(randint(10,20)))
+        conf = SparkConf()
+        conf.set("spark.scheduler.mode", Config.spark_sched_mode)
+        conf.set("spark.scheduler.pool", Config.spark_sched_pool)
+        conf.set("spark.scheduler.allocation.file", Config.spark_sched_file)
+        self._sc = SparkContext(appName=self.__class__.__name__+str(randint(10,20)), conf=conf)
         self._sc.setLogLevel('WARN')
-        self._sc.setLocalProperty("spark.scheduler.mode", "FAIR")
-        self._sc.setLocalProperty("spark.scheduler.pool", "pool_dev")
         self._ssc = StreamingContext(self._sc, Config.ssc_duration)
         self._from_kfk()
 
@@ -22,17 +26,24 @@ class ProfileAggr(object):
             'metadata.broker.list': Config.kafka_brokers,
             'group.id': self.__class__.__name__,
             }
-        self._ds = KafkaUtils.createDirectStream(self._ssc, ["user_imsg"], kfk_params)
+        self._click_ds = KafkaUtils.createDirectStream(self._ssc, ["click_ev"], kfk_params)
+        self._buy_ds = KafkaUtils.createDirectStream(self._ssc, ["buy_ev"], kfk_params)
+        """
         fmt = "%Y-%m-%d %H:%M:%S"
-        #dates = self._ds.flatMap(lambda x: [datetime.strptime(
-        #    ''.join(x[1].split('.')[:1]), fmt)])
-        # <datetime>: "checked in"
         dates = self._ds.map(lambda x: datetime.strptime(
             ''.join(x[0].split('.')[:1]), fmt))
         dates = dates.map(lambda x: (x, 1)).reduceByKey(lambda x, y: y+x)
         dates.pprint()
-        #dates.saveAsTextFiles(self.__class__.__name__)
+        """
+        click = self._click_ds.map(lambda x: json.loads(x[1]))
+        click.pprint()
 
+        buy = self._buy_ds.map(lambda x: json.loads(x[1]))
+        buy.pprint()
+        buy = buy.map(lambda x: (x['session_id'], int(x['quantity'])))#.reduceByKey(lambda x,y: y+x)
+        buy.pprint()
+
+        #dates.saveAsTextFiles(self.__class__.__name__)
     def foreach_rdd(self, time, rdd):
         print(time, rdd)
 
@@ -49,5 +60,5 @@ class ProfileAggr(object):
             print("unhandled: ", e)
 
 if __name__ == '__main__':
-    app = ProfileAggr()
+    app = ClickStreamAggr()
     app.run()

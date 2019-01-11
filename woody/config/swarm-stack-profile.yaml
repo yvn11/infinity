@@ -1,15 +1,11 @@
 version: "3.4"
 
 services:
-  profile:
+  aggregator:
     image: zlynch/profile:1.0
-    hostname: profile
+    hostname: profile-aggregator
     networks:
       - zk-net
-#    ports:
-#      - published: 18880
-#        target: 8080
-#        mode: host
     environment:
       PYTHONPATH: /opt/woody
       CASSANDRA_SERVERS: 192.168.70.220,192.168.70.189,192.168.70.35
@@ -19,10 +15,17 @@ services:
       KAFKA_BROKERS: 192.168.70.220:17812,192.168.70.35:17812,192.168.70.94:17812
       SPARK_HOME: /opt/spark-2.4.0-bin-hadoop2.7
       SPARK_MASTER: spark://spark1:7077
-    command: /opt/spark/bin/spark-submit --master spark://spark1:7077 --jars /opt/spark-extern/spark-streaming-kafka-0-8-assembly_2.11-2.4.0.jar woody/apps/profile_aggr.py
+      SPARK_SCHED_MODE: FAIR
+      SPARK_SCHED_POOL: dev
+      SPARK_SCHED_FILE: /opt/spark/conf/fairscheduler.xml
+    ports:
+      - published: 18881
+        target: 4040
+        mode: host
+    command: /opt/spark/bin/spark-submit --master spark://spark1:7077 --jars /opt/spark-extern/spark-streaming-kafka-0-8-assembly_2.11-2.4.0.jar woody/apps/profile.py
   producer:
     image: zlynch/producer:1.0
-    hostname: producer
+    hostname: profile-producer
     networks:
       - zk-net
     # outside cluster: 192.168.70.220:17812,192.168.70.35:17812,192.168.70.94:17812
