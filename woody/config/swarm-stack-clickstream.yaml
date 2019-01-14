@@ -17,15 +17,22 @@ services:
       # outside cluster: 192.168.70.220:17812,192.168.70.35:17812,192.168.70.94:17812
       KAFKA_BROKERS: k1:17812,k2:17812,k3:17812
       SPARK_HOME: /opt/spark
-      SPARK_MASTER: spark://spark1:7077
+      #SPARK_MASTER: spark://spark1:7077
       SPARK_SCHED_MODE: FAIR
       SPARK_SCHED_POOL: clickstream
       SPARK_SCHED_FILE: /opt/spark/conf/fairscheduler.xml
-    ports:
-      - published: 18881
-        target: 4040
-        mode: host
-    command: /opt/spark/bin/spark-submit --master spark://spark1:7077 --jars /opt/spark-extern/spark-streaming-kafka-0-8-assembly_2.11-2.4.0.jar woody/apps/clickstream.py
+#    ports:
+#      - published: 18881
+#        target: 4040
+#        mode: host
+        #command: /opt/spark/bin/spark-submit --master spark://spark1:7077 --jars /opt/spark-extern/spark-streaming-kafka-0-8-assembly_2.11-2.4.0.jar woody/apps/clickstream.py
+    volumes:
+      - /etc/kubernetes:/etc/kubernetes
+        #      - /spark-cluster:/var/run/secrets/kubernetes.io/serviceaccount
+    command: /opt/spark/bin/spark-submit --master k8s://https://192.168.70.140:6443 --deploy-mode cluster --conf spark.executor.instances=1 --conf spark.kubernetes.container.image=zlynch/spark:2.4.0 --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark --jars /opt/spark-extern/spark-streaming-kafka-0-8-assembly_2.11-2.4.0.jar woody/apps/clickstream.py
+    deploy:
+      placement:
+        constraints: [node.labels.zknode == 1]
   producer:
     image: zlynch/click-stream-producer:1.0
     hostname: clickstream-producer

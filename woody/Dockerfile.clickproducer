@@ -18,5 +18,5 @@ COPY src $WOODY_ROOT/src
 COPY config $WOODY_ROOT/config
 COPY scripts $WOODY_ROOT/scripts
 
-RUN make -j$(lscpu|grep CPU\(s\)|head -1|awk '{print $2}') click_stream_producer
+RUN make -j$(lscpu|grep CPU\(s\)|head -1|awk '{print $2}') click_producer
 CMD ["build/click_stream_producer", "-alsologtostderr"]

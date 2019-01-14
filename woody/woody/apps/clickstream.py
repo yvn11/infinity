@@ -40,8 +40,16 @@ class ClickStreamAggr(object):
 
         buy = self._buy_ds.map(lambda x: json.loads(x[1]))
         buy.pprint()
-        buy = buy.map(lambda x: (x['session_id'], int(x['quantity'])))#.reduceByKey(lambda x,y: y+x)
-        buy.pprint()
+
+        # delta of buy timestamp and click timestamp
+#        click_ts = buy.map(lambda x: (x['session_id'], int(x['timestamp'])))
+#        buy_ts = buy.map(lambda x: (x['session_id'], int(x['timestamp'])))
+        # session => buy quantity
+        sess_quan = buy.map(lambda x: (x['session_id'], int(x['quantity']))).reduceByKey(lambda x,y: y+x)
+        sess_quan.pprint()
+        # item => buy quantity
+        item_quan = buy.map(lambda x: (x['item_id'], int(x['quantity']))).reduceByKey(lambda x,y: y+x)
+        item_quan.pprint()
 
         #dates.saveAsTextFiles(self.__class__.__name__)
     def foreach_rdd(self, time, rdd):
