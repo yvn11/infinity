@@ -4,7 +4,7 @@ services:
     image: docker.io/cassandra:3.11
     hostname: cass1
     networks:
-      - cassandra-net
+      #- cassandra-net
       - zk-net
     ports:
       # message service, storage_port
@@ -46,7 +46,7 @@ services:
     image: docker.io/cassandra:3.11
     hostname: cass2
     networks:
-      - cassandra-net
+      #- cassandra-net
       - zk-net
     ports:
       # message service, storage_port
@@ -88,7 +88,7 @@ services:
     image: docker.io/cassandra:3.11
     hostname: cass3
     networks:
-      - cassandra-net
+      #- cassandra-net
       - zk-net
     ports:
       # message service, storage_port

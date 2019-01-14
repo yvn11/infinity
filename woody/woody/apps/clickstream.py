@@ -2,11 +2,22 @@ from pyspark.context import SparkContext
 from pyspark.conf import SparkConf
 from pyspark.streaming.context import StreamingContext
 from pyspark.streaming.kafka import KafkaUtils
+from pyspark.sql import Row, SparkSession
+
 from woody.common.config import Config
 from py4j.protocol import Py4JJavaError
 from datetime import datetime
 from random import randint
 import json 
+
+def SparkSessionInstance(sparkConf):
+    if ('sparkSessionSingletonInstance' not in globals()):
+        globals()['sparkSessionSingletonInstance'] = SparkSession\
+            .builder\
+            .config(conf=sparkConf)\
+            .getOrCreate()
+    return globals()['sparkSessionSingletonInstance']
+
 
 class ClickStreamAggr(object):
     """ClickStream aggregates
@@ -16,10 +27,15 @@ class ClickStreamAggr(object):
         conf.set("spark.scheduler.mode", Config.spark_sched_mode)
         conf.set("spark.scheduler.pool", Config.spark_sched_pool)
         conf.set("spark.scheduler.allocation.file", Config.spark_sched_file)
+        conf.set("spark.cassandra.auth.username", Config.cassandra_user)
+        conf.set("spark.cassandra.auth.password", Config.cassandra_pass)
+
         self._sc = SparkContext(appName=self.__class__.__name__+str(randint(10,20)), conf=conf)
         self._sc.setLogLevel('WARN')
         self._ssc = StreamingContext(self._sc, Config.ssc_duration)
+        self._sess = SparkSessionInstance(conf)
         self._from_kfk()
+
 
     def _from_kfk(self):
         kfk_params = {
@@ -35,8 +51,16 @@ class ClickStreamAggr(object):
         dates = dates.map(lambda x: (x, 1)).reduceByKey(lambda x, y: y+x)
         dates.pprint()
         """
+        """
+        citi = self._sess.read.format("org.apache.spark.sql.cassandra")\
+            .options(table="citizenship", keyspace="woody")\
+            .load()
+        citi.show()
+        """
         click = self._click_ds.map(lambda x: json.loads(x[1]))
-        click.pprint()
+        click.pprint(100)
+        #self.click_df = click.read.cassandraFormat("click_event", "woody")
+        #click.foreachRDD(self.persist_click)
 
         buy = self._buy_ds.map(lambda x: json.loads(x[1]))
         buy.pprint()
@@ -55,6 +79,12 @@ class ClickStreamAggr(object):
     def foreach_rdd(self, time, rdd):
         print(time, rdd)
 
+    def persist_click(self, time, rdd):
+        taken = rdd.take(len(rdd.collect()))
+        for t in taken:
+            print(t)
+            self.click_df.options(t).save()
+        
     def run(self):
         try:
             self._ssc.start()
