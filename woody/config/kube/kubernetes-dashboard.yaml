@@ -90,7 +90,7 @@ subjects:
 # ------------------- Dashboard Deployment ------------------- #
 
 kind: Deployment
-apiVersion: apps/v1beta2
+apiVersion: apps/v1
 metadata:
   labels:
     k8s-app: kubernetes-dashboard
@@ -109,11 +109,9 @@ spec:
     spec:
       containers:
       - name: kubernetes-dashboard
-        image: k8s.gcr.io/kubernetes-dashboard-amd64:v1.10.0
+        image: k8s.gcr.io/kubernetes-dashboard-amd64:v1.10.1
         ports:
         - containerPort: 8443
-          protocol: TCP
-        - containerPort: 9090
           protocol: TCP
         args:
           - --auto-generate-certificates
@@ -130,9 +128,9 @@ spec:
           name: tmp-volume
         livenessProbe:
           httpGet:
-            scheme: HTTP #S
+            scheme: HTTPS
             path: /
-            port: 9090 #8443
+            port: 8443
           initialDelaySeconds: 30
           timeoutSeconds: 30
       volumes:
@@ -159,11 +157,7 @@ metadata:
   namespace: kube-system
 spec:
   ports:
-    - name: https
-      port: 443
+    - port: 443
       targetPort: 8443
-    - name: http
-      port: 9090
-      targetPort: 9090
   selector:
     k8s-app: kubernetes-dashboard
