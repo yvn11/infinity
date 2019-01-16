@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS click_event (
   ts timestamp,
   item_id varchar,
   category varchar,
-  PRIMARY KEY (session_id, ts)
+  PRIMARY KEY (session_id, item_id, ts)
 );
 
 CREATE TABLE IF NOT EXISTS buy_event (
@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS buy_event (
   item_id varchar,
   price float,
   quantity int,
-  PRIMARY KEY (session_id, ts)
+  PRIMARY KEY (session_id, item_id, ts)
 );
 
 /** aggregations */

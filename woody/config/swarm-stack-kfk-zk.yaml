@@ -185,7 +185,7 @@ services:
     command: /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-master.sh
     deploy:
       placement:
-        constraints: [node.labels.zknode == 1]
+        constraints: [node.labels.sparknode == 1]
   spark-worker:
     image: zlynch/spark:2.4.0
     hostname: '{{.Node.Hostname}}'
@@ -201,7 +201,7 @@ services:
     command: /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-slave.sh spark://spark1:7077
     deploy:
       placement:
-        constraints: [node.labels.zknode != 1]
+        constraints: [node.labels.zknode != 1, node.hostname != core.master]
       replicas: 3
 #  profile:
 #    image: zlynch/profile:1.0

@@ -37,7 +37,6 @@ class ClickStreamAggr(object):
         self._keyspace = "woody_clickstream"
         self._from_kfk()
 
-
     def _from_kfk(self):
         kfk_params = {
             'metadata.broker.list': Config.kafka_brokers,
@@ -76,7 +75,7 @@ class ClickStreamAggr(object):
         buy = buy.map(buy_conv)
         buy.foreachRDD(self.persist_buy)
         
-        self.aggr_buy_click_delta(click, buy)
+        # self.aggr_buy_click_delta(click, buy)
         self.aggr_session_quan(buy)
         self.aggr_item_quan(buy)
 
@@ -84,59 +83,65 @@ class ClickStreamAggr(object):
         """delta of buy timestamp and click timestamp
         TODO(zex): two test datasets doesn't come up in order of time
         """
-        def earlist_click(x, y):
-            if not x[1]:
-                return y[1]
-            if not y[1]:
-                return x[1]
-            if x[1] < y[1]: # timestamp
+        def earlist(x, y):
+            if not x:
+                return y
+            if not y:
+                return x
+            if x < y: # timestamp
                 return x
             return y
-
-        def time_delta(x, y):
-            if x[1] and y[1]:
-                if y[1] > x[1]:
-                    return y[1]-x[1]
-                return x[1]-y[1]
-            return None
-        
-        def split_iid(iid):
-            return iid.split('-')
 
         def persist(time, rdd):
             if len(rdd.collect()) == 0:
                 return
 
+            columns = ("item_id", "price", "ts_click", "ts_buy", "session_id", "ts_delta")
+            df, full_df = None, None
+
             try:
-                print(rdd.collect())
-                df = self._sess.createDataFrame(rdd, ["iid", "ts_click", "ts_buy"]).fillna(datetime.min)
-                cols = functions.split(df["iid"], '-')
-                df["session_id"], df["item_id"] = cols[0], cols[1]
-
+                rdd = rdd.map(lambda x: x[0].split('-') + [x[1][0][0],x[1][0][1]] + [x[1][1]])
+                df = self._sess.createDataFrame(rdd, ["session_id", "item_id", "ts_click", "ts_buy", "price"])\
+                        .dropDuplicates()
                 full_df = df.dropna()
-                full_df["ts_delta"] = full_df["ts_buy"] - full_df["ts_click"]
-                full_df.show()
-                full_df.write.format("org.apache.spark.sql.cassandra")\
-                    .options(table="purchase_delta", keyspace=self._keyspace)\
-                    .save(mode='append')
+            except Exception as e:
+                print("aggr_buy_click_delta transform failed", e)
+            """
+            price = self._sess.read.format("org.apache.spark.sql.cassandra")\
+                .options(table="buy_event", keyspace=self._keyspace)\
+                .load()
+            """
+            try:
+                if full_df.count() > 0:
+                    full_df = full_df.withColumn("ts_delta", full_df["ts_buy"] - full_df["ts_click"])
+                    full_df.show()
+                    full_df.select([c for c in full_df.columns() if c in columns])\
+                        .write.format("org.apache.spark.sql.cassandra")\
+                        .options(table="purchase_delta", keyspace=self._keyspace)\
+                        .save(mode='append')
+            except Exception as e:
+                print("aggr_buy_click_delta full data persist failed", e)
+                raise
 
-                df = df.select([c for c in df.columns() if c in ("item_id", "price", "ts_click", "ts_buy", "session_id", "ts_delta")])
-                df.show()
-
-                #self._sess.createDataFrame(rdd, ["item_id", "price", "session_id", "ts_delta"])
-                df.write.format("org.apache.spark.sql.cassandra")\
-                    .options(table="purchase_delta", keyspace=self._keyspace)\
-                    .save(mode='append')
+            try:
+                if full_df:
+                    df = df.exceptAll(full_df)
+                if df.count() > 0:
+                    df = df.select([c for c in df.columns if c in columns])\
+                        .write.format("org.apache.spark.sql.cassandra")\
+                        .options(table="purchase_delta", keyspace=self._keyspace)\
+                        .save(mode='append')
             except Exception as e:
                 print("aggr_buy_click_delta persist failed", e)
 
+        # TODO(zex): remove earlist
         click_ts = click.map(lambda x: ('-'.join([x['session_id'], x['item_id']]), x['timestamp']))\
-                .reduce(earlist_click)
+                .reduceByKey(earlist)
         buy_ts = buy.map(lambda x: ('-'.join([x['session_id'], x['item_id']]), x['timestamp']))\
-                .reduce(earlist_click)
+                .reduceByKey(earlist)
+        price = buy.map(lambda x: ('-'.join([x['session_id'], x['item_id']]), x['price']))
 
-        delta_ts = click_ts.fullOuterJoin(buy_ts)
-        delta_ts.pprint(100)
+        delta_ts = click_ts.fullOuterJoin(buy_ts).leftOuterJoin(price)
         delta_ts.foreachRDD(persist)
 
     def aggr_session_quan(self, buy):
