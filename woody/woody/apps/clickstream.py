@@ -30,7 +30,7 @@ class ClickStreamAggr(object):
         conf.set("spark.cassandra.auth.username", Config.cassandra_user)
         conf.set("spark.cassandra.auth.password", Config.cassandra_pass)
 
-        self._sc = SparkContext(appName=self.__class__.__name__+str(randint(10,20)), conf=conf)
+        self._sc = SparkContext(master=Config.spark_master, appName=self.__class__.__name__+str(randint(10,20)), conf=conf)
         self._sc.setLogLevel('WARN')
         self._ssc = StreamingContext(self._sc, Config.ssc_duration)
         self._sess = SparkSessionInstance(conf)
