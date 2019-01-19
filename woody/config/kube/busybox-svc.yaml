@@ -6,10 +6,10 @@ spec:
   selector:
     name: busybox
   clusterIP: None
-#  ports:
-#  - name: foo # Actually, no port is needed.
-#    port: 1234
-#    targetPort: 1234
+  ports:
+  - name: dummy # Actually, no port is needed.
+    port: 23232
+    targetPort: 23232
 ---
 apiVersion: v1
 kind: Pod
@@ -26,19 +26,19 @@ spec:
       - sleep
       - "3600"
     name: busybox
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: busybox2
-  labels:
-    name: busybox
-spec:
-  hostname: busybox-2
-  subdomain: busybox-subdomain
-  containers:
-  - image: busybox
-    command:
-      - sleep
-      - "3600"
-    name: busybox
+#---
+#apiVersion: v1
+#kind: Pod
+#metadata:
+#  name: busybox2
+#  labels:
+#    name: busybox
+#spec:
+#  hostname: busybox-2
+#  subdomain: busybox-subdomain
+#  containers:
+#  - image: busybox
+#    command:
+#      - sleep
+#      - "3600"
+#    name: busybox

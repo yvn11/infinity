@@ -17,7 +17,7 @@ docker run -d \
  --authentication-kubeconfig=/etc/kubernetes/controller-manager.conf \
  --authorization-kubeconfig=/etc/kubernetes/controller-manager.conf\
  --client-ca-file=/etc/kubernetes/pki/ca.crt\
- --cluster-cidr=10.1.0.0/16\
+ --cluster-cidr=10.244.0.0/16\
  --cluster-signing-cert-file=/etc/kubernetes/pki/ca.crt\
  --cluster-signing-key-file=/etc/kubernetes/pki/ca.key\
  --controllers=*,bootstrapsigner,tokencleaner\

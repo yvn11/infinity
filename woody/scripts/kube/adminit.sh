@@ -1,15 +1,17 @@
 #!/bin/bash
 
 #swapoff -a
-#kubeadm init --ignore-preflight-errors=all
 #swapon
 #./kubernetes/server/bin/
+
+#--apiserver-advertise-address=192.168.70.140 \
+#--ignore-preflight-errors=all \
+#--cri-socket /var/run/crio/crio.sock \
 kubeadm init \
     --kubernetes-version 1.12.2 \
     --node-name 192.168.70.140 \
-    --apiserver-advertise-address=192.168.70.140 \
-    --pod-network-cidr=10.1.0.0/16 \
-    --service-cidr=10.1.0.0/16 \
+    --pod-network-cidr=10.244.0.0/16 \
+    --service-cidr=10.244.0.0/16 \
     -v 256 \
     --ignore-preflight-errors SystemVerification,DirAvailable--var-lib-etcd,\
 FileAvailable--etc-kubernetes-manifests-kube-apiserver.yaml,\
@@ -22,6 +24,4 @@ Port-2379,\
 Port-10252,\
 Port-10251
 
-    #--ignore-preflight-errors=all \
-    #--cri-socket /var/run/crio/crio.sock \
-    #--kubernetes-version 1.12.2 \
+cp /etc/kubernetes/admin.conf ~/.kube/config

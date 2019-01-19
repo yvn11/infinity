@@ -38,6 +38,7 @@ class ClickStreamAggr(object):
         self._from_kfk()
 
     def _from_kfk(self):
+        # TODO: END_OF_STREAM EOFError
         kfk_params = {
             'metadata.broker.list': Config.kafka_brokers,
             'group.id': self.__class__.__name__,
@@ -217,19 +218,22 @@ class ClickStreamAggr(object):
             return
         print('click', len(rdd.collect())) 
         try:
-            self._sess.createDataFrame(rdd, ["category", "item_id", "session_id", "ts"])\
+            df = self._sess.createDataFrame(rdd, ["category", "item_id", "session_id", "ts"])
+            df.orderBy(df.ts.asc())\
                 .write.format("org.apache.spark.sql.cassandra")\
                 .options(table="click_event", keyspace=self._keyspace)\
                 .save(mode='append')
         except Exception as e:
-            print("persist failed", e)
+            print("click_event persist failed", e)
 
     def persist_buy(self, time, rdd):
         if len(rdd.collect()) == 0:
             return
         print('buy', len(rdd.collect())) 
         try:
-            self._sess.createDataFrame(rdd, ["item_id", "price", "quantity", "session_id", "ts"])\
+            df = self._sess.createDataFrame(rdd, \
+                    ["item_id", "price", "quantity", "session_id", "ts"])
+            df.orderBy(df.ts.asc())\
                 .write.format("org.apache.spark.sql.cassandra")\
                 .options(table="buy_event", keyspace=self._keyspace)\
                 .save(mode='append')

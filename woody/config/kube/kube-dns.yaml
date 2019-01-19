@@ -30,7 +30,7 @@ metadata:
 spec:
   selector:
     k8s-app: kube-dns
-  clusterIP: 10.1.0.10
+  clusterIP: 10.244.0.10
   ports:
   - name: dns
     port: 53
@@ -130,6 +130,7 @@ spec:
         - --domain=cluster.local.
         - --dns-port=10053
         - --config-dir=/kube-dns-config
+        - --kube_master_url=http://192.168.70.140:8080
         - --v=2
         env:
         - name: PROMETHEUS_PORT

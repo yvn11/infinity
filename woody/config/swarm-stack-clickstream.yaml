@@ -34,8 +34,6 @@ services:
 #       - /fedev-data:/data
 #      - /etc/kubernetes:/etc/kubernetes
 #      - /spark-cluster:/var/run/secrets/kubernetes.io/serviceaccount
-    #--master k8s://https://192.168.70.140:6443
-    #--master spark://spark1:7077
     #--conf spark.kubernetes.container.image=zlynch/spark:2.4.0
     #--conf spark.kubernetes.container.image=kubespark/spark-driver:v2.2.0-kubernetes-0.5.0
     #--conf spark.kubernetes.authenticate.submission.oauthToken=spark-token-c4kpx
@@ -58,14 +56,19 @@ services:
 #    --packages com.datastax.spark:spark-cassandra-connector_2.11:2.4.0
 #    --jars /opt/spark-extern/spark-streaming-kafka-0-8-assembly_2.11-2.4.0.jar 
 #    --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark
+#    --master k8s://https://192.168.70.140:6443
+#    --deploy-mode: cluster
+#    --master spark://spark1:7077
+#    --deploy-mode: client
     command: "/opt/spark/bin/spark-submit 
     --name clickstream-aggregator
-    --master k8s://http://192.168.70.140:8080
-    --deploy-mode cluster
+    --master spark://spark1:7077
+    --deploy-mode client
+    --packages com.datastax.spark:spark-cassandra-connector_2.11:2.4.0
     --conf spark.app.name=clickstream-aggregator
     --conf spark.executor.instances=2
-    --conf spark.kubernetes.container.image=zlynch/clickstream:1.0
     --conf spark.kubernetes.submission.waitAppCompletion=true
+    --conf spark.kubernetes.container.image=zlynch/clickstream:1.0
     --conf spark.kubernetes.container.image.pullPolicy=Always
     --conf spark.kubernetes.driverEnv.SPARK_EXTRA_CLASSPATH=/opt/spark-extern
     --conf spark.kubernetes.driverEnv.SPARK_MASTER=k8s://http://192.168.70.140:8080
