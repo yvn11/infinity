@@ -1,0 +1,93 @@
+version: "3.4"
+
+services:
+  zk1:
+    image: zookeeper:3.5
+    hostname: zk1
+    networks:
+      - zk-net
+    ports:
+      - published: 2171
+        target: 2181
+        mode: host
+      - published: 2878
+        target: 2888
+        mode: host
+      - published: 3878
+        target: 3888
+        mode: host
+    volumes:
+      - zk-data:/data
+      - zk-datalog:/datalog
+      - zk-logs:/logs
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=0.0.0.0:2888:3888;2181
+      # server.2=zk2:2888:3888 server.3=zk3:2888:3888
+    deploy:
+      placement:
+        constraints: [node.labels.zknode == 1]
+
+  mesos-master:
+    image: mesosphere/mesos:1.7.0
+    hostname: mesos-master
+    networks:
+      - zk-net
+    ports:
+      - published: 15050
+        target: 5050
+        mode: host
+    environment:
+      MESOS_PORT: 5050 
+      MESOS_ZK: zk://zk1:2181/mesos 
+      MESOS_QUORUM: 1 
+      MESOS_REGISTRY: in_memory 
+      MESOS_LOG_DIR: /var/log/mesos 
+      MESOS_WORK_DIR: /var/tmp/mesos 
+    volumes:
+      - /mesos-log/master:/var/log/mesos
+      - /tmp/mesos/master:/var/tmp/mesos
+    command: mesos-master
+    deploy:
+      placement:
+        #constraints: [node.hostname == core.master]
+        constraints: [node.labels.zknode == 1]
+      replicas: 1
+
+  mesos-agent:
+    image: mesosphere/mesos:1.7.0
+    hostname: mesos-agent
+    networks:
+      - zk-net
+    environment:
+      MESOS_PORT: 5051 
+      MESOS_MASTER: zk://zk1:2181/mesos 
+      MESOS_SWITCH_USER: 0 
+      MESOS_CONTAINERIZERS: docker,mesos 
+      MESOS_LOG_DIR: /var/log/mesos 
+      MESOS_WORK_DIR: /var/tmp/mesos 
+    volumes:
+      - /mesos-log/agent:/var/log/mesos
+      - /tmp/mesos/agent:/var/tmp/mesos
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /sys/fs/cgroup:/cgroup
+      - /sys:/sys
+      - /run/systemd/system:/run/systemd/system
+      - /usr/bin/docker:/usr/bin/docker
+    command: mesos-slave
+    deploy:
+      placement:
+        #constraints: [node.hostname != core.master]
+        constraints: [node.labels.zknode == 1]
+      replicas: 0
+
+networks:
+  zk-net:
+    #    external:
+    #  name: kfk_zk-net
+
+volumes:
+  kfk-data:
+  zk-data:
+  zk-datalog:
+  zk-logs:
