@@ -18,7 +18,7 @@ var (
   buy_tsv = "/data/yoochoose/yoochoose-buys.dat"
 )
 
-type ClickStreamProducer struct {
+type ClickstreamProducer struct {
   pro sarama.AsyncProducer
   click_ev chan []string
   buy_ev chan []string
@@ -39,8 +39,8 @@ type BuyEvent struct {
   Quantity string `json:"quantity,omitempty"`
 }
 
-func NewClickStreamProducer() *ClickStreamProducer {
-  var ret ClickStreamProducer
+func NewClickstreamProducer() *ClickstreamProducer {
+  var ret ClickstreamProducer
   var err error
 
   cfg := sarama.NewConfig()
@@ -62,7 +62,7 @@ func NewClickStreamProducer() *ClickStreamProducer {
 }
 
 /** create ProducerMessage from TSV value */
-func (p *ClickStreamProducer) click_msg(val []string) (*sarama.ProducerMessage, error) {
+func (p *ClickstreamProducer) click_msg(val []string) (*sarama.ProducerMessage, error) {
   click_json, err := json.Marshal(&ClickEvent{
     SessionID: val[0],
     Timestamp: val[1],
@@ -83,7 +83,7 @@ func (p *ClickStreamProducer) click_msg(val []string) (*sarama.ProducerMessage, 
   }, nil
 }
 
-func (p *ClickStreamProducer) buy_msg(val []string) (*sarama.ProducerMessage, error) {
+func (p *ClickstreamProducer) buy_msg(val []string) (*sarama.ProducerMessage, error) {
   buy_json, err := json.Marshal(&BuyEvent{
     SessionID: val[0],
     Timestamp: val[1],
@@ -104,7 +104,7 @@ func (p *ClickStreamProducer) buy_msg(val []string) (*sarama.ProducerMessage, er
   }, nil
 }
 
-func (p *ClickStreamProducer) Run() {
+func (p *ClickstreamProducer) Run() {
   sig := make(chan os.Signal, 1)
   signal.Notify(sig, os.Interrupt)
 
@@ -146,7 +146,7 @@ func (p *ClickStreamProducer) Run() {
   }
 }
 
-func (p *ClickStreamProducer) FromTSV(path string, ev chan []string) error {
+func (p *ClickstreamProducer) FromTSV(path string, ev chan []string) error {
   fd, err := os.Open(path)
   if err != nil {
     glog.Error("failed to open ", path, ": ", err)

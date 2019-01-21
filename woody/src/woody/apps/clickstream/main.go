@@ -7,6 +7,6 @@ import (
 
 func main() {
   flag.Parse()
-  pro := producers.NewClickStreamProducer()
+  pro := producers.NewClickstreamProducer()
   pro.Run()
 }

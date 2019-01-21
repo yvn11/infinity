@@ -9,6 +9,8 @@ CREATE TABLE IF NOT EXISTS click_event (
   ts timestamp,
   item_id varchar,
   category varchar,
+  created_at timestamp,
+  updated_at timestamp,
   PRIMARY KEY (session_id, item_id, ts)
 );
 
@@ -18,6 +20,8 @@ CREATE TABLE IF NOT EXISTS buy_event (
   item_id varchar,
   price float,
   quantity int,
+  created_at timestamp,
+  updated_at timestamp,
   PRIMARY KEY (session_id, item_id, ts)
 );
 
@@ -26,24 +30,32 @@ CREATE TABLE IF NOT EXISTS buy_event (
 CREATE TABLE IF NOT EXISTS session_quan (
   session_id varchar,
   quan_bought int,
+  created_at timestamp,
+  updated_at timestamp,
   PRIMARY KEY (session_id)
 );
 
 CREATE TABLE IF NOT EXISTS item_quan (
   item_id varchar,
   quan_bought int,
+  created_at timestamp,
+  updated_at timestamp,
   PRIMARY KEY (item_id)
 );
 
 CREATE TABLE IF NOT EXISTS item_click (
   item_id varchar,
   click_count int,
+  created_at timestamp,
+  updated_at timestamp,
   PRIMARY KEY (item_id)
 );
 
 CREATE TABLE IF NOT EXISTS session_click (
   session_id varchar,
   click_count int,
+  created_at timestamp,
+  updated_at timestamp,
   PRIMARY KEY (session_id)
 );
 
@@ -54,5 +66,7 @@ CREATE TABLE IF NOT EXISTS purchase_delta (
   ts_click timestamp,
   ts_delta timestamp,
   price float,
+  created_at timestamp,
+  updated_at timestamp,
   PRIMARY KEY (session_id, item_id)
 );

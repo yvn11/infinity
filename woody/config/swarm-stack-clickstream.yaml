@@ -10,6 +10,7 @@ services:
       PYTHONPATH: /opt/woody
       # outside cluster: 192.168.70.220,192.168.70.189,192.168.70.35
       #                  17001
+      TZ: Asia/Hong_Kong
       CASSANDRA_SERVERS: cass1,cass2,cass3
       CASSANDRA_PORT: 9042
       CASSANDRA_USER: dev
@@ -95,6 +96,19 @@ services:
     deploy:
       placement:
         constraints: [node.labels.kfknode == 2]
+      replicas: 1
+  apiserver:
+    image: zlynch/clickstream-producer:1.0
+    hostname: clickstream-apiserver
+    networks:
+      - zk-net
+    environment:
+      TZ: Asia/Hong_Kong
+    volumes:
+      - /tmp:/tmp
+    command: "build/click_apiserver -alsologtostderr
+    -cass cass1,cass2,cass3 -port 9092 -apiserver :19483"
+    deploy:
       replicas: 1
 
 networks:

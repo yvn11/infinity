@@ -11,12 +11,15 @@ RUN yum upgrade -y && yum update -y && \
   golang-bin && \
   cd $WOODY_ROOT && \
     go get -v github.com/Shopify/sarama \
-           github.com/golang/glog
+           github.com/golang/glog \
+           github.com/gocql/gocql \
+           github.com/rs/cors
 
 COPY Makefile $WOODY_ROOT/
 COPY src $WOODY_ROOT/src
 COPY config $WOODY_ROOT/config
 COPY scripts $WOODY_ROOT/scripts
 
-RUN make -j$(lscpu|grep CPU\(s\)|head -1|awk '{print $2}') click_producer
-CMD ["build/click_stream_producer", "-alsologtostderr"]
+RUN make -j$(lscpu|grep CPU\(s\)|head -1|awk '{print $2}') \
+  click_producer
+CMD ["build/click_producer", "-alsologtostderr"]
