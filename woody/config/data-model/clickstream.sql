@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS click_event (
   created_at timestamp,
   updated_at timestamp,
   PRIMARY KEY (session_id, item_id, ts)
+  WITH CLUSTERING ORDER BY (ts DESC);
 );
 
 CREATE TABLE IF NOT EXISTS buy_event (
@@ -22,8 +23,8 @@ CREATE TABLE IF NOT EXISTS buy_event (
   quantity int,
   created_at timestamp,
   updated_at timestamp,
-  PRIMARY KEY (session_id, item_id, ts)
-);
+  PRIMARY KEY ((session_id, item_id), ts)
+) WITH CLUSTERING ORDER BY (ts DESC);
 
 /** aggregations */
 
@@ -32,32 +33,32 @@ CREATE TABLE IF NOT EXISTS session_quan (
   quan_bought int,
   created_at timestamp,
   updated_at timestamp,
-  PRIMARY KEY (session_id)
-);
+  PRIMARY KEY (session_id, updated_at,created_at)
+) WITH CLUSTERING ORDER BY (updated_at DESC, created_at DESC);
 
 CREATE TABLE IF NOT EXISTS item_quan (
   item_id varchar,
   quan_bought int,
   created_at timestamp,
   updated_at timestamp,
-  PRIMARY KEY (item_id)
-);
+  PRIMARY KEY (session_id, updated_at,created_at)
+) WITH CLUSTERING ORDER BY (updated_at DESC, created_at DESC);
 
 CREATE TABLE IF NOT EXISTS item_click (
   item_id varchar,
   click_count int,
   created_at timestamp,
   updated_at timestamp,
-  PRIMARY KEY (item_id)
-);
+  PRIMARY KEY (item_id, updated_at,created_at)
+) WITH CLUSTERING ORDER BY (updated_at DESC, created_at DESC);
 
 CREATE TABLE IF NOT EXISTS session_click (
   session_id varchar,
   click_count int,
   created_at timestamp,
   updated_at timestamp,
-  PRIMARY KEY (session_id)
-);
+  PRIMARY KEY (session_id, updated_at,created_at)
+) WITH CLUSTERING ORDER BY (updated_at DESC, created_at DESC);
 
 CREATE TABLE IF NOT EXISTS purchase_delta (
   session_id varchar,
@@ -68,5 +69,6 @@ CREATE TABLE IF NOT EXISTS purchase_delta (
   price float,
   created_at timestamp,
   updated_at timestamp,
-  PRIMARY KEY (session_id, item_id)
-);
+  PRIMARY KEY ((session_id, item_id), updated_at, created_at, ts_delta, price)
+) WITH CLUSTERING ORDER BY (
+  updated_at DESC, created_at DESC, ts_delta ASC, price ASC);

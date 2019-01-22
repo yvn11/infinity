@@ -25,7 +25,7 @@ export class ClickstreamComponent implements OnInit {
     this.fetch_item_click();
     this.fetch_item_quan();
     this.fetch_session_click();
-    this.fetch_session_click();
+    this.fetch_session_quan();
   }
 
   ngOnInit() {

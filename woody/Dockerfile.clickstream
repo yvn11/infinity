@@ -1,6 +1,7 @@
 #FROM zlynch/spark:2.4.0
 FROM zlynch/spark-kube-py:1.0
 
+ENV TZ='Asia/Hong_Kong'
 ENV SPARK_VERSION=2.4.0
 ENV HADOOP_VERSION=2.7
 ENV SPARK_HOME=/opt/spark

@@ -1,5 +1,6 @@
 FROM docker.io/centos:7
 
+ENV TZ='Asia/Hong_Kong'
 ENV WOODY_ROOT /opt/woody
 ENV GOPATH $WOODY_ROOT
 WORKDIR $WOODY_ROOT
