@@ -182,11 +182,33 @@ services:
     environment:
       SPARK_NO_DAEMONIZE: 1
       SPARK_IDENT_STRING: '{{.Node.Hostname}}'
+      #SPARK_DAEMON_JAVA_OPTS: '-Dspark.deploy.recoveryMode=ZOOKEEPER'
     command: /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-master.sh
     deploy:
       placement:
         constraints: [node.labels.sparknode == 1]
-  spark-worker:
+  spark2:
+    image: zlynch/spark:2.4.0
+    hostname: spark2
+    networks:
+      - zk-net
+    ports:
+      # web UI
+      - published: 18880
+        target: 8080
+        mode: host
+      - published: 18877
+        target: 7077
+        mode: host
+    environment:
+      SPARK_NO_DAEMONIZE: 1
+      SPARK_IDENT_STRING: '{{.Node.Hostname}}'
+      #SPARK_DAEMON_JAVA_OPTS: '-Dspark.deploy.recoveryMode=ZOOKEEPER'
+    command: /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-master.sh
+    deploy:
+      placement:
+        constraints: [node.labels.sparknode == 2]
+  spark1-worker:
     image: zlynch/spark:2.4.0
     hostname: '{{.Node.Hostname}}'
     networks:
@@ -201,41 +223,25 @@ services:
     command: /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-slave.sh spark://spark1:7077
     deploy:
       placement:
-        constraints: [node.labels.zknode != 1, node.hostname != core.master]
-      replicas: 3
-#  profile:
-#    image: zlynch/profile:1.0
-#    hostname: profile
-#    networks:
-#      - zk-net
-##    ports:
-##      - published: 18880
-##        target: 8080
-##        mode: host
-#    environment:
-#      PYTHONPATH: /opt/woody
-#      CASSANDRA_SERVERS: 192.168.70.220,192.168.70.189,192.168.70.35
-#      CASSANDRA_PORT: 17001
-#      CASSANDRA_USER: dev
-#      CASSANDRA_PASS: dcb5c69fedb78e9a29a3
-#      KAFKA_BROKERS: 192.168.70.220:17812,192.168.70.35:17812,192.168.70.94:17812
-#      SPARK_HOME: /opt/spark-2.4.0-bin-hadoop2.7
-#      SPARK_MASTER: spark://spark1:7077
-#    command: /opt/spark/bin/spark-submit --master spark://spark1:7077 --jars /opt/spark-extern/spark-streaming-kafka-0-8-assembly_2.11-2.4.0.jar --num-executors 1 woody/apps/profile_aggr.py
-#    deploy:
-#      placement:
-#        constraints: [node.labels.zknode == 2]
-#  producer:
-#    image: zlynch/producer:1.0
-#    hostname: producer
-#    networks:
-#      - zk-net
-#    # outside cluster: 192.168.70.220:17812,192.168.70.35:17812,192.168.70.94:17812
-#    command: build/producer -brokers k1:17812,k2:17812,k3:17812 -alsologtostderr
-#    deploy:
-#      placement:
-#        constraints: [node.hostname != core.master]
-#      replicas: 0
+        constraints: [node.hostname != core.master]
+      replicas: 2
+  spark2-worker:
+    image: zlynch/spark:2.4.0
+    hostname: '{{.Node.Hostname}}'
+    networks:
+      - zk-net
+    ports:
+      - published: 18880
+        target: 8081
+        mode: host
+    environment:
+      SPARK_NO_DAEMONIZE: 1
+      SPARK_IDENT_STRING: '{{.Node.Hostname}}'
+    command: /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-slave.sh spark://spark2:7077
+    deploy:
+      placement:
+        constraints: [node.hostname != core.master]
+      replicas: 2
 
 networks:
   zk-net:

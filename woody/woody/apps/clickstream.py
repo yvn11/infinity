@@ -47,7 +47,7 @@ class ClickStreamAggr(object):
         # TODO: END_OF_STREAM EOFError
         kfk_params = {
             'metadata.broker.list': Config.kafka_brokers,
-            'group.id': self.__class__.__name__,
+            #'group.id': self.__class__.__name__,
             }
         self._click_ds = KafkaUtils.createDirectStream(self._ssc, ["click_ev"], kfk_params)
         self._buy_ds = KafkaUtils.createDirectStream(self._ssc, ["buy_ev"], kfk_params)
@@ -75,7 +75,7 @@ class ClickStreamAggr(object):
         buy.foreachRDD(self.persist_buy)
         
         # self.aggr_buy_click_delta(click, buy)
-        #self.aggr_session_quan(buy)
+        self.aggr_session_quan(buy)
         self.aggr_item_quan(buy)
         #self._summary()
 
@@ -151,13 +151,14 @@ class ClickStreamAggr(object):
                 store_df = self._sess.read.format("org.apache.spark.sql.cassandra")\
                     .options(table="session_quan", keyspace=self._keyspace)\
                     .load()
-                df = df.join(store_df, store_df.item_id==df.sid, 'outer')
+                df = df.join(store_df, store_df.session_id==df.sid, 'outer')
                 df = df.withColumnRenamed("quan_bought", "old_quan")
                 now = int(time.mktime(datetime.utcnow().timetuple()))
                 df = df.na.fill({'old_quan':0,'updated_at':now,'created_at':now})
                 df = df.withColumn("quan_bought", df['old_quan'] + df['new_quan'])
                 df = df.drop("session_id").drop('old_quan').drop('new_quan')\
-                    .withColumnRenamed("sid", "session_id").dropna()
+                    .withColumnRenamed("sid", "session_id")
+                df = df.na.drop()
                 df.write.format("org.apache.spark.sql.cassandra")\
                   .options(**opts)\
                   .save(mode='append')
@@ -186,7 +187,8 @@ class ClickStreamAggr(object):
                 df = df.na.fill({'old_count':0,'updated_at':now,'created_at':now})
                 df = df.withColumn("click_count", df['old_count'] + df['new_count'])
                 df = df.drop("session_id").drop('old_count').drop('new_count')\
-                    .withColumnRenamed("sid", "session_id").dropna()
+                    .withColumnRenamed("sid", "session_id")
+                df = df.na.drop()
                 df.write.format("org.apache.spark.sql.cassandra")\
                   .options(**opts)\
                   .save(mode='append')
@@ -254,7 +256,8 @@ class ClickStreamAggr(object):
                 df = df.na.fill({'old_count':0,'updated_at':now,'created_at':now})
                 df = df.withColumn("click_count", df['old_count'] + df['new_count'])
                 df = df.drop("item_id").drop('old_count').drop('new_count')\
-                    .withColumnRenamed("iid", "item_id").dropna()
+                    .withColumnRenamed("iid", "item_id")
+                df = df.na.drop()
                 df.write.format("org.apache.spark.sql.cassandra")\
                   .options(**opts)\
                   .save(mode='append')
@@ -281,7 +284,8 @@ class ClickStreamAggr(object):
                 df = df.na.fill({'old_quan':0,'updated_at':now,'created_at':now})
                 df = df.withColumn("quan_bought", df['old_quan'] + df['new_quan'])
                 df = df.drop("item_id").drop('old_quan').drop('new_quan')\
-                    .withColumnRenamed("iid", "item_id").dropna()
+                    .withColumnRenamed("iid", "item_id")
+                df = df.na.drop()
                 df.write.format("org.apache.spark.sql.cassandra")\
                   .options(**opts)\
                   .save(mode='append')

@@ -110,7 +110,7 @@ func (p *ClickstreamProducer) Run() {
 
   go p.FromTSV(click_tsv, p.click_ev)
   go p.FromTSV(buy_tsv, p.buy_ev)
-  // var sent_nr int
+  var sent_nr int
 
   ProducerLoop:
   for {
@@ -131,9 +131,9 @@ func (p *ClickstreamProducer) Run() {
 
     select {
     case p.pro.Input() <-msg:
-      //sent_nr++
+      sent_nr++
       //if sent_nr > 1000 { break ProducerLoop }
-      glog.Infof("sent[]: %v\n", msg)
+      glog.Infof("sent[%d]: %v\n", sent_nr, time.Now())
     case <-sig:
       p.pro.AsyncClose()
       glog.Info("click-stream producer quit")

@@ -22,5 +22,5 @@ consumer: src/woody/consumer.go
 click_producer: src/woody/apps/clickstream/main.go
 	GOPATH=$(GOPATH) $(GO) build -o $(BUILD)/$@ $^
 
-click_apiserver: src/woody/apps/clickstream_api/main.go
+apiserver: src/woody/apps/apiserver/main.go
 	GOPATH=$(GOPATH) $(GO) build -o $(BUILD)/$@ $^

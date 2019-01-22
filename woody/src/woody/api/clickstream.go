@@ -1,12 +1,10 @@
 package api
 
 import (
-  "flag"
   "encoding/json"
   "net/http"
-  "sort"
+  //"sort"
   "strings"
-  "github.com/rs/cors"
   "github.com/golang/glog"
   cql "github.com/gocql/gocql"
   "woody/common"
@@ -81,23 +79,22 @@ func NewClickstreamApi() *ClickstreamApi {
   return &p
 }
 
-func (p *ClickstreamApi) metrics_item_click(w http.ResponseWriter, r *http.Request) {
+func (p *ClickstreamApi) MetricsItemClick(w http.ResponseWriter, r *http.Request) {
   glog.Infof("%s %v", woody.CurrentScope(), r.URL)
   var metrics []map[string]interface{}
 
-  iter := p.cass_sess.Query(`SELECT * FROM item_click`).Iter()
+  iter := p.cass_sess.Query(`SELECT * FROM item_click LIMIT 100`).Iter()
   for {
     row := make(map[string]interface{})
     if ok := iter.MapScan(row); !ok {
       iter.Close()
       break
     }
-    glog.Info(row)
     metrics = append(metrics, row)
   }
 
   // sort by updated_at
-  sort.Sort(ByUpdatedAt(metrics))
+  //sort.Sort(ByUpdatedAt(metrics))
   data, err := json.Marshal(&struct{
 		Response []map[string]interface{} `json:"response,omitempty"`
   }{ Response: metrics, })
@@ -111,47 +108,17 @@ func (p *ClickstreamApi) metrics_item_click(w http.ResponseWriter, r *http.Reque
   w.Write(data)
 }
 
-func (p *ClickstreamApi) metrics_session_click(w http.ResponseWriter, r *http.Request) {
+func (p *ClickstreamApi) MetricsSessionClick(w http.ResponseWriter, r *http.Request) {
   glog.Infof("%s %v", woody.CurrentScope(), r.URL)
   var metrics []map[string]interface{}
 
-  iter := p.cass_sess.Query(`SELECT * FROM session_click`).Iter()
+  iter := p.cass_sess.Query(`SELECT * FROM session_click LIMIT 100`).Iter()
   for {
     row := make(map[string]interface{})
     if ok := iter.MapScan(row); !ok {
       iter.Close()
       break
     }
-    glog.Info(row)
-    metrics = append(metrics, row)
-  }
-
-  // sort by updated_at
-  data, err := json.Marshal(&struct{
-		Response []map[string]interface{} `json:"response,omitempty"`
-  }{ Response: metrics, })
-  if err != nil {
-    glog.Error("marshal failed: ", err)
-    w.WriteHeader(http.StatusInternalServerError)
-    return
-  }
-
-  w.WriteHeader(http.StatusOK)
-  w.Write(data)
-}
-
-func (p *ClickstreamApi) metrics_item_quan(w http.ResponseWriter, r *http.Request) {
-  glog.Infof("%s %v", woody.CurrentScope(), r.URL)
-  var metrics []map[string]interface{}
-
-  iter := p.cass_sess.Query(`SELECT * FROM item_quan`).Iter()
-  for {
-    row := make(map[string]interface{})
-    if ok := iter.MapScan(row); !ok {
-      iter.Close()
-      break
-    }
-    glog.Info(row)
     metrics = append(metrics, row)
   }
 
@@ -169,11 +136,39 @@ func (p *ClickstreamApi) metrics_item_quan(w http.ResponseWriter, r *http.Reques
   w.Write(data)
 }
 
-func (p *ClickstreamApi) metrics_session_quan(w http.ResponseWriter, r *http.Request) {
+func (p *ClickstreamApi) MetricsItemQuan(w http.ResponseWriter, r *http.Request) {
   glog.Infof("%s %v", woody.CurrentScope(), r.URL)
   var metrics []map[string]interface{}
 
-  iter := p.cass_sess.Query(`SELECT * FROM session_quan`).Iter()
+  iter := p.cass_sess.Query(`SELECT * FROM item_quan LIMIT 100`).Iter()
+  for {
+    row := make(map[string]interface{})
+    if ok := iter.MapScan(row); !ok {
+      iter.Close()
+      break
+    }
+    metrics = append(metrics, row)
+  }
+
+  // sort by updated_at
+  data, err := json.Marshal(&struct{
+		Response []map[string]interface{} `json:"response,omitempty"`
+  }{ Response: metrics, })
+  if err != nil {
+    glog.Error("marshal failed: ", err)
+    w.WriteHeader(http.StatusInternalServerError)
+    return
+  }
+
+  w.WriteHeader(http.StatusOK)
+  w.Write(data)
+}
+
+func (p *ClickstreamApi) MetricsSessionQuan(w http.ResponseWriter, r *http.Request) {
+  glog.Infof("%s %v", woody.CurrentScope(), r.URL)
+  var metrics []map[string]interface{}
+
+  iter := p.cass_sess.Query(`SELECT * FROM session_quan LIMIT 100`).Iter()
   for {
 	  row := make(map[string]interface{})
     if ok := iter.MapScan(row); !ok {
@@ -197,22 +192,10 @@ func (p *ClickstreamApi) metrics_session_quan(w http.ResponseWriter, r *http.Req
   w.Write(data)
 }
 
-func (p *ClickstreamApi) Start() {
-  flag.Parse()
-  mux := http.NewServeMux()
-  mux.HandleFunc("/v1/metrics/item_click", p.metrics_item_click)
-  mux.HandleFunc("/v1/metrics/session_click", p.metrics_session_click)
-  mux.HandleFunc("/v1/metrics/item_quan", p.metrics_item_quan)
-  mux.HandleFunc("/v1/metrics/session_quan", p.metrics_session_quan)
-  //mux.HandleFunc("/v1/metrics/purchase_delta", p.metrics_purchase_delta)
-
-  origins := strings.Split(*woody.Origins, ",")
-  handler := cors.New(cors.Options{
-      AllowedOrigins: origins,
-      AllowCredentials: true,
-      Debug: true,
-    }).Handler(mux)
-
-  glog.Info("Running on ", *woody.ApiAddr)
-  glog.Fatal(http.ListenAndServe(*woody.ApiAddr, handler))
+func (p *ClickstreamApi) SetHandler(mux *http.ServeMux) {
+  mux.HandleFunc("/v1/metrics/item_click", p.MetricsItemClick)
+  mux.HandleFunc("/v1/metrics/session_click", p.MetricsSessionClick)
+  mux.HandleFunc("/v1/metrics/item_quan", p.MetricsItemQuan)
+  mux.HandleFunc("/v1/metrics/session_quan", p.MetricsSessionQuan)
+  //mux.HandleFunc("/v1/metrics/purchase_delta", p.MetricsPurchaseDelta)
 }

@@ -89,13 +89,15 @@ services:
     networks:
       - zk-net
     # outside cluster: 192.168.70.220:17812,192.168.70.35:17812,192.168.70.94:17812
+    environment:
+      TZ: Asia/Hong_Kong
     volumes:
       - /fedev-data/yoochoose:/data/yoochoose
       - /tmp:/tmp
     command: build/click_producer -alsologtostderr -brokers k1:17812,k2:17812,k3:17812
     deploy:
       placement:
-        constraints: [node.labels.kfknode == 2]
+        constraints: [node.labels.sparknode == 1]
       replicas: 1
   apiserver:
     image: zlynch/clickstream-producer:1.0
@@ -107,7 +109,7 @@ services:
     volumes:
       - /tmp:/tmp
     command: "build/click_apiserver -alsologtostderr
-    -cass cass1,cass2,cass3 -port 9092 -apiserver :19483"
+    -cass cass1,cass2,cass3 -port 9092 -apiserver :17483"
     deploy:
       replicas: 1
 
