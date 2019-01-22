@@ -33,7 +33,7 @@ services:
     environment:
       - TZ=Asia/Hong_Kong
       - CASSANDRA_CLUSTER_NAME=core
-      - CASSANDRA_DC=zh-shanghai-1
+      - CASSANDRA_DC=datacenter1
       - CASSANDRA_START_RPC=true
 #      - CASSANDRA_RPC_ADDRESS=
 #      - CASSANDRA_LISTEN_ADDRESS=cass1
@@ -75,7 +75,7 @@ services:
     environment:
       - TZ=Asia/Hong_Kong
       - CASSANDRA_CLUSTER_NAME=core
-      - CASSANDRA_DC=zh-shanghai-1
+      - CASSANDRA_DC=datacenter1
       - CASSANDRA_START_RPC=true
 #      - CASSANDRA_RPC_ADDRESS=cass2
 #      - CASSANDRA_LISTEN_ADDRESS=cass2
@@ -117,7 +117,7 @@ services:
     environment:
       - TZ=Asia/Hong_Kong
       - CASSANDRA_CLUSTER_NAME=core
-      - CASSANDRA_DC=zh-shanghai-1
+      - CASSANDRA_DC=datacenter1
       - CASSANDRA_START_RPC=true
 #      - CASSANDRA_RPC_ADDRESS=cass3
 #      - CASSANDRA_LISTEN_ADDRESS=cass3
