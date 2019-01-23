@@ -93,7 +93,7 @@ services:
       TZ: Asia/Hong_Kong
     volumes:
       - /fedev-data/yoochoose:/data/yoochoose
-    command: build/click_producer -alsologtostderr -brokers k1:17812,k2:17812,k3:17812
+    command: build/click_producer -brokers k1:17812,k2:17812,k3:17812
     deploy:
       placement:
         constraints: [node.labels.sparknode == 1]

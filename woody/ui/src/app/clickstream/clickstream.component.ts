@@ -27,7 +27,7 @@ export class ClickstreamComponent implements OnInit {
 
   constructor(private http_cli: HttpClient) {
     console.log(this.title);
-    this.refreshInterval = 5000;
+    this.refreshInterval = 2000;
     this.autoRefresh = true;
 
     this.itemQuanConf = new MetricsConf();
