@@ -84,7 +84,7 @@ services:
       placement:
         constraints: [node.labels.kfknode == 2]
   producer:
-    image: zlynch/clickstream-producer:1.0
+    image: zlynch/woody-bg:1.0
     hostname: clickstream-producer
     networks:
       - zk-net
@@ -93,24 +93,43 @@ services:
       TZ: Asia/Hong_Kong
     volumes:
       - /fedev-data/yoochoose:/data/yoochoose
-      - /tmp:/tmp
     command: build/click_producer -alsologtostderr -brokers k1:17812,k2:17812,k3:17812
     deploy:
       placement:
         constraints: [node.labels.sparknode == 1]
       replicas: 1
   apiserver:
-    image: zlynch/clickstream-producer:1.0
-    hostname: clickstream-apiserver
+    image: zlynch/woody-bg:1.0
+    hostname: woody-apiserver
     networks:
       - zk-net
     environment:
       TZ: Asia/Hong_Kong
+    command: "build/apiserver -alsologtostderr
+    -cass cass1,cass2,cass3
+    -cass_port 9092 
+    -apiaddr :17483
+    -origins http://192.168.70.140:*,http://woody_apiserver:*
+    -cass_user dev
+    -cass_pass dcb5c69fedb78e9a29a3"
+    deploy:
+      replicas: 1
+  ui:
+    image: zlynch/woody-ui:1.0
+    hostname: woody-ui
+    networks:
+      - zk-net
+    environment:
+      TZ: Asia/Hong_Kong
+    ports:
+      - published: 17484
+        target: 80
+        mode: host
     volumes:
       - /tmp:/tmp
-    command: "build/click_apiserver -alsologtostderr
-    -cass cass1,cass2,cass3 -port 9092 -apiserver :17483"
     deploy:
+      placement:
+        constraints: [node.hostname == core.master]
       replicas: 1
 
 networks:

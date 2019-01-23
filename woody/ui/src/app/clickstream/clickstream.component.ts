@@ -1,12 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../environments/environment';
 import * as Highcharts from 'highcharts';
-
-import * as d3 from 'd3';
-import * as d3Axis from 'd3-axis';
-import { scaleOrdinal, scaleLinear } from 'd3-scale';
-import { format } from 'd3-format';
+import { environment } from '../../environments/environment';
+import { MetricsConf } from '../common/shared';
 
 interface ResponseSessionClick {
   session_id: string;
@@ -21,45 +17,88 @@ interface ResponseSessionClick {
 export class ClickstreamComponent implements OnInit {
 
   title = 'The BoringUI for Woody';
+  itemQuanConf: MetricsConf;
+  sessQuanConf: MetricsConf;
+  itemClickConf: MetricsConf;
+  sessClickConf: MetricsConf;
+  cateClickConf: MetricsConf;
+  autoRefresh: boolean;
+  refreshInterval: number; // ms
 
   constructor(private http_cli: HttpClient) {
     console.log(this.title);
-    this.fetch_item_quan(100, 1000);
-    this.fetch_session_quan(100, 1000);
-    this.fetch_item_click(100, 100);
-    this.fetch_session_click(30, 10);
+    this.refreshInterval = 5000;
+    this.autoRefresh = true;
+
+    this.itemQuanConf = new MetricsConf();
+    this.itemQuanConf.gt = 1000;
+    this.itemQuanConf.limit = 100;
+
+    this.itemClickConf = new MetricsConf();
+    this.itemClickConf.gt = 10000;
+    this.itemClickConf.limit = 100;
+
+    this.sessQuanConf = new MetricsConf();
+    this.sessQuanConf.gt = 30;
+    this.sessQuanConf.limit = 100;
+
+    this.sessClickConf = new MetricsConf();
+    this.sessClickConf.gt = 30;
+    this.sessClickConf.limit = 100;
+
+    this.cateClickConf = new MetricsConf();
+    this.cateClickConf.gt = 100;
+    this.cateClickConf.limit = 100;
   }
 
   ngOnInit() {
+    Highcharts.setOptions({
+      plotOptions: {
+        series: {
+          animation: false
+        }
+      }
+    });
+
+    this.fetchItemQuan();
+    this.fetchSessQuan();
+    this.fetchItemClick();
+    this.fetchSessClick();
+    this.fetchCateClick();
   }
 
-  private fetch_item_click(gt: number, page: number) {
+  private fetchItemClick() {
     const url = environment.woody_apiserver + '/v1/metrics/item_click'
-      + '?' + 'gt=' + gt + '&page=' + page; 
+      + '?' + 'gt=' + this.itemClickConf.gt + '&limit=' + this.itemClickConf.limit;
     this.http_cli.get(url)
       .subscribe(rsp => { this.item_click(rsp); });
   }
 
   item_click(rsp) {
-    if (rsp == null) { return; }
-    if (rsp['response'] == null) { return; }
-
-    let item_ids = [];
-    let counts = [];
-    for (let i = 0; i < rsp['response'].length; i++) {
-      item_ids.push(rsp['response'][i]['item_id']);
-      counts.push(rsp['response'][i]['click_count']);
+    if (this.autoRefresh) {
+      setTimeout(() => this.fetchItemClick(), this.refreshInterval);
     }
-    
+
+    const item_ids = [];
+    const counts = [];
+
+    if (rsp != null && rsp['response'] != null) {
+      for (let i = 0; i < rsp['response'].length; i++) {
+        item_ids.push(rsp['response'][i]['item_id']);
+        counts.push(rsp['response'][i]['click_count']);
+      }
+    }
+
     Highcharts.chart('container_item_click', {
       chart: {
-        type: 'bar'
+        type: 'bar',
+        animation: false
       },
       title: {
         text: 'Item Click Count'
       },
       subtitle: {
-        text: '(Count > 100)'
+        text: '(Count > ' + this.itemClickConf.gt + ')'
       },
       xAxis: {
         categories: item_ids,
@@ -109,25 +148,28 @@ export class ClickstreamComponent implements OnInit {
     });
   }
 
-  private fetch_item_quan(gt: number, page: number) {
+  private fetchItemQuan() {
     const url = environment.woody_apiserver + '/v1/metrics/item_quan'
-      + '?' + 'gt=' + gt + '&page=' + page; 
-    console.log(url);
+      + '?' + 'gt=' + this.itemQuanConf.gt + '&limit=' + this.itemQuanConf.limit;
     this.http_cli.get(url)
       .subscribe(rsp => { this.item_quan(rsp); });
   }
 
   item_quan(rsp) {
-    if (rsp == null) { return; }
-    if (rsp['response'] == null) { return; }
-
-    let item_ids = [];
-    let quans = [];
-    for (let i = 0; i < rsp['response'].length; i++) {
-      item_ids.push(rsp['response'][i]['item_id']);
-      quans.push(rsp['response'][i]['quan_bought']);
+    if (this.autoRefresh) {
+      setTimeout(() => this.fetchItemQuan(), this.refreshInterval);
     }
-    
+
+    const item_ids = [];
+    const quans = [];
+
+    if (rsp != null && rsp['response'] != null) {
+      for (let i = 0; i < rsp['response'].length; i++) {
+        item_ids.push(rsp['response'][i]['item_id']);
+        quans.push(rsp['response'][i]['quan_bought']);
+      }
+    }
+
     Highcharts.chart('container_item_quan', {
       chart: {
         type: 'bar'
@@ -136,7 +178,7 @@ export class ClickstreamComponent implements OnInit {
         text: 'Item Quantity Bought'
       },
       subtitle: {
-        text: '(Quantity > 100)'
+        text: '(Quantity > ' + this.itemQuanConf.gt + ')'
       },
       xAxis: {
         categories: item_ids,
@@ -180,30 +222,34 @@ export class ClickstreamComponent implements OnInit {
       },
       series: [{
         type: 'bar',
-        name: 'Quantity Bought',
+        name: 'Quantity',
         data: quans
         }]
     });
   }
 
-  private fetch_session_click(gt: number, page: number) {
+  private fetchSessClick() {
     const url = environment.woody_apiserver + '/v1/metrics/session_click'
-      + '?' + 'gt=' + gt + '&page=' + page; 
+      + '?' + 'gt=' + this.sessClickConf.gt + '&limit=' + this.sessClickConf.limit;
     this.http_cli.get(url)
       .subscribe(rsp => { this.session_click(rsp); });
   }
 
   session_click(rsp) {
-    if (rsp == null) { return; }
-    if (rsp['response'] == null) { return; }
-
-    let session_ids = [];
-    let counts = [];
-    for (let i = 0; i < rsp['response'].length; i++) {
-      session_ids.push(rsp['response'][i]['session_id']);
-      counts.push(rsp['response'][i]['click_count']);
+    if (this.autoRefresh) {
+      setTimeout(() => this.fetchSessClick(), this.refreshInterval);
     }
-    
+
+    const session_ids = [];
+    const counts = [];
+
+    if (rsp != null && rsp['response'] != null) {
+      for (let i = 0; i < rsp['response'].length; i++) {
+        session_ids.push(rsp['response'][i]['session_id']);
+        counts.push(rsp['response'][i]['click_count']);
+      }
+    }
+
     Highcharts.chart('container_session_click', {
       chart: {
         type: 'bar'
@@ -212,7 +258,7 @@ export class ClickstreamComponent implements OnInit {
         text: 'Session Click Count'
       },
       subtitle: {
-        text: '(Count > 35)'
+        text: '(Count > ' + this.sessClickConf.gt + ')'
       },
       xAxis: {
         categories: session_ids,
@@ -262,24 +308,108 @@ export class ClickstreamComponent implements OnInit {
     });
   }
 
-  private fetch_session_quan(gt: number, page: number) {
+  private fetchCateClick() {
+    const url = environment.woody_apiserver + '/v1/metrics/category_click'
+      + '?' + 'gt=' + this.cateClickConf.gt + '&limit=' + this.cateClickConf.limit;
+    this.http_cli.get(url)
+      .subscribe(rsp => { this.category_click(rsp); });
+  }
+
+  category_click(rsp) {
+    if (this.autoRefresh) {
+      setTimeout(() => this.fetchSessClick(), this.refreshInterval);
+    }
+
+    const category_ids = [];
+    const counts = [];
+
+    if (rsp != null && rsp['response'] != null) {
+      for (let i = 0; i < rsp['response'].length; i++) {
+        category_ids.push(rsp['response'][i]['category']);
+        counts.push(rsp['response'][i]['click_count']);
+      }
+    }
+
+    Highcharts.chart('container_category_click', {
+      chart: {
+        type: 'bar'
+      },
+      title: {
+        text: 'Category Click Count'
+      },
+      subtitle: {
+        text: '(Count > ' + this.cateClickConf.gt + ')'
+      },
+      xAxis: {
+        categories: category_ids,
+        title: {
+          text: 'Category ID'
+        }
+      },
+      yAxis: {
+        min: 0,
+        title: {
+          text: 'Count',
+          align: 'high'
+        },
+        labels: {
+          overflow: 'justify' as any
+        }
+      },
+      /**tooltip: {
+        valueSuffix: ' millions'
+      },*/
+      plotOptions: {
+        bar: {
+          dataLabels: {
+            enabled: true
+          }
+        }
+      },
+      legend: {
+        layout: 'vertical',
+        align: 'right',
+        verticalAlign: 'top',
+        x: -40,
+        y: 80,
+        floating: true,
+        borderWidth: 1,
+        backgroundColor: '#FFFFFF',
+        shadow: true
+      },
+      credits: {
+        enabled: false
+      },
+      series: [{
+        type: 'bar',
+        name: 'Click Count',
+        data: counts
+        }]
+    });
+  }
+
+  private fetchSessQuan() {
     const url = environment.woody_apiserver + '/v1/metrics/session_quan'
-      + '?' + 'gt=' + gt + '&page=' + page; 
+      + '?' + 'gt=' + this.sessQuanConf.gt + '&limit=' + this.sessQuanConf.limit;
     this.http_cli.get(url)
       .subscribe(rsp => { this.session_quan(rsp); });
   }
 
   session_quan(rsp) {
-    if (rsp == null) { return; }
-    if (rsp['response'] == null) { return; }
-
-    let session_ids = [];
-    let quans = [];
-    for (let i = 0; i < rsp['response'].length; i++) {
-      session_ids.push(rsp['response'][i]['session_id']);
-      quans.push(rsp['response'][i]['quan_bought']);
+    if (this.autoRefresh) {
+      setTimeout(() => this.fetchSessQuan(), this.refreshInterval);
     }
-    
+
+    const session_ids = [];
+    const quans = [];
+
+    if (rsp != null && rsp['response'] != null) {
+      for (let i = 0; i < rsp['response'].length; i++) {
+        session_ids.push(rsp['response'][i]['session_id']);
+        quans.push(rsp['response'][i]['quan_bought']);
+      }
+    }
+
     Highcharts.chart('container_session_quan', {
       chart: {
         type: 'bar'
@@ -288,7 +418,7 @@ export class ClickstreamComponent implements OnInit {
         text: 'Session Quantity Bought'
       },
       subtitle: {
-        text: '(Quantity > 100)'
+        text: '(Quantity > ' + this.sessQuanConf.gt + ')'
       },
       xAxis: {
         categories: session_ids,
@@ -332,7 +462,7 @@ export class ClickstreamComponent implements OnInit {
       },
       series: [{
         type: 'bar',
-        name: 'Quantity Bought',
+        name: 'Quantity',
         data: quans
         }]
     });

@@ -98,19 +98,19 @@ func (p *ClickstreamApi) map_scan(q string) (metrics []map[string]interface{}) {
 
 /**
  * gt: count greater than value specified
- * page: row per page
+ * limit: row per limit
  */
 func (p *ClickstreamApi) MetricsItemClick(w http.ResponseWriter, r *http.Request) {
   glog.Infof("%s %v", woody.CurrentScope(), r.URL)
 
   gt := r.URL.Query().Get("gt")
   if len(gt) == 0 { gt = "10" }
-  page := r.URL.Query().Get("page")
-  if len(page) == 0 { page = "100" }
+  limit := r.URL.Query().Get("limit")
+  if len(limit) == 0 { limit = "100" }
 
   q := fmt.Sprintf(
     `SELECT * FROM item_click WHERE click_count > %s LIMIT %s ALLOW FILTERING`,
-    gt, page)
+    gt, limit)
 
   metrics := p.map_scan(q)
 
@@ -134,12 +134,12 @@ func (p *ClickstreamApi) MetricsSessionClick(w http.ResponseWriter, r *http.Requ
 
   gt := r.URL.Query().Get("gt")
   if len(gt) == 0 { gt = "10" }
-  page := r.URL.Query().Get("page")
-  if len(page) == 0 { page = "100" }
+  limit := r.URL.Query().Get("limit")
+  if len(limit) == 0 { limit = "100" }
 
   q := fmt.Sprintf(
     `SELECT * FROM session_click WHERE click_count > %s LIMIT %s ALLOW FILTERING`,
-    gt, page)
+    gt, limit)
 
   metrics := p.map_scan(q)
 
@@ -163,12 +163,12 @@ func (p *ClickstreamApi) MetricsItemQuan(w http.ResponseWriter, r *http.Request)
 
   gt := r.URL.Query().Get("gt")
   if len(gt) == 0 { gt = "10" }
-  page := r.URL.Query().Get("page")
-  if len(page) == 0 { page = "100" }
+  limit := r.URL.Query().Get("limit")
+  if len(limit) == 0 { limit = "100" }
 
   q := fmt.Sprintf(
     `SELECT * FROM item_quan WHERE quan_bought > %s LIMIT %s ALLOW FILTERING`,
-    gt, page)
+    gt, limit)
 
   metrics := p.map_scan(q)
 
@@ -191,12 +191,40 @@ func (p *ClickstreamApi) MetricsSessionQuan(w http.ResponseWriter, r *http.Reque
 
   gt := r.URL.Query().Get("gt")
   if len(gt) == 0 { gt = "10" }
-  page := r.URL.Query().Get("page")
-  if len(page) == 0 { page = "100" }
+  limit := r.URL.Query().Get("limit")
+  if len(limit) == 0 { limit = "100" }
 
   q := fmt.Sprintf(
     `SELECT * FROM session_quan WHERE quan_bought > %s LIMIT %s ALLOW FILTERING`,
-    gt, page)
+    gt, limit)
+
+  metrics := p.map_scan(q)
+
+  // sort by updated_at
+  data, err := json.Marshal(&struct{
+		Response []map[string]interface{} `json:"response,omitempty"`
+  }{ Response: metrics, })
+  if err != nil {
+    glog.Error("marshal failed: ", err)
+    w.WriteHeader(http.StatusInternalServerError)
+    return
+  }
+
+  w.WriteHeader(http.StatusOK)
+  w.Write(data)
+}
+
+func (p *ClickstreamApi) MetricsCategoryClick(w http.ResponseWriter, r *http.Request) {
+  glog.Infof("%s %v", woody.CurrentScope(), r.URL)
+
+  gt := r.URL.Query().Get("gt")
+  if len(gt) == 0 { gt = "10" }
+  limit := r.URL.Query().Get("limit")
+  if len(limit) == 0 { limit = "100" }
+
+  q := fmt.Sprintf(
+    `SELECT * FROM category_click WHERE click_count > %s LIMIT %s ALLOW FILTERING`,
+    gt, limit)
 
   metrics := p.map_scan(q)
 
@@ -217,6 +245,7 @@ func (p *ClickstreamApi) MetricsSessionQuan(w http.ResponseWriter, r *http.Reque
 func (p *ClickstreamApi) SetHandler(mux *http.ServeMux) {
   mux.HandleFunc("/v1/metrics/item_click", p.MetricsItemClick)
   mux.HandleFunc("/v1/metrics/session_click", p.MetricsSessionClick)
+  mux.HandleFunc("/v1/metrics/category_click", p.MetricsCategoryClick)
   mux.HandleFunc("/v1/metrics/item_quan", p.MetricsItemQuan)
   mux.HandleFunc("/v1/metrics/session_quan", p.MetricsSessionQuan)
   //mux.HandleFunc("/v1/metrics/purchase_delta", p.MetricsPurchaseDelta)

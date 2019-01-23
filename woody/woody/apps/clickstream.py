@@ -59,8 +59,10 @@ class ClickStreamAggr(object):
             return x
 
         click = click.map(click_conv)
-        click.foreachRDD(self.persist_click)
+        #click.foreachRDD(self.persist_click)
+        click.foreachRDD(self.aggr_total_click)
 
+        self.aggr_category_click(click)
         self.aggr_session_click(click)
         self.aggr_item_click(click)
 
@@ -72,7 +74,7 @@ class ClickStreamAggr(object):
             x['timestamp'] = datetime.strptime(x['timestamp'].split('.')[0], fmt)
             return x
         buy = buy.map(buy_conv)
-        buy.foreachRDD(self.persist_buy)
+        #buy.foreachRDD(self.persist_buy)
         
         # self.aggr_buy_click_delta(click, buy)
         self.aggr_session_quan(buy)
@@ -156,8 +158,8 @@ class ClickStreamAggr(object):
                 now = int(time.mktime(datetime.utcnow().timetuple()))
                 df = df.na.fill({'old_quan':0,'updated_at':now,'created_at':now})
                 df = df.withColumn("quan_bought", df['old_quan'] + df['new_quan'])
-                df = df.drop("session_id").drop('old_quan').drop('new_quan')\
-                    .withColumnRenamed("sid", "session_id")
+                df = df.drop("session_id").drop('old_quan').drop('new_quan')
+                df = df.withColumnRenamed("sid", "session_id")
                 df = df.na.drop()
                 df.write.format("org.apache.spark.sql.cassandra")\
                   .options(**opts)\
@@ -186,8 +188,8 @@ class ClickStreamAggr(object):
                 now = int(time.mktime(datetime.utcnow().timetuple()))
                 df = df.na.fill({'old_count':0,'updated_at':now,'created_at':now})
                 df = df.withColumn("click_count", df['old_count'] + df['new_count'])
-                df = df.drop("session_id").drop('old_count').drop('new_count')\
-                    .withColumnRenamed("sid", "session_id")
+                df = df.drop("session_id").drop('old_count').drop('new_count')
+                df = df.withColumnRenamed("sid", "session_id")
                 df = df.na.drop()
                 df.write.format("org.apache.spark.sql.cassandra")\
                   .options(**opts)\
@@ -196,6 +198,35 @@ class ClickStreamAggr(object):
                 print("session_click persist failed", e)
 
         click.map(lambda x: (x['session_id'], 1)).reduceByKey(lambda x,y: y+x)\
+            .foreachRDD(persist)
+
+    def aggr_category_click(self, click):
+        """category => click count"""
+        opts = {"table":"category_click", "keyspace":self._keyspace, "confirm.truncate":"true"}
+        def persist(tm, rdd):
+            if len(rdd.collect()) == 0:
+                return
+
+            try:
+                df = self._sess.createDataFrame(rdd, ["cate", "new_count"])
+                store_df = self._sess.read.format("org.apache.spark.sql.cassandra")\
+                    .options(table="category_click", keyspace=self._keyspace)\
+                    .load()
+                df = df.join(store_df, store_df.category==df.cate, 'outer')
+                df = df.withColumnRenamed("click_count", "old_count")
+                now = int(time.mktime(datetime.utcnow().timetuple()))
+                df = df.na.fill({'old_count':0,'updated_at':now,'created_at':now})
+                df = df.withColumn("click_count", df['old_count'] + df['new_count'])
+                df = df.drop("category").drop('old_count').drop('new_count')
+                df = df.withColumnRenamed("cate", "category")
+                df = df.na.drop()
+                df.write.format("org.apache.spark.sql.cassandra")\
+                  .options(**opts)\
+                  .save(mode='append')
+            except Exception as e:
+                print("category_click persist failed", e)
+
+        click.map(lambda x: (x['category'], 1)).reduceByKey(lambda x,y: y+x)\
             .foreachRDD(persist)
     
     def aggr_sum_click(self):
@@ -255,8 +286,8 @@ class ClickStreamAggr(object):
                 now = int(time.mktime(datetime.utcnow().timetuple()))
                 df = df.na.fill({'old_count':0,'updated_at':now,'created_at':now})
                 df = df.withColumn("click_count", df['old_count'] + df['new_count'])
-                df = df.drop("item_id").drop('old_count').drop('new_count')\
-                    .withColumnRenamed("iid", "item_id")
+                df = df.drop("item_id").drop('old_count').drop('new_count')
+                df = df.withColumnRenamed("iid", "item_id")
                 df = df.na.drop()
                 df.write.format("org.apache.spark.sql.cassandra")\
                   .options(**opts)\
@@ -283,8 +314,8 @@ class ClickStreamAggr(object):
                 now = int(time.mktime(datetime.utcnow().timetuple()))
                 df = df.na.fill({'old_quan':0,'updated_at':now,'created_at':now})
                 df = df.withColumn("quan_bought", df['old_quan'] + df['new_quan'])
-                df = df.drop("item_id").drop('old_quan').drop('new_quan')\
-                    .withColumnRenamed("iid", "item_id")
+                df = df.drop("item_id").drop('old_quan').drop('new_quan')
+                df = df.withColumnRenamed("iid", "item_id")
                 df = df.na.drop()
                 df.write.format("org.apache.spark.sql.cassandra")\
                   .options(**opts)\
@@ -294,6 +325,20 @@ class ClickStreamAggr(object):
 
         item_quan = buy.map(lambda x: (x['item_id'], x['quantity'])).reduceByKey(lambda x,y: y+x)
         item_quan.foreachRDD(persist)
+
+    def aggr_total_click(self, tm, rdd):
+        if len(rdd.collect()) == 0:
+            return
+        opts = {"table":"total_click", "keyspace":self._keyspace, "confirm.truncate":"true"} 
+        now = int(time.mktime(datetime.now().timetuple()))*1000
+
+        try:
+            df = self._sess.createDataFrame([(now, len(rdd.collect()))], ["ts", "click_count"])
+            df.write.format("org.apache.spark.sql.cassandra")\
+              .options(**opts)\
+              .save(mode='append')
+        except Exception as e:
+            print("total_click persist failed", e)
 
     def persist_click(self, tm, rdd):
         if len(rdd.collect()) == 0:
@@ -308,7 +353,6 @@ class ClickStreamAggr(object):
               .save(mode='append')
         except Exception as e:
             print("click_event persist failed", e)
-            raise
 
     def persist_buy(self, time, rdd):
         if len(rdd.collect()) == 0:

@@ -72,3 +72,18 @@ CREATE TABLE IF NOT EXISTS purchase_delta (
   PRIMARY KEY ((session_id, item_id), updated_at, created_at, ts_delta, price)
 ) WITH CLUSTERING ORDER BY (
   updated_at DESC, created_at DESC, ts_delta ASC, price ASC);
+
+CREATE TABLE IF NOT EXISTS category_click (
+  category varchar,
+  click_count int,
+  created_at timestamp,
+  updated_at timestamp,
+  PRIMARY KEY (category, updated_at)
+) WITH CLUSTERING ORDER BY (updated_at DESC);
+
+CREATE TABLE IF NOT EXISTS total_click (
+  id timeuuid,
+  ts timestamp,
+  click_count int,
+  PRIMARY KEY (id)
+);

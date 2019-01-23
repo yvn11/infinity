@@ -1,9 +1,16 @@
 <div class="row" id="clickstream">
   <div class="col-md-9">
-    <div id="container_item_quan"></div>
-    <div id="container_session_quan"></div>
-    <div id="container_item_click"></div>
-    <div id="container_session_click"></div>
+    <table m-table title='clickstream metrics'>
+      <tr>
+        <td><div id="container_item_quan"></div></td>
+        <td><div id="container_item_click"></div></td>
+      </tr><tr>
+        <td><div id="container_session_quan"></div></td>
+        <td><div id="container_session_click"></div></td>
+      </tr><tr>
+        <td><div id="container_category_click"></div></td>
+      </tr>
+    </table>
   </div>
 </div>
 <router-outlet></router-outlet>
