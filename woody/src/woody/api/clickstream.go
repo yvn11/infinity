@@ -3,6 +3,7 @@ package api
 import (
   "encoding/json"
   "net/http"
+  "fmt"
   //"sort"
   "strings"
   "github.com/golang/glog"
@@ -79,11 +80,10 @@ func NewClickstreamApi() *ClickstreamApi {
   return &p
 }
 
-func (p *ClickstreamApi) MetricsItemClick(w http.ResponseWriter, r *http.Request) {
-  glog.Infof("%s %v", woody.CurrentScope(), r.URL)
-  var metrics []map[string]interface{}
+func (p *ClickstreamApi) map_scan(q string) (metrics []map[string]interface{}) {
+  //var metrics []map[string]interface{}
 
-  iter := p.cass_sess.Query(`SELECT * FROM item_click LIMIT 100`).Iter()
+  iter := p.cass_sess.Query(q).Iter()
   for {
     row := make(map[string]interface{})
     if ok := iter.MapScan(row); !ok {
@@ -92,6 +92,27 @@ func (p *ClickstreamApi) MetricsItemClick(w http.ResponseWriter, r *http.Request
     }
     metrics = append(metrics, row)
   }
+  glog.Info("result: ", len(metrics))
+  return
+}
+
+/**
+ * gt: count greater than value specified
+ * page: row per page
+ */
+func (p *ClickstreamApi) MetricsItemClick(w http.ResponseWriter, r *http.Request) {
+  glog.Infof("%s %v", woody.CurrentScope(), r.URL)
+
+  gt := r.URL.Query().Get("gt")
+  if len(gt) == 0 { gt = "10" }
+  page := r.URL.Query().Get("page")
+  if len(page) == 0 { page = "100" }
+
+  q := fmt.Sprintf(
+    `SELECT * FROM item_click WHERE click_count > %s LIMIT %s ALLOW FILTERING`,
+    gt, page)
+
+  metrics := p.map_scan(q)
 
   // sort by updated_at
   //sort.Sort(ByUpdatedAt(metrics))
@@ -110,17 +131,17 @@ func (p *ClickstreamApi) MetricsItemClick(w http.ResponseWriter, r *http.Request
 
 func (p *ClickstreamApi) MetricsSessionClick(w http.ResponseWriter, r *http.Request) {
   glog.Infof("%s %v", woody.CurrentScope(), r.URL)
-  var metrics []map[string]interface{}
 
-  iter := p.cass_sess.Query(`SELECT * FROM session_click LIMIT 100`).Iter()
-  for {
-    row := make(map[string]interface{})
-    if ok := iter.MapScan(row); !ok {
-      iter.Close()
-      break
-    }
-    metrics = append(metrics, row)
-  }
+  gt := r.URL.Query().Get("gt")
+  if len(gt) == 0 { gt = "10" }
+  page := r.URL.Query().Get("page")
+  if len(page) == 0 { page = "100" }
+
+  q := fmt.Sprintf(
+    `SELECT * FROM session_click WHERE click_count > %s LIMIT %s ALLOW FILTERING`,
+    gt, page)
+
+  metrics := p.map_scan(q)
 
   // sort by updated_at
   data, err := json.Marshal(&struct{
@@ -138,17 +159,18 @@ func (p *ClickstreamApi) MetricsSessionClick(w http.ResponseWriter, r *http.Requ
 
 func (p *ClickstreamApi) MetricsItemQuan(w http.ResponseWriter, r *http.Request) {
   glog.Infof("%s %v", woody.CurrentScope(), r.URL)
-  var metrics []map[string]interface{}
+  glog.Infof("%s %v", woody.CurrentScope(), r.URL.Query())
 
-  iter := p.cass_sess.Query(`SELECT * FROM item_quan LIMIT 100`).Iter()
-  for {
-    row := make(map[string]interface{})
-    if ok := iter.MapScan(row); !ok {
-      iter.Close()
-      break
-    }
-    metrics = append(metrics, row)
-  }
+  gt := r.URL.Query().Get("gt")
+  if len(gt) == 0 { gt = "10" }
+  page := r.URL.Query().Get("page")
+  if len(page) == 0 { page = "100" }
+
+  q := fmt.Sprintf(
+    `SELECT * FROM item_quan WHERE quan_bought > %s LIMIT %s ALLOW FILTERING`,
+    gt, page)
+
+  metrics := p.map_scan(q)
 
   // sort by updated_at
   data, err := json.Marshal(&struct{
@@ -166,17 +188,17 @@ func (p *ClickstreamApi) MetricsItemQuan(w http.ResponseWriter, r *http.Request)
 
 func (p *ClickstreamApi) MetricsSessionQuan(w http.ResponseWriter, r *http.Request) {
   glog.Infof("%s %v", woody.CurrentScope(), r.URL)
-  var metrics []map[string]interface{}
 
-  iter := p.cass_sess.Query(`SELECT * FROM session_quan LIMIT 100`).Iter()
-  for {
-	  row := make(map[string]interface{})
-    if ok := iter.MapScan(row); !ok {
-      iter.Close()
-      break
-    }
-    metrics = append(metrics, row)
-  }
+  gt := r.URL.Query().Get("gt")
+  if len(gt) == 0 { gt = "10" }
+  page := r.URL.Query().Get("page")
+  if len(page) == 0 { page = "100" }
+
+  q := fmt.Sprintf(
+    `SELECT * FROM session_quan WHERE quan_bought > %s LIMIT %s ALLOW FILTERING`,
+    gt, page)
+
+  metrics := p.map_scan(q)
 
   // sort by updated_at
   data, err := json.Marshal(&struct{
