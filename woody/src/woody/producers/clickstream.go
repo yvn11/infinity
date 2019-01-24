@@ -104,12 +104,19 @@ func (p *ClickstreamProducer) buy_msg(val []string) (*sarama.ProducerMessage, er
   }, nil
 }
 
+func (p *ClickstreamProducer) fakeKeepRead(path string, ev chan []string) {
+  for {
+    glog.Infof("round begin[%s]: %v\n", path, time.Now())
+    p.FromTSV(path, ev)
+  }
+}
+
 func (p *ClickstreamProducer) Run() {
   sig := make(chan os.Signal, 1)
   signal.Notify(sig, os.Interrupt)
 
-  go p.FromTSV(click_tsv, p.click_ev)
-  go p.FromTSV(buy_tsv, p.buy_ev)
+  go p.fakeKeepRead(click_tsv, p.click_ev)
+  go p.fakeKeepRead(buy_tsv, p.buy_ev)
   var sent_nr int
 
   ProducerLoop:

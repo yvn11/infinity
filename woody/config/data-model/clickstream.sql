@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS item_quan (
   quan_bought int,
   created_at timestamp,
   updated_at timestamp,
-  PRIMARY KEY (session_id, updated_at,created_at)
+  PRIMARY KEY (item_id, updated_at,created_at)
 ) WITH CLUSTERING ORDER BY (updated_at DESC, created_at DESC);
 
 CREATE TABLE IF NOT EXISTS item_click (
