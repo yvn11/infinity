@@ -197,9 +197,9 @@ services:
       SPARK_IDENT_STRING: '{{.Node.Hostname}}'
       #SPARK_DAEMON_JAVA_OPTS: '-Dspark.deploy.recoveryMode=ZOOKEEPER'
     command: /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-master.sh
-    deploy:
-      placement:
-        constraints: [node.labels.sparknode == 1]
+#    deploy:
+#      placement:
+#        constraints: [node.labels.sparknode == 1]
   spark2:
     image: zlynch/spark:2.4.0
     hostname: spark2
@@ -239,7 +239,7 @@ services:
     deploy:
       placement:
         constraints: [node.hostname != core.master]
-      replicas: 2
+      replicas: 4
   spark2-worker:
     image: zlynch/spark:2.4.0
     hostname: '{{.Node.Hostname}}'

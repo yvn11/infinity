@@ -1727,7 +1727,7 @@
           "groupBy": [
             {
               "params": [
-                "1h"
+                "5m"
               ],
               "type": "time"
             },
@@ -1795,7 +1795,7 @@
           "groupBy": [
             {
               "params": [
-                "1h"
+                "5m"
               ],
               "type": "time"
             },
@@ -2369,6 +2369,14 @@
           "op": "gt",
           "value": 90,
           "yaxis": "left"
+        },
+        {
+          "colorMode": "warning",
+          "fill": true,
+          "line": true,
+          "op": "gt",
+          "value": 80,
+          "yaxis": "left"
         }
       ],
       "timeFrom": null,
@@ -2662,7 +2670,7 @@
           "groupBy": [
             {
               "params": [
-                "15m"
+                "5m"
               ],
               "type": "time"
             },
@@ -2705,7 +2713,7 @@
           "groupBy": [
             {
               "params": [
-                "15m"
+                "5m"
               ],
               "type": "time"
             },
@@ -3088,6 +3096,14 @@
           "line": true,
           "op": "gt",
           "value": 90,
+          "yaxis": "left"
+        },
+        {
+          "colorMode": "warning",
+          "fill": true,
+          "line": true,
+          "op": "gt",
+          "value": 80,
           "yaxis": "left"
         }
       ],
@@ -3807,6 +3823,14 @@
           "op": "gt",
           "value": 90,
           "yaxis": "left"
+        },
+        {
+          "colorMode": "warning",
+          "fill": true,
+          "line": true,
+          "op": "gt",
+          "value": 80,
+          "yaxis": "left"
         }
       ],
       "timeFrom": null,
@@ -4380,5 +4404,5 @@
   "timezone": "",
   "title": "Swarm",
   "uid": "fL0glqsmz",
-  "version": 19
+  "version": 21
 }

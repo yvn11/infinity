@@ -22,8 +22,10 @@ export class ClickstreamComponent implements OnInit {
   itemClickConf: MetricsConf;
   sessClickConf: MetricsConf;
   cateClickConf: MetricsConf;
+  eventStreamConf: MetricsConf;
   autoRefresh: boolean;
   refreshInterval: number; // ms
+  // event_stream: Map<string, Array<number>>;
 
   constructor(private http_cli: HttpClient) {
     console.log(this.title);
@@ -49,6 +51,11 @@ export class ClickstreamComponent implements OnInit {
     this.cateClickConf = new MetricsConf();
     this.cateClickConf.gt = 100;
     this.cateClickConf.limit = 100;
+
+    this.eventStreamConf = new MetricsConf();
+    this.eventStreamConf.limit = 80;
+
+    // this.event_stream = new Map<string, Array<number>>();
   }
 
   ngOnInit() {
@@ -65,16 +72,18 @@ export class ClickstreamComponent implements OnInit {
     this.fetchItemClick();
     this.fetchSessClick();
     this.fetchCateClick();
+    this.fetchClickES();
+    this.fetchBuyES();
   }
 
   private fetchItemClick() {
     const url = environment.woody_apiserver + '/v1/metrics/item_click'
       + '?' + 'gt=' + this.itemClickConf.gt + '&limit=' + this.itemClickConf.limit;
     this.http_cli.get(url)
-      .subscribe(rsp => { this.item_click(rsp); });
+      .subscribe(rsp => { this.onItemClick(rsp); });
   }
 
-  item_click(rsp) {
+  onItemClick(rsp) {
     if (this.autoRefresh) {
       setTimeout(() => this.fetchItemClick(), this.refreshInterval);
     }
@@ -88,11 +97,13 @@ export class ClickstreamComponent implements OnInit {
         counts.push(rsp['response'][i]['click_count']);
       }
     }
+    this.refresh_item_click(item_ids, counts);
+  }
 
+  refresh_item_click(item_ids, counts) {
     Highcharts.chart('container_item_click', {
       chart: {
         type: 'bar',
-        animation: false
       },
       title: {
         text: 'Item Click Count'
@@ -152,10 +163,10 @@ export class ClickstreamComponent implements OnInit {
     const url = environment.woody_apiserver + '/v1/metrics/item_quan'
       + '?' + 'gt=' + this.itemQuanConf.gt + '&limit=' + this.itemQuanConf.limit;
     this.http_cli.get(url)
-      .subscribe(rsp => { this.item_quan(rsp); });
+      .subscribe(rsp => { this.onItemQuan(rsp); });
   }
 
-  item_quan(rsp) {
+  onItemQuan(rsp) {
     if (this.autoRefresh) {
       setTimeout(() => this.fetchItemQuan(), this.refreshInterval);
     }
@@ -169,7 +180,10 @@ export class ClickstreamComponent implements OnInit {
         quans.push(rsp['response'][i]['quan_bought']);
       }
     }
+    this.refresh_item_quan(item_ids, quans);
+  }
 
+  refresh_item_quan(item_ids, quans) {
     Highcharts.chart('container_item_quan', {
       chart: {
         type: 'bar'
@@ -232,10 +246,10 @@ export class ClickstreamComponent implements OnInit {
     const url = environment.woody_apiserver + '/v1/metrics/session_click'
       + '?' + 'gt=' + this.sessClickConf.gt + '&limit=' + this.sessClickConf.limit;
     this.http_cli.get(url)
-      .subscribe(rsp => { this.session_click(rsp); });
+      .subscribe(rsp => { this.onSessClick(rsp); });
   }
 
-  session_click(rsp) {
+  onSessClick(rsp) {
     if (this.autoRefresh) {
       setTimeout(() => this.fetchSessClick(), this.refreshInterval);
     }
@@ -249,7 +263,10 @@ export class ClickstreamComponent implements OnInit {
         counts.push(rsp['response'][i]['click_count']);
       }
     }
+    this.refresh_session_click(session_ids, counts);
+  }
 
+  refresh_session_click(session_ids, counts) {
     Highcharts.chart('container_session_click', {
       chart: {
         type: 'bar'
@@ -312,10 +329,10 @@ export class ClickstreamComponent implements OnInit {
     const url = environment.woody_apiserver + '/v1/metrics/category_click'
       + '?' + 'gt=' + this.cateClickConf.gt + '&limit=' + this.cateClickConf.limit;
     this.http_cli.get(url)
-      .subscribe(rsp => { this.category_click(rsp); });
+      .subscribe(rsp => { this.onCateClick(rsp); });
   }
 
-  category_click(rsp) {
+  onCateClick(rsp) {
     if (this.autoRefresh) {
       setTimeout(() => this.fetchSessClick(), this.refreshInterval);
     }
@@ -329,7 +346,10 @@ export class ClickstreamComponent implements OnInit {
         counts.push(rsp['response'][i]['click_count']);
       }
     }
+    this.refresh_cate_click(category_ids, counts);
+  }
 
+  refresh_cate_click(category_ids, counts) {
     Highcharts.chart('container_category_click', {
       chart: {
         type: 'bar'
@@ -392,10 +412,10 @@ export class ClickstreamComponent implements OnInit {
     const url = environment.woody_apiserver + '/v1/metrics/session_quan'
       + '?' + 'gt=' + this.sessQuanConf.gt + '&limit=' + this.sessQuanConf.limit;
     this.http_cli.get(url)
-      .subscribe(rsp => { this.session_quan(rsp); });
+      .subscribe(rsp => { this.onSessQuan(rsp); });
   }
 
-  session_quan(rsp) {
+  onSessQuan(rsp) {
     if (this.autoRefresh) {
       setTimeout(() => this.fetchSessQuan(), this.refreshInterval);
     }
@@ -409,7 +429,10 @@ export class ClickstreamComponent implements OnInit {
         quans.push(rsp['response'][i]['quan_bought']);
       }
     }
+    this.refresh_sess_quan(session_ids, quans);
+  }
 
+  refresh_sess_quan(session_ids, quans) {
     Highcharts.chart('container_session_quan', {
       chart: {
         type: 'bar'
@@ -465,6 +488,117 @@ export class ClickstreamComponent implements OnInit {
         name: 'Quantity',
         data: quans
         }]
+    });
+  }
+
+  private fetchClickES() {
+    const url = environment.woody_apiserver + '/v1/metrics/event_stream'
+                + '?' + 'ev=click' + '&limit=' + this.eventStreamConf.limit;
+    this.http_cli.get(url)
+      .subscribe(rsp => { this.onClickES(rsp); });
+  }
+
+  onClickES(rsp) {
+    if (this.autoRefresh) {
+      setTimeout(() => this.fetchClickES(), this.refreshInterval);
+    }
+    
+    const esClickTime = [];
+    const esClickCount = [];
+
+    if (rsp != null && rsp['response'] != null) {
+      for (let i = rsp['response'].length-1; i >= 0; i--) {
+        const k = (new Date(rsp['response'][i]['ts'])).toString();
+        /**
+        if (this.event_stream[k] == null) {
+          this.event_stream[k] = [rsp['response'][i]['count'], 0];
+        } else {
+          this.event_stream[k][0] = rsp['response'][i]['count'];
+        }
+        */
+        esClickTime.push(k);
+        esClickCount.push(rsp['response'][i]['count']);
+      }
+    }
+    this.refreshES('container_es_click', 'Click Event Stream', esClickTime, esClickCount);
+  }
+
+  private fetchBuyES() {
+    const url = environment.woody_apiserver + '/v1/metrics/event_stream'
+                + '?' + 'ev=buy' + '&limit=' + this.eventStreamConf.limit;
+    this.http_cli.get(url)
+      .subscribe(rsp => { this.onBuyES(rsp); });
+  }
+
+  onBuyES(rsp) {
+    if (this.autoRefresh) {
+      setTimeout(() => this.fetchBuyES(), this.refreshInterval);
+    }
+
+    const esBuyTime = [];
+    const esBuyCount = [];
+
+    if (rsp != null && rsp['response'] != null) {
+      for (let i = rsp['response'].length-1; i >= 0; i--) {
+        const k = (new Date(rsp['response'][i]['ts'])).toString();
+        esBuyTime.push(k);
+        esBuyCount.push(rsp['response'][i]['count']);
+      }
+    }
+    this.refreshES('container_es_buy', 'Buy Event Stream', esBuyTime, esBuyCount);
+  }
+
+  refreshES(container, title, ts, counts) {
+    Highcharts.chart(container, {
+      chart: {
+        type: 'line',
+      },
+      title: {
+        text: title
+      },
+      xAxis: {
+        categories: ts,
+        title: {
+          text: 'time'
+        }
+      },
+      yAxis: {
+        min: 0,
+        title: {
+          text: 'Count',
+          align: 'high'
+        },
+        labels: {
+          overflow: 'justify' as any
+        }
+      },
+      plotOptions: {
+        line: {
+          dataLabels: {
+            enabled: true
+          }
+        }
+      },
+      legend: {
+        layout: 'vertical',
+        align: 'right',
+        verticalAlign: 'top',
+        x: -40,
+        y: 80,
+        floating: true,
+        borderWidth: 1,
+        backgroundColor: '#FFFFFF',
+        shadow: true
+      },
+      credits: {
+        enabled: false
+      },
+      series: [{
+        type: 'line',
+        name: 'Count',
+        data: counts
+        }
+      ]
     });
   }
 }

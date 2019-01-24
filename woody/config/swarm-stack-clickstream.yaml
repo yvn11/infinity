@@ -29,22 +29,16 @@ services:
 #      - published: 18881
 #        target: 4040
 #        mode: host
-        #command: /opt/spark/bin/spark-submit --master spark://spark1:7077 --jars /opt/spark-extern/spark-streaming-kafka-0-8-assembly_2.11-2.4.0.jar woody/apps/clickstream.py
-#    volumes:
-#       - /fedev-data/spark-conf:/data/spark-conf
-#       - /fedev-data:/data
-#      - /etc/kubernetes:/etc/kubernetes
-#      - /spark-cluster:/var/run/secrets/kubernetes.io/serviceaccount
-    #--conf spark.kubernetes.container.image=zlynch/spark:2.4.0
-    #--conf spark.kubernetes.container.image=kubespark/spark-driver:v2.2.0-kubernetes-0.5.0
-    #--conf spark.kubernetes.authenticate.submission.oauthToken=spark-token-c4kpx
-    #--conf spark.kubernetes.authenticate.driver.oauthToken=spark-token-c4kpx
-    #--conf spark.kubernetes.driver.container.image=kubespark/spark-driver-py:v2.2.0-kubernetes-0.5.0
-    #--conf spark.kubernetes.executor.container.image=kubespark/spark-executor-py:v2.2.0-kubernetes-0.5.0
-    #--conf spark.kubernetes.pyspark.pythonVersion=2
-    #--conf spark.kubernetes.driver.pod.name=spark-drv-clickstream
-    #--conf spark.kubernetes.driver.secrets.spark-secret=spark-conf-secrets
-    #--conf spark.kubernetes.executor.secrets.spark-secret=spark-conf-secrets
+#    --conf spark.kubernetes.container.image=zlynch/spark:2.4.0
+#    --conf spark.kubernetes.container.image=kubespark/spark-driver:v2.2.0-kubernetes-0.5.0
+#    --conf spark.kubernetes.authenticate.submission.oauthToken=spark-token-c4kpx
+#    --conf spark.kubernetes.authenticate.driver.oauthToken=spark-token-c4kpx
+#    --conf spark.kubernetes.driver.container.image=kubespark/spark-driver-py:v2.2.0-kubernetes-0.5.0
+#    --conf spark.kubernetes.executor.container.image=kubespark/spark-executor-py:v2.2.0-kubernetes-0.5.0
+#    --conf spark.kubernetes.pyspark.pythonVersion=2
+#    --conf spark.kubernetes.driver.pod.name=spark-drv-clickstream
+#    --conf spark.kubernetes.driver.secrets.spark-secret=spark-conf-secrets
+#    --conf spark.kubernetes.executor.secrets.spark-secret=spark-conf-secrets
 #    --conf spark.kubernetes.driver.volumes.persistentVolumeClaim.spark-data.mount.path=spark-secret
 #    --conf spark.kubernetes.driver.volumes.persistentVolumeClaim.spark-data.mount.readOnly=false
 #    --conf spark.kubernetes.driver.volumes.persistentVolumeClaim.spark-data.options.claimName=spark-data
@@ -74,7 +68,7 @@ services:
     --conf spark.kubernetes.driverEnv.SPARK_EXTRA_CLASSPATH=/opt/spark-extern
     --conf spark.kubernetes.driverEnv.SPARK_MASTER=k8s://http://192.168.70.140:8080
     --conf spark.scheduler.mode=FAIR
-    --conf spark.cassandra.connection.host=cass1,cass2,cass3
+    --conf spark.cassandra.connection.host=cass1
     --conf spark.cassandra.connection.port=9042
     --conf spark.cassandra.input.consistency.level=ONE
     --conf spark.cassandra.output.consistency.level=ONE
@@ -100,23 +94,31 @@ services:
       replicas: 1
   apiserver:
     image: zlynch/woody-bg:1.0
-    hostname: woody-apiserver
+    hostname: apiserver
     networks:
       - zk-net
+    ports:
+      - published: 17483
+        target: 17483
+        mode: host
     environment:
       TZ: Asia/Hong_Kong
-    command: "build/apiserver -alsologtostderr
+    command: "build/apiserver
     -cass cass1,cass2,cass3
-    -cass_port 9092 
+    -cass_port 9042 
     -apiaddr :17483
-    -origins http://192.168.70.140:*,http://woody_apiserver:*
+    -origins http://192.168.70.203:*,http://apiserver:*
     -cass_user dev
     -cass_pass dcb5c69fedb78e9a29a3"
     deploy:
       replicas: 1
+      placement:
+        constraints: [node.labels.sparknode == 1]
   ui:
     image: zlynch/woody-ui:1.0
-    hostname: woody-ui
+    hostname: ui
+    depends_on:
+      - apiserver
     networks:
       - zk-net
     environment:
@@ -125,11 +127,9 @@ services:
       - published: 17484
         target: 80
         mode: host
-    volumes:
-      - /tmp:/tmp
     deploy:
       placement:
-        constraints: [node.hostname == core.master]
+        constraints: [node.labels.sparknode == 1]
       replicas: 1
 
 networks:

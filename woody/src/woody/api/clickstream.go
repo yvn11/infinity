@@ -98,7 +98,7 @@ func (p *ClickstreamApi) map_scan(q string) (metrics []map[string]interface{}) {
 
 /**
  * gt: count greater than value specified
- * limit: row per limit
+ * limit: rows per request
  */
 func (p *ClickstreamApi) MetricsItemClick(w http.ResponseWriter, r *http.Request) {
   glog.Infof("%s %v", woody.CurrentScope(), r.URL)
@@ -242,10 +242,43 @@ func (p *ClickstreamApi) MetricsCategoryClick(w http.ResponseWriter, r *http.Req
   w.Write(data)
 }
 
+/**
+ * ev: event type, default `click`
+ * limit: rows per request
+ */
+func (p *ClickstreamApi) MetricsEventStream(w http.ResponseWriter, r *http.Request) {
+  glog.Infof("%s %v", woody.CurrentScope(), r.URL)
+
+  ev := r.URL.Query().Get("ev")
+  if len(ev) == 0 { ev = "click" }
+  limit := r.URL.Query().Get("limit")
+  if len(limit) == 0 { limit = "100" }
+
+  q := fmt.Sprintf(
+    `SELECT * FROM total_event WHERE event='%s' LIMIT %s ALLOW FILTERING`,
+    ev, limit)
+
+  metrics := p.map_scan(q)
+
+  // sort by updated_at
+  data, err := json.Marshal(&struct{
+		Response []map[string]interface{} `json:"response,omitempty"`
+  }{ Response: metrics, })
+  if err != nil {
+    glog.Error("marshal failed: ", err)
+    w.WriteHeader(http.StatusInternalServerError)
+    return
+  }
+
+  w.WriteHeader(http.StatusOK)
+  w.Write(data)
+}
+
 func (p *ClickstreamApi) SetHandler(mux *http.ServeMux) {
   mux.HandleFunc("/v1/metrics/item_click", p.MetricsItemClick)
   mux.HandleFunc("/v1/metrics/session_click", p.MetricsSessionClick)
   mux.HandleFunc("/v1/metrics/category_click", p.MetricsCategoryClick)
+  mux.HandleFunc("/v1/metrics/event_stream", p.MetricsEventStream)
   mux.HandleFunc("/v1/metrics/item_quan", p.MetricsItemQuan)
   mux.HandleFunc("/v1/metrics/session_quan", p.MetricsSessionQuan)
   //mux.HandleFunc("/v1/metrics/purchase_delta", p.MetricsPurchaseDelta)

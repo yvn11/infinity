@@ -8,7 +8,7 @@ from woody.common.config import Config
 from py4j.protocol import Py4JJavaError
 from datetime import datetime
 from random import randint
-import json 
+import json
 import time
 
 def SparkSessionInstance(sparkConf):
@@ -36,6 +36,7 @@ class ClickStreamAggr(object):
         self._ssc = StreamingContext(self._sc, Config.ssc_duration)
         self._sess = SparkSessionInstance(conf)
         self._keyspace = "woody_clickstream"
+        # 2014-04-07T10:51:09.277Z
         self._from_kfk()
 
     def _summary(self):
@@ -43,43 +44,47 @@ class ClickStreamAggr(object):
         self.aggr_buy_click()
         self.aggr_orderby_ts()
 
+    def click_event(self, tsfmt, kfk_params):
+        click = KafkaUtils.createDirectStream(self._ssc, ["click_ev"], kfk_params)\
+                .map(lambda x: json.loads(x[1]))
+        def click_conv(x):
+            x['timestamp'] = datetime.strptime(x['timestamp'].split('.')[0], tsfmt)
+            return x
+        return click.map(click_conv)
+
+    def buy_event(self, tsfmt, kfk_params):
+        buy = KafkaUtils.createDirectStream(self._ssc, ["buy_ev"], kfk_params)\
+            .map(lambda x: json.loads(x[1]))
+        def buy_conv(x):
+            x['price'] = float(x['price'])
+            x['quantity'] = int(x['quantity'])
+            x['timestamp'] = datetime.strptime(x['timestamp'].split('.')[0], tsfmt)
+            return x
+        return buy.map(buy_conv)
+
     def _from_kfk(self):
-        # TODO: END_OF_STREAM EOFError
+
+        tsfmt = "%Y-%m-%dT%H:%M:%S"#.%fZ"
         kfk_params = {
             'metadata.broker.list': Config.kafka_brokers,
             #'group.id': self.__class__.__name__,
             }
-        self._click_ds = KafkaUtils.createDirectStream(self._ssc, ["click_ev"], kfk_params)
-        self._buy_ds = KafkaUtils.createDirectStream(self._ssc, ["buy_ev"], kfk_params)
-        # 2014-04-07T10:51:09.277Z
-        fmt = "%Y-%m-%dT%H:%M:%S"#.%fZ"
-        click = self._click_ds.map(lambda x: json.loads(x[1]))
-        def click_conv(x):
-            x['timestamp'] = datetime.strptime(x['timestamp'].split('.')[0], fmt)
-            return x
 
-        click = click.map(click_conv)
-        #click.foreachRDD(self.persist_click)
-        click.foreachRDD(self.aggr_total_click)
+        # TODO: END_OF_STREAM EOFError
+        click = self.click_event(tsfmt, kfk_params)
+        buy = self.buy_event(tsfmt, kfk_params)
 
-        self.aggr_category_click(click)
+        click.foreachRDD(self.aggr_click_per_sec)
+        buy.foreachRDD(self.aggr_buy_per_sec)
+
+        # self.aggr_category_click(click)
         self.aggr_session_click(click)
         self.aggr_item_click(click)
 
-        buy = self._buy_ds.map(lambda x: json.loads(x[1]))
-
-        def buy_conv(x):
-            x['price'] = float(x['price'])
-            x['quantity'] = int(x['quantity'])
-            x['timestamp'] = datetime.strptime(x['timestamp'].split('.')[0], fmt)
-            return x
-        buy = buy.map(buy_conv)
-        #buy.foreachRDD(self.persist_buy)
-        
-        # self.aggr_buy_click_delta(click, buy)
         self.aggr_session_quan(buy)
         self.aggr_item_quan(buy)
-        #self._summary()
+        # self.aggr_buy_click_delta(click, buy)
+        # self._summary()
 
     def aggr_buy_click_delta(self, click, buy):
         """delta of buy timestamp and click timestamp
@@ -95,7 +100,7 @@ class ClickStreamAggr(object):
             return y
 
         def persist(tm, rdd):
-            if len(rdd.collect()) == 0:
+            if rdd.count() == 0:
                 return
 
             df, full_df = None, None
@@ -145,7 +150,7 @@ class ClickStreamAggr(object):
         """session => quantity bought"""
         opts = {"table":"session_quan", "keyspace":self._keyspace, "confirm.truncate":"true"}
         def persist(tm, rdd):
-            if len(rdd.collect()) == 0:
+            if rdd.count() == 0:
                 return
 
             try:
@@ -175,7 +180,7 @@ class ClickStreamAggr(object):
         """session => click count"""
         opts = {"table":"session_click", "keyspace":self._keyspace, "confirm.truncate":"true"}
         def persist(tm, rdd):
-            if len(rdd.collect()) == 0:
+            if rdd.count() == 0:
                 return
 
             try:
@@ -204,10 +209,11 @@ class ClickStreamAggr(object):
         """category => click count"""
         opts = {"table":"category_click", "keyspace":self._keyspace, "confirm.truncate":"true"}
         def persist(tm, rdd):
-            if len(rdd.collect()) == 0:
+            if rdd.count() == 0:
                 return
 
             try:
+                """
                 df = self._sess.createDataFrame(rdd, ["cate", "new_count"])
                 store_df = self._sess.read.format("org.apache.spark.sql.cassandra")\
                     .options(table="category_click", keyspace=self._keyspace)\
@@ -219,7 +225,10 @@ class ClickStreamAggr(object):
                 df = df.withColumn("click_count", df['old_count'] + df['new_count'])
                 df = df.drop("category").drop('old_count').drop('new_count')
                 df = df.withColumnRenamed("cate", "category")
+                df.show()
                 df = df.na.drop()
+                """
+                df = self._sess.createDataFrame(rdd, ["category", "click_count"])
                 df.write.format("org.apache.spark.sql.cassandra")\
                   .options(**opts)\
                   .save(mode='append')
@@ -228,16 +237,16 @@ class ClickStreamAggr(object):
 
         click.map(lambda x: (x['category'], 1)).reduceByKey(lambda x,y: y+x)\
             .foreachRDD(persist)
-    
+
     def aggr_sum_click(self):
         click_df = None
-        opts = {"table":"click_event", "keyspace":self._keyspace, "confirm.truncate":"true"} 
+        opts = {"table":"click_event", "keyspace":self._keyspace, "confirm.truncate":"true"}
 
         try:
             click_df = self._sess.read.format("org.apache.spark.sql.cassandra")\
                 .options(**opts)\
                 .load()
-            print("total click: ", click_df.count())
+            print("total event: ", click_df.count())
         except Exception as e:
             print("failed to load click event", e)
 
@@ -251,7 +260,7 @@ class ClickStreamAggr(object):
 
     def aggr_sum_buy(self):
         buy_df = None
-        opts = {"table":"buy_event", "keyspace":self._keyspace, "confirm.truncate":"true"} 
+        opts = {"table":"buy_event", "keyspace":self._keyspace, "confirm.truncate":"true"}
 
         try:
             buy_df = self._sess.read.format("org.apache.spark.sql.cassandra")\
@@ -268,12 +277,12 @@ class ClickStreamAggr(object):
                 .save(mode='append')
         except Exception as e:
             print("summary buy event persist failed", e)
-    
+
     def aggr_item_click(self, click):
         """item => click count"""
-        opts = {"table":"item_click", "keyspace":self._keyspace, "confirm.truncate":"true"} 
+        opts = {"table":"item_click", "keyspace":self._keyspace, "confirm.truncate":"true"}
         def persist(tm, rdd):
-            if len(rdd.collect()) == 0:
+            if rdd.count() == 0:
                 return
 
             try:
@@ -300,9 +309,9 @@ class ClickStreamAggr(object):
 
     def aggr_item_quan(self, buy):
         """item => quantity bought"""
-        opts = {"table":"item_quan", "keyspace":self._keyspace, "confirm.truncate":"true"} 
+        opts = {"table":"item_quan", "keyspace":self._keyspace, "confirm.truncate":"true"}
         def persist(tm, rdd):
-            if len(rdd.collect()) == 0:
+            if rdd.count() == 0:
                 return
             try:
                 df = self._sess.createDataFrame(rdd, ["iid", "new_quan"])
@@ -326,25 +335,23 @@ class ClickStreamAggr(object):
         item_quan = buy.map(lambda x: (x['item_id'], x['quantity'])).reduceByKey(lambda x,y: y+x)
         item_quan.foreachRDD(persist)
 
-    def aggr_total_click(self, tm, rdd):
-        if len(rdd.collect()) == 0:
-            return
-        opts = {"table":"total_click", "keyspace":self._keyspace, "confirm.truncate":"true"} 
+    def aggr_click_per_sec(self, tm, rdd):
+        if rdd.count() == 0: return
+
+        print('click', rdd.count())
+        opts = {"table":"total_event", "keyspace":self._keyspace, "confirm.truncate":"true"}
         now = int(time.mktime(datetime.now().timetuple()))*1000
 
         try:
-            df = self._sess.createDataFrame([(now, len(rdd.collect()))], ["ts", "click_count"])
+            df = self._sess.createDataFrame([('click', tm, rdd.count())], ["event", "ts", "count"])
             df.write.format("org.apache.spark.sql.cassandra")\
               .options(**opts)\
               .save(mode='append')
         except Exception as e:
-            print("total_click persist failed", e)
+            print("total_event persist failed", e)
 
-    def persist_click(self, tm, rdd):
-        if len(rdd.collect()) == 0:
-            return
-        opts = {"table":"click_event", "keyspace":self._keyspace, "confirm.truncate":"true"} 
-        print('click', len(rdd.collect())) 
+        opts = {"table":"click_event", "keyspace":self._keyspace, "confirm.truncate":"true"}
+
         try:
             df = self._sess.createDataFrame(rdd, ["category", "item_id", "session_id", "ts"])
             df = df.orderBy(df.session_id.asc(), df.ts.asc())\
@@ -354,11 +361,23 @@ class ClickStreamAggr(object):
         except Exception as e:
             print("click_event persist failed", e)
 
-    def persist_buy(self, time, rdd):
-        if len(rdd.collect()) == 0:
-            return
-        print('buy', len(rdd.collect())) 
-        opts = {"table":"buy_event", "keyspace":self._keyspace, "confirm.truncate":"true"} 
+    def aggr_buy_per_sec(self, tm, rdd):
+        if rdd.count() == 0: return
+        print('buy', rdd.count())
+
+        opts = {"table":"total_event", "keyspace":self._keyspace, "confirm.truncate":"true"}
+        now = int(time.mktime(datetime.now().timetuple()))*1000
+
+        try:
+            df = self._sess.createDataFrame([('buy', tm, rdd.count())], ["event", "ts", "count"])
+            df.write.format("org.apache.spark.sql.cassandra")\
+              .options(**opts)\
+              .save(mode='append')
+        except Exception as e:
+            print("total_event persist failed", e)
+
+        opts = {"table":"buy_event", "keyspace":self._keyspace, "confirm.truncate":"true"}
+
         try:
             df = self._sess.createDataFrame(rdd, \
                     ["item_id", "price", "quantity", "session_id", "ts"])
@@ -368,7 +387,7 @@ class ClickStreamAggr(object):
               .save(mode='append')
         except Exception as e:
             print("buy_event persist failed", e)
-        
+
     def run(self):
         try:
             self._ssc.start()

@@ -11,9 +11,8 @@ CREATE TABLE IF NOT EXISTS click_event (
   category varchar,
   created_at timestamp,
   updated_at timestamp,
-  PRIMARY KEY (session_id, item_id, ts)
-  WITH CLUSTERING ORDER BY (ts DESC);
-);
+  PRIMARY KEY ((item_id, session_id), ts)
+) WITH CLUSTERING ORDER BY (ts DESC);
 
 CREATE TABLE IF NOT EXISTS buy_event (
   session_id varchar,
@@ -23,7 +22,7 @@ CREATE TABLE IF NOT EXISTS buy_event (
   quantity int,
   created_at timestamp,
   updated_at timestamp,
-  PRIMARY KEY ((session_id, item_id), ts)
+  PRIMARY KEY ((item_id, session_id), ts)
 ) WITH CLUSTERING ORDER BY (ts DESC);
 
 /** aggregations */
@@ -81,9 +80,9 @@ CREATE TABLE IF NOT EXISTS category_click (
   PRIMARY KEY (category, updated_at)
 ) WITH CLUSTERING ORDER BY (updated_at DESC);
 
-CREATE TABLE IF NOT EXISTS total_click (
-  id timeuuid,
+CREATE TABLE IF NOT EXISTS total_event (
+  event varchar,
   ts timestamp,
-  click_count int,
-  PRIMARY KEY (id)
-);
+  count int,
+  PRIMARY KEY (event, ts)
+) WITH CLUSTERING ORDER BY (ts DESC);
