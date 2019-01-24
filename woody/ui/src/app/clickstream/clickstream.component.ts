@@ -502,12 +502,12 @@ export class ClickstreamComponent implements OnInit {
     if (this.autoRefresh) {
       setTimeout(() => this.fetchClickES(), this.refreshInterval);
     }
-    
+
     const esClickTime = [];
     const esClickCount = [];
 
     if (rsp != null && rsp['response'] != null) {
-      for (let i = rsp['response'].length-1; i >= 0; i--) {
+      for (let i = rsp['response'].length - 1; i >= 0; i--) {
         const k = (new Date(rsp['response'][i]['ts'])).toString();
         /**
         if (this.event_stream[k] == null) {
@@ -539,7 +539,7 @@ export class ClickstreamComponent implements OnInit {
     const esBuyCount = [];
 
     if (rsp != null && rsp['response'] != null) {
-      for (let i = rsp['response'].length-1; i >= 0; i--) {
+      for (let i = rsp['response'].length - 1; i >= 0; i--) {
         const k = (new Date(rsp['response'][i]['ts'])).toString();
         esBuyTime.push(k);
         esBuyCount.push(rsp['response'][i]['count']);
