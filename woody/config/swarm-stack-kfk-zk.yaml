@@ -197,9 +197,9 @@ services:
       SPARK_IDENT_STRING: '{{.Node.Hostname}}'
       #SPARK_DAEMON_JAVA_OPTS: '-Dspark.deploy.recoveryMode=ZOOKEEPER'
     command: /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-master.sh
-#    deploy:
-#      placement:
-#        constraints: [node.labels.sparknode == 1]
+    deploy:
+      placement:
+        constraints: [node.labels.sparknode == 1]
   spark2:
     image: zlynch/spark:2.4.0
     hostname: spark2
@@ -228,7 +228,7 @@ services:
     networks:
       - zk-net
     ports:
-      - published: 18880
+      - published: 18881
         target: 8081
         mode: host
     environment:
@@ -246,7 +246,7 @@ services:
     networks:
       - zk-net
     ports:
-      - published: 18880
+      - published: 18882
         target: 8081
         mode: host
     environment:

@@ -25,13 +25,15 @@ class ClickStreamAggr(object):
     """
     def __init__(self):
         conf = SparkConf()
+        """
         conf.set("spark.scheduler.mode", Config.spark_sched_mode)
         conf.set("spark.scheduler.pool", Config.spark_sched_pool)
         conf.set("spark.scheduler.allocation.file", Config.spark_sched_file)
+        """
         conf.set("spark.cassandra.auth.username", Config.cassandra_user)
         conf.set("spark.cassandra.auth.password", Config.cassandra_pass)
 
-        self._sc = SparkContext(master=Config.spark_master, appName=self.__class__.__name__+str(randint(10,20)), conf=conf)
+        self._sc = SparkContext(appName=self.__class__.__name__+str(randint(10,20)), conf=conf)
         self._sc.setLogLevel('WARN')
         self._ssc = StreamingContext(self._sc, Config.ssc_duration)
         self._sess = SparkSessionInstance(conf)
@@ -77,12 +79,12 @@ class ClickStreamAggr(object):
         click.foreachRDD(self.aggr_click_per_sec)
         buy.foreachRDD(self.aggr_buy_per_sec)
 
-        # self.aggr_category_click(click)
-        self.aggr_session_click(click)
-        self.aggr_item_click(click)
+        #self.aggr_category_click(click)
+        #self.aggr_session_click(click)
+        #self.aggr_item_click(click)
 
-        self.aggr_session_quan(buy)
-        self.aggr_item_quan(buy)
+        #self.aggr_session_quan(buy)
+        #self.aggr_item_quan(buy)
         # self.aggr_buy_click_delta(click, buy)
         # self._summary()
 
@@ -340,7 +342,7 @@ class ClickStreamAggr(object):
 
         print('click', rdd.count())
         opts = {"table":"total_event", "keyspace":self._keyspace, "confirm.truncate":"true"}
-        now = int(time.mktime(datetime.now().timetuple()))*1000
+        now = int(time.mktime(datetime.now().timetuple()))
 
         try:
             df = self._sess.createDataFrame([('click', tm, rdd.count())], ["event", "ts", "count"])
@@ -366,7 +368,7 @@ class ClickStreamAggr(object):
         print('buy', rdd.count())
 
         opts = {"table":"total_event", "keyspace":self._keyspace, "confirm.truncate":"true"}
-        now = int(time.mktime(datetime.now().timetuple()))*1000
+        now = int(time.mktime(datetime.now().timetuple()))
 
         try:
             df = self._sess.createDataFrame([('buy', tm, rdd.count())], ["event", "ts", "count"])

@@ -33,11 +33,11 @@ export class ClickstreamComponent implements OnInit {
     this.autoRefresh = true;
 
     this.itemQuanConf = new MetricsConf();
-    this.itemQuanConf.gt = 1000;
+    this.itemQuanConf.gt = 100;
     this.itemQuanConf.limit = 100;
 
     this.itemClickConf = new MetricsConf();
-    this.itemClickConf.gt = 10000;
+    this.itemClickConf.gt = 100;
     this.itemClickConf.limit = 100;
 
     this.sessQuanConf = new MetricsConf();
