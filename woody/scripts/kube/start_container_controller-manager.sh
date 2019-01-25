@@ -1,6 +1,6 @@
 #!/bin/bash
 
-version=v1.12.2
+version=v1.13.2
 image=k8s.gcr.io/kube-controller-manager:$version
 container=kube-controller-manager
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-version=v1.12.2
+version=v1.13.2
 image=k8s.gcr.io/kube-apiserver:$version
 container=kube-apiserver
 MASTER_IP=192.168.70.140

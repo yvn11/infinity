@@ -17,7 +17,7 @@ COPY woody $WOODY_ROOT/woody
 COPY config $WOODY_ROOT/config
 COPY scripts $WOODY_ROOT/scripts
 
-RUN echo $PYTHONPATH && apk add curl && \
+RUN apk add --no-cache curl && \
   mkdir -p ${SPARK_EXTERN} && curl "https://search.maven.org/remotecontent?filepath=org/apache/spark/spark-streaming-kafka-0-8-assembly_${SCALA_VERSION}/${SPARK_VERSION}/spark-streaming-kafka-0-8-assembly_${SCALA_VERSION}-${SPARK_VERSION}.jar" -o ${SPARK_EXTERN}/spark-streaming-kafka-0-8-assembly_${SCALA_VERSION}-${SPARK_VERSION}.jar &&\
   curl "http://dl.bintray.com/spark-packages/maven/datastax/spark-cassandra-connector/${SPARK_VERSION}-s_${SCALA_VERSION}/spark-cassandra-connector-${SPARK_VERSION}-s_${SCALA_VERSION}.jar" -o ${SPARK_EXTERN}/spark-cassandra-connector-${SPARK_VERSION}-s_${SCALA_VERSION}.jar
 
