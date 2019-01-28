@@ -196,7 +196,7 @@ services:
       SPARK_NO_DAEMONIZE: 1
       SPARK_IDENT_STRING: '{{.Node.Hostname}}'
       #SPARK_DAEMON_JAVA_OPTS: '-Dspark.deploy.recoveryMode=ZOOKEEPER'
-    command: /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-master.sh
+    command: /opt/spark/sbin/start-master.sh
     deploy:
       placement:
         constraints: [node.labels.sparknode == 1]
@@ -218,7 +218,7 @@ services:
       SPARK_NO_DAEMONIZE: 1
       SPARK_IDENT_STRING: '{{.Node.Hostname}}'
       #SPARK_DAEMON_JAVA_OPTS: '-Dspark.deploy.recoveryMode=ZOOKEEPER'
-    command: /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-master.sh
+    command: /opt/spark/sbin/start-master.sh
     deploy:
       placement:
         constraints: [node.labels.sparknode == 2]
@@ -235,7 +235,7 @@ services:
       TZ: Asia/Hong_Kong
       SPARK_NO_DAEMONIZE: 1
       SPARK_IDENT_STRING: '{{.Node.Hostname}}'
-    command: /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-slave.sh spark://spark1:7077
+    command: /opt/spark/sbin/start-slave.sh spark://spark1:7077
     deploy:
       placement:
         constraints: [node.hostname != core.master]
@@ -253,7 +253,7 @@ services:
       TZ: Asia/Hong_Kong
       SPARK_NO_DAEMONIZE: 1
       SPARK_IDENT_STRING: '{{.Node.Hostname}}'
-    command: /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-slave.sh spark://spark2:7077
+    command: /opt/spark/sbin/start-slave.sh spark://spark2:7077
     deploy:
       placement:
         constraints: [node.hostname != core.master]
