@@ -58,6 +58,9 @@ services:
 #    --conf spark.scheduler.mode=FAIR
 #    --deploy-mode cluster
 #    --master spark://spark1:7077
+#    --conf spark.kubernetes.authenticate.driver.clientKeyFile=/opt/woody/config/kube/pki/front-proxy-client.key
+#    --conf spark.kubernetes.authenticate.driver.clientCertFile=/opt/woody/config/kube/pki/front-proxy-client.crt
+#    --conf spark.kubernetes.driverEnv.SPARK_MASTER_IP=10.244.0.100
     command: "/opt/spark/bin/spark-submit 
     --name clickstream-aggregator
     --master k8s://https://192.168.70.140:6443
@@ -67,10 +70,11 @@ services:
     --conf spark.executor.instances=2
     --conf spark.kubernetes.authenticate.submission.caCertFile=/opt/woody/config/kube/pki/ca.crt
     --conf spark.kubernetes.authenticate.driver.caCertFile=/opt/woody/config/kube/pki/ca.crt
-    --conf spark.kubernetes.authenticate.submission.clientCertFile=/opt/woody/config/kube/pki/front-proxy-client.crt
-    --conf spark.kubernetes.authenticate.submission.clientKeyFile=/opt/woody/config/kube/pki/front-proxy-client.key
-    --conf spark.kubernetes.authenticate.driver.clientKeyFile=/opt/woody/config/kube/pki/front-proxy-client.key
-    --conf spark.kubernetes.authenticate.driver.clientCertFile=/opt/woody/config/kube/pki/front-proxy-client.crt
+    --conf spark.kubernetes.driver.pod.name=spark-drv-clickstream
+    --conf spark.kubernetes.authenticate.submission.clientCertFile=/opt/woody/config/kube/pki/apiserver-kubelet-client.crt
+    --conf spark.kubernetes.authenticate.submission.clientKeyFile=/opt/woody/config/kube/pki/apiserver-kubelet-client.key
+    --conf spark.kubernetes.authenticate.driver.clientKeyFile=/opt/woody/config/kube/pki/apiserver-kubelet-client.key
+    --conf spark.kubernetes.authenticate.driver.clientCertFile=/opt/woody/config/kube/pki/apiserver-kubelet-client.crt
     --conf spark.kubernetes.namespace=default
     --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark
     --conf spark.kubernetes.submission.waitAppCompletion=true
@@ -78,6 +82,7 @@ services:
     --conf spark.kubernetes.container.image.pullPolicy=Always
     --conf spark.kubernetes.driverEnv.SPARK_EXTRA_CLASSPATH=/opt/spark-extern
     --conf spark.kubernetes.driverEnv.SPARK_MASTER=k8s://https://192.168.70.140:6443
+    --conf spark.kubernetes.driverEnv.SPARK_LOCAL_IP=localhost
     --conf spark.cassandra.connection.host=cass1
     --conf spark.cassandra.connection.port=9042
     --conf spark.cassandra.input.consistency.level=ONE

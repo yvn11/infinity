@@ -39,5 +39,3 @@ RUN mkdir -p /opt/spark/conf && echo "<?xml version=\"1.0\"?> \
     <minShare>1</minShare> \
   </pool> \
 </allocations>" > /opt/spark/conf/fairscheduler.xml
-
-CMD ["scripts/aggr_cli.sh"]
