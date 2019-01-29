@@ -21,6 +21,8 @@ RUN apk add --no-cache curl && \
   mkdir -p ${SPARK_EXTRA_CLASSPATH} && curl "https://search.maven.org/remotecontent?filepath=org/apache/spark/spark-streaming-kafka-0-8-assembly_${SCALA_VERSION}/${SPARK_VERSION}/spark-streaming-kafka-0-8-assembly_${SCALA_VERSION}-${SPARK_VERSION}.jar" -o ${SPARK_EXTRA_CLASSPATH}/spark-streaming-kafka-0-8-assembly_${SCALA_VERSION}-${SPARK_VERSION}.jar &&\
   curl "http://dl.bintray.com/spark-packages/maven/datastax/spark-cassandra-connector/${SPARK_VERSION}-s_${SCALA_VERSION}/spark-cassandra-connector-${SPARK_VERSION}-s_${SCALA_VERSION}.jar" -o ${SPARK_EXTRA_CLASSPATH}/spark-cassandra-connector-${SPARK_VERSION}-s_${SCALA_VERSION}.jar
 
+ENV SPARK_DEFAULT_CONF=/opt/spark/conf/spark-defaults.conf
+
 RUN mkdir -p /opt/spark/conf && echo "<?xml version=\"1.0\"?> \
 <allocations> \
   <pool name=\"production\"> \
@@ -38,5 +40,8 @@ RUN mkdir -p /opt/spark/conf && echo "<?xml version=\"1.0\"?> \
     <weight>3</weight> \
     <minShare>1</minShare> \
   </pool> \
-</allocations>" > /opt/spark/conf/fairscheduler.xml
-RUN echo "nameserver 10.244.0.10" >> /etc/resolv.conf
+</allocations>" > /opt/spark/conf/fairscheduler.xml && \
+echo "spark.driver.extraClassPath        /opt/spark-extern" >> ${SPARK_DEFAULT_CONF} && \
+echo "spark.executor.extraClassPath	     /opt/spark-extern" >> ${SPARK_DEFAULT_CONF} && \
+echo "spark.executor.logs.rolling.maxSize	10000" >> ${SPARK_DEFAULT_CONF} && \
+echo "nameserver 10.244.0.10" >> /etc/resolv.conf
