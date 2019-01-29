@@ -24,53 +24,27 @@ services:
       SPARK_SCHED_FILE: /opt/spark/conf/fairscheduler.xml
       SPARK_LOCAL_DIRS: /data
       SPARK_EXTRA_CLASSPATH: /opt/spark-extern
-      PYSPARK_MAJOR_PYTHON_VERSION: 3
+#      PYSPARK_MAJOR_PYTHON_VERSION: 3
 #    ports:
 #      - published: 18881
 #        target: 4040
 #        mode: host
-#    --conf spark.kubernetes.container.image=zlynch/spark:2.4.0
-#    --conf spark.kubernetes.container.image=kubespark/spark-driver:v2.2.0-kubernetes-0.5.0
-#    --conf spark.kubernetes.authenticate.submission.oauthToken=spark-token-c4kpx
-#    --conf spark.kubernetes.authenticate.driver.oauthToken=spark-token-c4kpx
-#    --conf spark.kubernetes.driver.container.image=kubespark/spark-driver-py:v2.2.0-kubernetes-0.5.0
-#    --conf spark.kubernetes.executor.container.image=kubespark/spark-executor-py:v2.2.0-kubernetes-0.5.0
-#    --conf spark.kubernetes.pyspark.pythonVersion=2
-#    --conf spark.kubernetes.driver.pod.name=spark-drv-clickstream
-#    --conf spark.kubernetes.driver.secrets.spark-secret=spark-conf-secrets
-#    --conf spark.kubernetes.executor.secrets.spark-secret=spark-conf-secrets
-#    --conf spark.kubernetes.driver.volumes.persistentVolumeClaim.spark-data.mount.path=spark-secret
-#    --conf spark.kubernetes.driver.volumes.persistentVolumeClaim.spark-data.mount.readOnly=false
-#    --conf spark.kubernetes.driver.volumes.persistentVolumeClaim.spark-data.options.claimName=spark-data
-#    --conf spark.kubernetes.executor.volumes.persistentVolumeClaim.spark-data.mount.path=spark-secret
-#    --conf spark.kubernetes.executor.volumes.persistentVolumeClaim.spark-data.options.claimName=spark-data
-#    --conf spark.kubernetes.executor.volumes.persistentVolumeClaim.spark-data.mount.readOnly=false
-#    --conf spark.kubernetes.driver.container.image=kubespark/spark-driver-py:v2.2.0-kubernetes-0.5.0
-#    --conf spark.kubernetes.executor.container.image=kubespark/spark-executor-py:v2.2.0-kubernetes-0.5.0
-#    local:///opt/woody/woody/apps/clickstream.py"
 #    --packages com.datastax.spark:spark-cassandra-connector_2.11:2.4.0
 #    --jars /opt/spark-extern/spark-streaming-kafka-0-8-assembly_2.11-2.4.0.jar 
-#    --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark
-#    --master k8s://https://192.168.70.140:6443
 #    --deploy-mode: cluster
-#    --master spark://spark1:7077
-#    --deploy-mode: client
 #    --conf spark.scheduler.mode=FAIR
-#    --deploy-mode cluster
 #    --master spark://spark1:7077
-#    --conf spark.kubernetes.authenticate.driver.clientKeyFile=/opt/woody/config/kube/pki/front-proxy-client.key
-#    --conf spark.kubernetes.authenticate.driver.clientCertFile=/opt/woody/config/kube/pki/front-proxy-client.crt
-#    --conf spark.kubernetes.driverEnv.SPARK_MASTER_IP=10.244.0.100
+#    --conf spark.kubernetes.driver.pod.name=spark-drv-clickstream
     command: "/opt/spark/bin/spark-submit 
     --name clickstream-aggregator
     --master k8s://https://192.168.70.140:6443
     --deploy-mode cluster
     --conf spark.scheduler.mode=FAIR
     --conf spark.app.name=clickstream-aggregator
-    --conf spark.executor.instances=2
+    --conf spark.executor.instances=4
+    --conf spark.kubernetes.executor.request.cores=2
     --conf spark.kubernetes.authenticate.submission.caCertFile=/opt/woody/config/kube/pki/ca.crt
     --conf spark.kubernetes.authenticate.driver.caCertFile=/opt/woody/config/kube/pki/ca.crt
-    --conf spark.kubernetes.driver.pod.name=spark-drv-clickstream
     --conf spark.kubernetes.authenticate.submission.clientCertFile=/opt/woody/config/kube/pki/apiserver-kubelet-client.crt
     --conf spark.kubernetes.authenticate.submission.clientKeyFile=/opt/woody/config/kube/pki/apiserver-kubelet-client.key
     --conf spark.kubernetes.authenticate.driver.clientKeyFile=/opt/woody/config/kube/pki/apiserver-kubelet-client.key
@@ -83,6 +57,10 @@ services:
     --conf spark.kubernetes.driverEnv.SPARK_EXTRA_CLASSPATH=/opt/spark-extern
     --conf spark.kubernetes.driverEnv.SPARK_LOCAL_IP=localhost
     --conf spark.kubernetes.driverEnv.KAFKA_BROKERS=192.168.70.220:17812,192.168.70.35:17812,192.168.70.94:17812
+    --conf spark.kubernetes.driverEnv.CASSANDRA_SERVERS=192.168.70.220,192.168.70.189,192.168.70.35
+    --conf spark.kubernetes.driverEnv.CASSANDRA_PORT=17001
+    --conf spark.kubernetes.driverEnv.CASSANDRA_USER=dev
+    --conf spark.kubernetes.driverEnv.CASSANDRA_PASS=dcb5c69fedb78e9a29a3
     --conf spark.cassandra.connection.host=192.168.70.189
     --conf spark.cassandra.connection.port=17001
     --conf spark.cassandra.input.consistency.level=ONE

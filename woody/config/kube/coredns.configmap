@@ -17,7 +17,6 @@ Corefile:
        fallthrough in-addr.arpa ip6.arpa
     }
     prometheus :9153
-    rewrite name kubernetes.default.svc kubernetes.default.svc.cluster.local
     rewrite name substring default.svc default.svc.cluster.local
     proxy . /etc/resolv.conf
     proxy . 127.0.0.1
