@@ -25,11 +25,9 @@ class ClickStreamAggr(object):
     """
     def __init__(self):
         conf = SparkConf()
-        """
         conf.set("spark.scheduler.mode", Config.spark_sched_mode)
         conf.set("spark.scheduler.pool", Config.spark_sched_pool)
         conf.set("spark.scheduler.allocation.file", Config.spark_sched_file)
-        """
         conf.set("spark.cassandra.auth.username", Config.cassandra_user)
         conf.set("spark.cassandra.auth.password", Config.cassandra_pass)
 
