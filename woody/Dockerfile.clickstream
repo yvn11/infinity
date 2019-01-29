@@ -39,3 +39,4 @@ RUN mkdir -p /opt/spark/conf && echo "<?xml version=\"1.0\"?> \
     <minShare>1</minShare> \
   </pool> \
 </allocations>" > /opt/spark/conf/fairscheduler.xml
+RUN echo "nameserver 10.244.0.10" >> /etc/resolv.conf

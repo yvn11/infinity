@@ -1,0 +1,30 @@
+Name:         coredns
+Namespace:    kube-system
+Labels:       <none>
+Annotations:  <none>
+
+Data
+====
+Corefile:
+----
+.:53 {
+    log
+    errors
+    health
+    kubernetes cluster.local 10.244.0.0/16 in-addr.arpa ip6.arpa {
+       pods insecure
+       upstream
+       fallthrough in-addr.arpa ip6.arpa
+    }
+    prometheus :9153
+    rewrite name kubernetes.default.svc kubernetes.default.svc.cluster.local
+    rewrite name substring default.svc default.svc.cluster.local
+    proxy . /etc/resolv.conf
+    proxy . 127.0.0.1
+    cache 30
+    loop
+    reload
+    loadbalance
+}
+
+Events:  <none>

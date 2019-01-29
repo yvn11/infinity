@@ -8,9 +8,9 @@ services:
       - zk-net
     environment:
       PYTHONPATH: /opt/woody
+      TZ: Asia/Hong_Kong
       # outside cluster: 192.168.70.220,192.168.70.189,192.168.70.35
       #                  17001
-      TZ: Asia/Hong_Kong
       CASSANDRA_SERVERS: cass1,cass2,cass3
       CASSANDRA_PORT: 9042
       CASSANDRA_USER: dev
@@ -81,13 +81,14 @@ services:
     --conf spark.kubernetes.container.image=zlynch/clickstream:1.0
     --conf spark.kubernetes.container.image.pullPolicy=Always
     --conf spark.kubernetes.driverEnv.SPARK_EXTRA_CLASSPATH=/opt/spark-extern
-    --conf spark.kubernetes.driverEnv.SPARK_MASTER=k8s://https://192.168.70.140:6443
     --conf spark.kubernetes.driverEnv.SPARK_LOCAL_IP=localhost
-    --conf spark.cassandra.connection.host=cass1
-    --conf spark.cassandra.connection.port=9042
+    --conf spark.kubernetes.driverEnv.KAFKA_BROKERS=192.168.70.220:17812,192.168.70.35:17812,192.168.70.94:17812
+    --conf spark.cassandra.connection.host=192.168.70.189
+    --conf spark.cassandra.connection.port=17001
     --conf spark.cassandra.input.consistency.level=ONE
     --conf spark.cassandra.output.consistency.level=ONE
     --jars /opt/spark-extern/spark-*jar
+    -v
     woody/apps/clickstream.py"
     deploy:
       placement:

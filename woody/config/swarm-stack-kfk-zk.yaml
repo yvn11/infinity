@@ -200,28 +200,6 @@ services:
     deploy:
       placement:
         constraints: [node.labels.sparknode == 1]
-  spark2:
-    image: zlynch/spark:2.4.0
-    hostname: spark2
-    networks:
-      - zk-net
-    ports:
-      # web UI
-      - published: 18880
-        target: 8080
-        mode: host
-      - published: 18877
-        target: 7077
-        mode: host
-    environment:
-      TZ: Asia/Hong_Kong
-      SPARK_NO_DAEMONIZE: 1
-      SPARK_IDENT_STRING: '{{.Node.Hostname}}'
-      #SPARK_DAEMON_JAVA_OPTS: '-Dspark.deploy.recoveryMode=ZOOKEEPER'
-    command: /opt/spark/sbin/start-master.sh
-    deploy:
-      placement:
-        constraints: [node.labels.sparknode == 2]
   spark1-worker:
     image: zlynch/spark:2.4.0
     hostname: '{{.Node.Hostname}}'
@@ -240,24 +218,6 @@ services:
       placement:
         constraints: [node.hostname != core.master]
       replicas: 4
-  spark2-worker:
-    image: zlynch/spark:2.4.0
-    hostname: '{{.Node.Hostname}}'
-    networks:
-      - zk-net
-    ports:
-      - published: 18882
-        target: 8081
-        mode: host
-    environment:
-      TZ: Asia/Hong_Kong
-      SPARK_NO_DAEMONIZE: 1
-      SPARK_IDENT_STRING: '{{.Node.Hostname}}'
-    command: /opt/spark/sbin/start-slave.sh spark://spark2:7077
-    deploy:
-      placement:
-        constraints: [node.hostname != core.master]
-      replicas: 2
 
 networks:
   zk-net:
