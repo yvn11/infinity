@@ -71,7 +71,7 @@ export class ClickstreamComponent implements OnInit {
     this.fetchSessQuan();
     this.fetchItemClick();
     this.fetchSessClick();
-    this.fetchCateClick();
+    // this.fetchCateClick();
     this.fetchClickES();
     this.fetchBuyES();
   }

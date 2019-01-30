@@ -925,6 +925,14 @@
           "op": "gt",
           "value": 90,
           "yaxis": "left"
+        },
+        {
+          "colorMode": "warning",
+          "fill": true,
+          "line": true,
+          "op": "gt",
+          "value": 80,
+          "yaxis": "left"
         }
       ],
       "timeFrom": null,
@@ -2998,7 +3006,7 @@
             {
               "key": "host",
               "operator": "=",
-              "value": "ubuntu-189"
+              "value": "ubuntu-203"
             }
           ]
         },
@@ -3475,7 +3483,7 @@
             {
               "key": "host",
               "operator": "=",
-              "value": "ubuntu-94"
+              "value": "ubuntu-203"
             }
           ]
         }
@@ -4404,5 +4412,5 @@
   "timezone": "",
   "title": "Swarm",
   "uid": "fL0glqsmz",
-  "version": 21
+  "version": 24
 }
