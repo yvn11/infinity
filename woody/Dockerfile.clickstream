@@ -28,6 +28,7 @@ COPY \
  spark_extern/org.scala-lang_scala-reflect-2.11.12.jar\
  /root/.ivy2/jars/
 
+#RUN dnf install -y curl && \
 RUN apk add --no-cache curl && \
   mkdir -p ${SPARK_EXTRA_CLASSPATH} && curl "https://search.maven.org/remotecontent?filepath=org/apache/spark/spark-streaming-kafka-0-8-assembly_${SCALA_VERSION}/${SPARK_VERSION}/spark-streaming-kafka-0-8-assembly_${SCALA_VERSION}-${SPARK_VERSION}.jar" -o ${SPARK_EXTRA_CLASSPATH}/spark-streaming-kafka-0-8-assembly_${SCALA_VERSION}-${SPARK_VERSION}.jar 
 #curl "http://dl.bintray.com/spark-packages/maven/datastax/spark-cassandra-connector/${SPARK_VERSION}-s_${SCALA_VERSION}/spark-cassandra-connector-${SPARK_VERSION}-s_${SCALA_VERSION}.jar" -o ${SPARK_EXTRA_CLASSPATH}/spark-cassandra-connector-${SPARK_VERSION}-s_${SCALA_VERSION}.jar

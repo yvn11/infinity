@@ -6,12 +6,14 @@ import { HttpClientModule } from '@angular/common/http';
 import { AppComponent } from './app.component';
 import { ClickstreamComponent } from './clickstream/clickstream.component';
 import { UserProfileComponent } from './user-profile/user-profile.component';
+import { IndexComponent } from './index/index.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     ClickstreamComponent,
-    UserProfileComponent
+    UserProfileComponent,
+    IndexComponent
   ],
   imports: [
     BrowserModule,
