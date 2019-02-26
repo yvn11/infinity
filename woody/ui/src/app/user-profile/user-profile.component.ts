@@ -1,11 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
+import * as Plotly from 'plotly.js';
+
+// HTML <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.3.6/proj4.js"></script>
+// import * as proj4 from 'proj4.js';
+// export default proj4;
+// (window as any).proj4 = proj4;
 import * as Highcharts from 'highcharts/highmaps';
-import * as proj4 from 'proj4';
+
 // import * as Highcharts from 'highcharts';
 // import MapModule from 'highcharts/modules/map';
-
 // MapModule(Highcharts);
    
 @Component({
@@ -92,7 +97,8 @@ export class UserProfileComponent implements OnInit {
         lon: -1.145
     }]
 
-    this.refresh_event_geo(data);
+    // this.refresh_event_geo(data);
+    this.geo_layout();
   }
 
   private convXYfromLatLon(data) {
@@ -127,34 +133,6 @@ export class UserProfileComponent implements OnInit {
   }
 
   refresh_event_geo(data) {
-    const jdata = {
-  type: "FeatureCollection",
-  features: [
-    {
-      type: "Feature",
-      properties: {},
-      geometry: {
-        type: "Point",
-        coordinates: [
-          -268.5417366027832,
-          44.86243957826663
-        ]
-      }
-    },
-    {
-      type: "Feature",
-      properties: {"name":"Xizang"},
-      geometry: {
-        type: "Point",
-        coordinates: [
-          84.5947265625,
-          35.639441068973944
-        ]
-      }
-    }
-  ]
-  };
-    console.log(Highcharts.geojson(jdata, 'mappoint'));
     console.log(this.raw_geo_world);
     // console.log(Highcharts.geojson(this.raw_geo_world, 'mappoint'));
     Highcharts.mapChart('container_geo', {
@@ -200,5 +178,59 @@ export class UserProfileComponent implements OnInit {
           }
         }]
     });
+  }
+
+  geo_layout() {
+    const layout = {
+      title: 'global event',
+      titlefont: {
+        size: 20
+      },
+      font: {
+        family: 'Droid Serif, serif',
+        size: 10,
+        color: '#000999'
+      },
+      geo: {
+        scope: 'world',
+        projection: { type: 'mercator' },
+        showcoastlines: false,
+        showframe: false,
+        showland: true,
+        landcolor: 'rgb(220, 220, 220)',
+        // showrivers: true,
+        showlakes: true,
+        lakecolor: 'lightblue',
+        showcountries: true,
+        // countrycolor: 'rgb(217, 244, 244)',
+        countrywidth: 0.5,
+        subunitcolor: 'rgb(217, 217, 217)',
+        lataxis: { range: [-10] },
+        // lonaxis: { range: [-180] },
+        resolution: 50
+      },
+      reversescale: true,
+      dragmode: false,
+      autosize: true,
+      width: 1000,
+      height: 700
+    };
+
+    const data: Plotly.ScatterData[] = [{
+      type: 'scattergeo',
+      mode: 'text+markers',
+      text: ['Coffee Shop', 'Miscellaneous Shop', 'Subway', 'Subway', 'Subway', 'Cosmetics Shop', 'Ramen /  Noodle House', 'Convenience Store', 'Food & Drink Shop', 'Housing Development'],
+      lat: [40.712033033064166, 40.75313016065781, 40.71037756449118, 40.71037756449118, 40.71037756449118, 35.705101088587135, 35.715581120393146, 35.714542173995646, 35.72559198908874, 35.656083091901124],
+      lon: [-74.00699299251195, -73.97621627458902, -74.00755405426025, -74.00755405426025, -74.00755405426025, 139.61959004402158, 139.8003172874451, 139.4800649934587, 139.7766325938853, 139.734045462721],
+      name: 'NYC',
+      marker: {
+        line: {
+          color: '#000000',
+          width: 1
+        }
+      }
+    }];
+    
+    Plotly.plot('container_geo', data, layout, {showlink: false});
   }
 }

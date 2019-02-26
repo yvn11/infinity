@@ -74,7 +74,10 @@
  */
 import 'zone.js/dist/zone';  // Included with Angular CLI.
 
-
+/**
+ * zex: export global
+ */
+(window as any).global = window;
 /***************************************************************************************************
  * APPLICATION IMPORTS
  */

@@ -17,6 +17,11 @@
     "lib": [
       "es2018",
       "dom"
-    ]
+    ],
+    "paths": {
+      "plotly.js": [
+        "../node_modules/plotly.js/lib/core.js"
+      ]
+    }
   }
 }
