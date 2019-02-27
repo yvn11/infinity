@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+import pandas as pd
 from pyspark.context import SparkContext
 from pyspark.conf import SparkConf
 from pyspark.streaming.context import StreamingContext
@@ -5,26 +7,18 @@ from pyspark.streaming.kafka import KafkaUtils
 from pyspark.sql import Row, SparkSession, functions
 
 from woody.common.config import Config
+from woody.common.spark_utils import SparkSessionInstance, create_allocation_file
 from py4j.protocol import Py4JJavaError
 from datetime import datetime
 from random import randint
 import json
 import time
 
-def SparkSessionInstance(sparkConf):
-    if ('sparkSessionSingletonInstance' not in globals()):
-        globals()['sparkSessionSingletonInstance'] = SparkSession\
-            .builder\
-            .config(conf=sparkConf)\
-            .getOrCreate()
-    return globals()['sparkSessionSingletonInstance']
-
-
-class ClickStreamAggr(object):
-    """ClickStream aggregates
+class ClickstreamAggr(object):
+    """Clickstream aggregates
     """
     def __init__(self):
-        self.create_allocation_file()
+        create_allocation_file(Config.spark_sched_file)
         conf = SparkConf()
         """
         conf.set("spark.scheduler.mode", Config.spark_sched_mode)
@@ -40,27 +34,6 @@ class ClickStreamAggr(object):
         self._sess = SparkSessionInstance(conf)
         self._keyspace = "woody_clickstream"
         self._from_kfk()
-
-    def create_allocation_file(self):
-        with open(Config.spark_sched_file, 'w') as fd:
-            fd.write("""
-<allocations> 
-  <pool name="production"> 
-    <schedulingMode>FAIR</schedulingMode> 
-    <weight>2</weight> 
-    <minShare>1</minShare> 
-  </pool> 
-  <pool name="dev"> 
-    <schedulingMode>FAIR</schedulingMode> 
-    <weight>2</weight> 
-    <minShare>1</minShare> 
-  </pool> 
-  <pool name="clickstream"> 
-    <schedulingMode>FAIR</schedulingMode> 
-    <weight>3</weight> 
-    <minShare>1</minShare> 
-  </pool>
-</allocations>""")
 
     def click_event(self, tsfmt, kfk_params):
         click = KafkaUtils.createDirectStream(self._ssc, ["click_ev"], kfk_params)\
@@ -344,5 +317,5 @@ class ClickStreamAggr(object):
             print("unhandled: ", e)
 
 if __name__ == '__main__':
-    app = ClickStreamAggr()
+    app = ClickstreamAggr()
     app.run()

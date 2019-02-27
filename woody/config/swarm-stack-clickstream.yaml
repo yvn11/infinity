@@ -2,7 +2,7 @@ version: "3.4"
 
 services:
   aggregator:
-    image: zlynch/clickstream:1.0
+    image: zlynch/woody-aggr:1.1
     hostname: clickstream-aggregator
     networks:
       - zk-net
@@ -55,7 +55,7 @@ services:
     --conf spark.kubernetes.namespace=default
     --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark
     --conf spark.kubernetes.submission.waitAppCompletion=true
-    --conf spark.kubernetes.container.image=zlynch/clickstream:1.0
+    --conf spark.kubernetes.container.image=zlynch/woody-aggr:1.1
     --conf spark.kubernetes.container.image.pullPolicy=Always
     --conf spark.kubernetes.driverEnv.SPARK_LOCAL_IP=localhost
     --conf spark.kubernetes.driverEnv.SPARK_SCHED_FILE=/tmp/fairscheduler.xml
@@ -71,6 +71,7 @@ services:
     --conf spark.cassandra.output.consistency.level=ONE
     --conf spark.streaming.kafka.maxRetries=100
     --conf spark.streaming.stopGracefullyOnShutdown=true
+    --conf spark.kubernetes.pyspark.pythonVersion=3
     --properties-file /opt/spark/conf/spark-defaults.conf
     --packages com.datastax.spark:spark-cassandra-connector_2.11:2.4.0
     --jars /opt/spark-extern/spark-streaming-kafka-0-8-assembly_2.11-2.4.0.jar

@@ -1,6 +1,8 @@
 #FROM zlynch/spark:2.4.0
 FROM zlynch/spark-kube-py:1.0
 
+ARG sched_pool
+
 ENV TZ='Asia/Hong_Kong'
 ENV SPARK_VERSION=2.4.0
 ENV HADOOP_VERSION=2.7
@@ -17,6 +19,7 @@ COPY Makefile requirements.txt $WOODY_ROOT/
 COPY woody $WOODY_ROOT/woody 
 COPY config $WOODY_ROOT/config
 COPY scripts $WOODY_ROOT/scripts
+# TODO: fix dependencies
 COPY \
  spark_extern/com.datastax.spark_spark-cassandra-connector_2.11-2.4.0.jar\
  spark_extern/commons-beanutils_commons-beanutils-1.9.3.jar\
@@ -29,9 +32,13 @@ COPY \
  /root/.ivy2/jars/
 
 #RUN dnf install -y curl && \
-RUN apk add --no-cache curl && \
-  mkdir -p ${SPARK_EXTRA_CLASSPATH} && curl "https://search.maven.org/remotecontent?filepath=org/apache/spark/spark-streaming-kafka-0-8-assembly_${SCALA_VERSION}/${SPARK_VERSION}/spark-streaming-kafka-0-8-assembly_${SCALA_VERSION}-${SPARK_VERSION}.jar" -o ${SPARK_EXTRA_CLASSPATH}/spark-streaming-kafka-0-8-assembly_${SCALA_VERSION}-${SPARK_VERSION}.jar 
-#curl "http://dl.bintray.com/spark-packages/maven/datastax/spark-cassandra-connector/${SPARK_VERSION}-s_${SCALA_VERSION}/spark-cassandra-connector-${SPARK_VERSION}-s_${SCALA_VERSION}.jar" -o ${SPARK_EXTRA_CLASSPATH}/spark-cassandra-connector-${SPARK_VERSION}-s_${SCALA_VERSION}.jar
+RUN apk --no-cache upgrade && apk add --no-cache curl gcc g++ make libc-dev \
+  python3-dev python2-dev py3-setuptools py-setuptools \
+  libxslt-dev libxml2-dev && \
+  mkdir -p ${SPARK_EXTRA_CLASSPATH} && curl -s "https://search.maven.org/remotecontent?filepath=org/apache/spark/spark-streaming-kafka-0-8-assembly_${SCALA_VERSION}/${SPARK_VERSION}/spark-streaming-kafka-0-8-assembly_${SCALA_VERSION}-${SPARK_VERSION}.jar" -o ${SPARK_EXTRA_CLASSPATH}/spark-streaming-kafka-0-8-assembly_${SCALA_VERSION}-${SPARK_VERSION}.jar && \
+#curl -s "http://dl.bintray.com/spark-packages/maven/datastax/spark-cassandra-connector/${SPARK_VERSION}-s_${SCALA_VERSION}/spark-cassandra-connector-${SPARK_VERSION}-s_${SCALA_VERSION}.jar" -o ${SPARK_EXTRA_CLASSPATH}/spark-cassandra-connector-${SPARK_VERSION}-s_${SCALA_VERSION}.jar
+  python3 /usr/bin/pip install --upgrade pip && python3 /usr/bin/pip install numpy && \
+  python3 /usr/bin/pip install -r $WOODY_ROOT/requirements.txt
 
 ENV SPARK_DEFAULT_CONF=/opt/spark/conf/spark-defaults.conf
 
@@ -52,9 +59,14 @@ RUN mkdir -p /opt/spark/conf && echo "<?xml version=\"1.0\"?> \
     <weight>3</weight> \
     <minShare>1</minShare> \
   </pool> \
+  <pool name=\"userprofile\"> \
+    <schedulingMode>FAIR</schedulingMode> \
+    <weight>3</weight> \
+    <minShare>1</minShare> \
+  </pool> \
 </allocations>" > ${SPARK_EXTRA_CLASSPATH}/fairscheduler.xml && \
 echo "spark.scheduler.mode		     FAIR" >> ${SPARK_DEFAULT_CONF} && \
-echo "spark.scheduler.pool		     clickstream" >> ${SPARK_DEFAULT_CONF} && \
+echo "spark.scheduler.pool		     "$sched_pool >> ${SPARK_DEFAULT_CONF} && \
 echo "spark.executor.logs.rolling.maxSize	10000" >> ${SPARK_DEFAULT_CONF} && \
 echo "nameserver 10.244.0.10" >> /etc/resolv.conf
 #echo "spark.scheduler.allocation.file		 fairscheduler.xml" >> ${SPARK_DEFAULT_CONF} && \

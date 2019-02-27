@@ -1,8 +1,8 @@
 #!/bin/bash
 
-image_tag=1.0
-image_name=zlynch/clickstream
+image_tag=1.1
+image_name=zlynch/woody-aggr
 image=$image_name:$image_tag
 
-docker build -t $image -f Dockerfile.clickstream . && \
+docker build -t $image -f Dockerfile.aggr --build-arg "sched_pool=clickstream" . && \
 docker push $image
