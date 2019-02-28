@@ -98,7 +98,8 @@ export class UserProfileComponent implements OnInit {
     }]
 
     // this.refresh_event_geo(data);
-    this.geo_layout();
+    this.cities_geo();
+    this.city_checkin_heapmap();
   }
 
   private convXYfromLatLon(data) {
@@ -135,7 +136,7 @@ export class UserProfileComponent implements OnInit {
   refresh_event_geo(data) {
     console.log(this.raw_geo_world);
     // console.log(Highcharts.geojson(this.raw_geo_world, 'mappoint'));
-    Highcharts.mapChart('container_geo', {
+    Highcharts.mapChart('container_city_geo', {
       /** chart: {
         map: 'countries/gb/gb-all'
       }, */
@@ -180,9 +181,9 @@ export class UserProfileComponent implements OnInit {
     });
   }
 
-  geo_layout() {
+  cities_geo() {
     const layout = {
-      title: 'global event',
+      title: 'City Reference',
       titlefont: {
         size: 20
       },
@@ -211,9 +212,9 @@ export class UserProfileComponent implements OnInit {
       },
       reversescale: true,
       dragmode: false,
-      autosize: true,
-      width: 1000,
-      height: 700
+      autosize: false,
+      width: 800,
+      height: 600
     };
 
     const data: Plotly.ScatterData[] = [{
@@ -226,7 +227,7 @@ export class UserProfileComponent implements OnInit {
       // lat: [40.712033033064166, 40.75313016065781, 40.71037756449118, 40.71037756449118, 40.71037756449118, 35.705101088587135, 35.715581120393146, 35.714542173995646, 35.72559198908874, 35.656083091901124],
       // lon: [-74.00699299251195, -73.97621627458902, -74.00755405426025, -74.00755405426025, -74.00755405426025, 139.61959004402158, 139.8003172874451, 139.4800649934587, 139.7766325938853, 139.734045462721],
       // text: ['Coffee Shop', 'Miscellaneous Shop', 'Subway', 'Subway', 'Subway', 'Cosmetics Shop', 'Ramen /  Noodle House', 'Convenience Store', 'Food & Drink Shop', 'Housing Development'],
-      name: 'NYC',
+      name: 'City',
       marker: {
         line: {
           color: '#000000',
@@ -235,6 +236,73 @@ export class UserProfileComponent implements OnInit {
       }
     }];
     
-    Plotly.plot('container_geo', data, layout, {showlink: false});
+    Plotly.plot('container_city_geo', data, layout, {showlink: false});
+  }
+
+  city_checkin_heapmap() {
+    const layout = {
+      title: 'Global Check-in Event',
+      titlefont: {
+        size: 20
+      },
+      font: {
+        family: 'Droid Serif, serif',
+        size: 10,
+        color: '#000999'
+      },
+      geo: {
+        scope: 'world',
+        projection: { type: 'mercator' },
+        showcoastlines: false,
+        showframe: false,
+        showland: true,
+        landcolor: 'rgb(220, 220, 220)',
+        // showrivers: true,
+        showlakes: true,
+        lakecolor: 'lightblue',
+        showcountries: true,
+        // countrycolor: 'rgb(217, 244, 244)',
+        countrywidth: 0.5,
+        subunitcolor: 'rgb(217, 217, 217)',
+        lataxis: { range: [-10] },
+        // lonaxis: { range: [-180] },
+        resolution: 50
+      },
+      reversescale: true,
+      dragmode: false,
+      autosize: false,
+      width: 800,
+      height: 600
+    };
+
+    const data: Plotly.ScatterData[] = [{
+      type: 'choropleth',
+      // mode: 'markers',
+      z: [519,217,334,435,511,633,734,81,96],
+      // lat: [40.712033033064166, 40.75313016065781, 40.71037756449118, 40.71037756449118, 40.71037756449118, 35.705101088587135, 35.715581120393146, 35.714542173995646, 35.72559198908874, 35.656083091901124],
+      // lon: [-74.00699299251195, -73.97621627458902, -74.00755405426025, -74.00755405426025, -74.00755405426025, 139.61959004402158, 139.8003172874451, 139.4800649934587, 139.7766325938853, 139.734045462721],
+      // text: ['Coffee Shop', 'Miscellaneous Shop', 'Subway', 'Subway', 'Subway', 'Cosmetics Shop', 'Ramen /  Noodle House', 'Convenience Store', 'Food & Drink Shop', 'Housing Development'],
+      // locations: ['Coffee Shop', 'Miscellaneous Shop', 'Subway', 'Subway', 'Subway', 'Cosmetics Shop', 'Ramen /  Noodle House', 'Convenience Store', 'Food & Drink Shop', 'Housing Development'],
+      locations: ['AU', 'AFG', 'NZ', 'RU', 'KE', 'JP', 'US', 'ID', 'AFG', 'AFG'],
+      locationmode: 'country names',
+      text: ['Australia', 'Afghanistan', 'New Zealand', 'Russia', 'Kenya', 'Japan', 'United States', 'Indonesia', 'Afghanistan', 'Afghanistan'],
+      colorscale: [[0,"rgb(5, 10, 172)"],[0.35,"rgb(40, 60, 190)"],[0.5,"rgb(70, 100, 245)"],[0.6,"rgb(90, 120, 245)"],[0.7,"rgb(106, 137, 247)"],[1,"rgb(220, 220, 220)"]],
+      autocolorscale: false,
+      reversescale: true,
+      name: 'Global Check-in',
+      marker: {
+        line: {
+          color: 'rgb(180,180,180)',
+          width: 1
+        }
+      },
+      colorbar: {
+        title: "Check-in Count",
+        thickness: 10,
+        autotick: false
+      }
+    }];
+
+    Plotly.plot('container_city_checkin', data, layout, {showlink: false});
   }
 }

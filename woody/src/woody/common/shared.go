@@ -8,9 +8,13 @@ import (
 var (
   KAFKA_VERSION = sarama.V2_1_0_0
   TOPIC_IMSG = "user_imsg"
+  /** clickstream events */
   TOPIC_CLICK = "click_ev"
   TOPIC_BUY = "buy_ev"
-  TOPIC_PROFILE = "profile" // TBD(zex)
+  /** user profile events */
+  TOPIC_CHECKIN = "checkin_ev"
+  TOPIC_CITY = "city_ev"
+  TOPIC_POI = "poi_ev"
   Brokers = flag.String("brokers", "localhost:9092", "broker list, splitted by ','")
   CassCluster = flag.String("cass", "localhost", "cassandra server address, splitted by ','")
   CassPort = flag.Int("cass_port", 9042, "cassandra server port")

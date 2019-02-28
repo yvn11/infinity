@@ -24,3 +24,6 @@ click_producer: src/woody/apps/clickstream/main.go
 
 apiserver: src/woody/apps/apiserver/main.go
 	GOPATH=$(GOPATH) $(GO) build -o $(BUILD)/$@ $^
+
+checkin_producer: src/woody/apps/userprofile/main.go
+	GOPATH=$(GOPATH) $(GO) build -o $(BUILD)/$@ $^
