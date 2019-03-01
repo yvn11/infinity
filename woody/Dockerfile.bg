@@ -23,5 +23,5 @@ COPY config $WOODY_ROOT/config
 COPY scripts $WOODY_ROOT/scripts
 
 RUN make -j$(lscpu|grep CPU\(s\)|head -1|awk '{print $2}') \
-  click_producer apiserver
+  click_producer apiserver checkin_producer
 CMD ["bash"]

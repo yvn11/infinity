@@ -7,7 +7,7 @@ from pyspark.streaming.kafka import KafkaUtils
 from pyspark.sql import Row, SparkSession, functions
 
 from woody.common.config import Config
-from woody.common.spark_utils import SparkSessionInstance, create_allocation_file
+from woody.common.spark_utils import SparkSessionInstance, create_allocation_file, now_timestamp
 from py4j.protocol import Py4JJavaError
 from datetime import datetime
 from random import randint
@@ -25,6 +25,8 @@ class ClickstreamAggr(object):
         conf.set("spark.scheduler.pool", Config.spark_sched_pool)
         """
         conf.set("spark.scheduler.allocation.file", Config.spark_sched_file)
+        conf.set("spark.cassandra.connection.host", Config.cassandra_servers)
+        conf.set("spark.cassandra.connection.port", Config.cassandra_port)
         conf.set("spark.cassandra.auth.username", Config.cassandra_user)
         conf.set("spark.cassandra.auth.password", Config.cassandra_pass)
 
@@ -149,7 +151,7 @@ class ClickstreamAggr(object):
                     .load()
                 df = df.join(store_df, store_df.session_id==df.sid, 'outer')
                 df = df.withColumnRenamed("quan_bought", "old_quan")
-                now = int(time.mktime(datetime.utcnow().timetuple()))
+                now = now_timestamp()
                 df = df.na.fill({'old_quan':0,'updated_at':now,'created_at':now})
                 df = df.withColumn("quan_bought", df['old_quan'] + df['new_quan'])
                 df = df.drop("session_id").drop('old_quan').drop('new_quan')
@@ -179,7 +181,7 @@ class ClickstreamAggr(object):
                     .load()
                 df = df.join(store_df, store_df.session_id==df.sid, 'outer')
                 df = df.withColumnRenamed("click_count", "old_count")
-                now = int(time.mktime(datetime.utcnow().timetuple()))
+                now = now_timestamp()
                 df = df.na.fill({'old_count':0,'updated_at':now,'created_at':now})
                 df = df.withColumn("click_count", df['old_count'] + df['new_count'])
                 df = df.drop("session_id").drop('old_count').drop('new_count')
@@ -208,7 +210,7 @@ class ClickstreamAggr(object):
                     .load()
                 df = df.join(store_df, store_df.item_id==df.iid, 'outer')
                 df = df.withColumnRenamed("click_count", "old_count")
-                now = int(time.mktime(datetime.utcnow().timetuple()))
+                now = now_timestamp()
                 df = df.na.fill({'old_count':0,'updated_at':now,'created_at':now})
                 df = df.withColumn("click_count", df['old_count'] + df['new_count'])
                 df = df.drop("item_id").drop('old_count').drop('new_count')
@@ -236,7 +238,7 @@ class ClickstreamAggr(object):
                     .load()
                 df = df.join(store_df, store_df.item_id==df.iid, 'outer')
                 df = df.withColumnRenamed("quan_bought", "old_quan")
-                now = int(time.mktime(datetime.utcnow().timetuple()))
+                now = now_timestamp()
                 df = df.na.fill({'old_quan':0,'updated_at':now,'created_at':now})
                 df = df.withColumn("quan_bought", df['old_quan'] + df['new_quan'])
                 df = df.drop("item_id").drop('old_quan').drop('new_quan')
@@ -256,7 +258,7 @@ class ClickstreamAggr(object):
 
         print('click', rdd.count())
         opts = {"table":"total_event", "keyspace":self._keyspace, "confirm.truncate":"true"}
-        now = int(time.mktime(datetime.now().timetuple()))
+        now = now_timestamp()
 
         try:
             df = self._sess.createDataFrame([('click', tm, rdd.count())], ["event", "ts", "count"])
@@ -282,7 +284,7 @@ class ClickstreamAggr(object):
         print('buy', rdd.count())
 
         opts = {"table":"total_event", "keyspace":self._keyspace, "confirm.truncate":"true"}
-        now = int(time.mktime(datetime.now().timetuple()))
+        now = now_timestamp()
 
         try:
             df = self._sess.createDataFrame([('buy', tm, rdd.count())], ["event", "ts", "count"])

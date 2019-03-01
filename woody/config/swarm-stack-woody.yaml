@@ -9,7 +9,7 @@ services:
     environment:
       PYTHONPATH: /opt/woody
       TZ: Asia/Hong_Kong
-      CASSANDRA_SERVERS: 192.168.70.220,192.168.70.189,192.168.70.35
+      CASSANDRA_SERVERS: 192.168.70.220,192.168.70.203,192.168.70.35
       CASSANDRA_PORT: 17001
       CASSANDRA_USER: dev
       CASSANDRA_PASS: dcb5c69fedb78e9a29a3
@@ -47,7 +47,7 @@ services:
     --conf spark.kubernetes.driverEnv.CASSANDRA_PORT=17001
     --conf spark.kubernetes.driverEnv.CASSANDRA_USER=dev
     --conf spark.kubernetes.driverEnv.CASSANDRA_PASS=dcb5c69fedb78e9a29a3
-    --conf spark.cassandra.connection.host=192.168.70.189
+    --conf spark.cassandra.connection.host=192.168.70.203
     --conf spark.cassandra.connection.port=17001
     --conf spark.cassandra.input.consistency.level=ONE
     --conf spark.cassandra.output.consistency.level=ONE
@@ -65,7 +65,7 @@ services:
       replicas: 1
 
   checkin_producer:
-    image: zlynch/woody-bg:1.0
+    image: zlynch/woody-bg:1.1
     hostname: checkin-stream-producer
     networks:
       - zk-net
@@ -88,11 +88,11 @@ services:
     environment:
       PYTHONPATH: /opt/woody
       TZ: Asia/Hong_Kong
-      # outside cluster: 192.168.70.220,192.168.70.189,192.168.70.35
+      # outside cluster: 192.168.70.220,192.168.70.203,192.168.70.35
       #                  17001
 #      CASSANDRA_SERVERS: cass1,cass2,cass3
 #      CASSANDRA_PORT: 9042
-      CASSANDRA_SERVERS: 192.168.70.220,192.168.70.189,192.168.70.35
+      CASSANDRA_SERVERS: 192.168.70.220,192.168.70.203,192.168.70.35
       CASSANDRA_PORT: 17001
       CASSANDRA_USER: dev
       CASSANDRA_PASS: dcb5c69fedb78e9a29a3
@@ -144,7 +144,7 @@ services:
     --conf spark.kubernetes.driverEnv.CASSANDRA_PORT=17001
     --conf spark.kubernetes.driverEnv.CASSANDRA_USER=dev
     --conf spark.kubernetes.driverEnv.CASSANDRA_PASS=dcb5c69fedb78e9a29a3
-    --conf spark.cassandra.connection.host=192.168.70.189
+    --conf spark.cassandra.connection.host=192.168.70.203
     --conf spark.cassandra.connection.port=17001
     --conf spark.cassandra.input.consistency.level=ONE
     --conf spark.cassandra.output.consistency.level=ONE

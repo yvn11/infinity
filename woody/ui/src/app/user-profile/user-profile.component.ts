@@ -183,7 +183,7 @@ export class UserProfileComponent implements OnInit {
 
   cities_geo() {
     const layout = {
-      title: 'City Reference',
+      title: 'City in Record',
       titlefont: {
         size: 20
       },
@@ -255,20 +255,15 @@ export class UserProfileComponent implements OnInit {
         projection: { type: 'mercator' },
         showcoastlines: false,
         showframe: false,
-        showland: true,
-        landcolor: 'rgb(220, 220, 220)',
-        // showrivers: true,
-        showlakes: true,
-        lakecolor: 'lightblue',
+        // showland: true,
+        // landcolor: 'rgb(8, 10, 70)',
+        showlakes: false,
         showcountries: true,
-        // countrycolor: 'rgb(217, 244, 244)',
         countrywidth: 0.5,
-        subunitcolor: 'rgb(217, 217, 217)',
         lataxis: { range: [-10] },
         // lonaxis: { range: [-180] },
         resolution: 50
       },
-      reversescale: true,
       dragmode: false,
       autosize: false,
       width: 800,
@@ -278,17 +273,13 @@ export class UserProfileComponent implements OnInit {
     const data: Plotly.ScatterData[] = [{
       type: 'choropleth',
       // mode: 'markers',
-      z: [519,217,334,435,511,633,734,81,96],
-      // lat: [40.712033033064166, 40.75313016065781, 40.71037756449118, 40.71037756449118, 40.71037756449118, 35.705101088587135, 35.715581120393146, 35.714542173995646, 35.72559198908874, 35.656083091901124],
-      // lon: [-74.00699299251195, -73.97621627458902, -74.00755405426025, -74.00755405426025, -74.00755405426025, 139.61959004402158, 139.8003172874451, 139.4800649934587, 139.7766325938853, 139.734045462721],
-      // text: ['Coffee Shop', 'Miscellaneous Shop', 'Subway', 'Subway', 'Subway', 'Cosmetics Shop', 'Ramen /  Noodle House', 'Convenience Store', 'Food & Drink Shop', 'Housing Development'],
-      // locations: ['Coffee Shop', 'Miscellaneous Shop', 'Subway', 'Subway', 'Subway', 'Cosmetics Shop', 'Ramen /  Noodle House', 'Convenience Store', 'Food & Drink Shop', 'Housing Development'],
-      locations: ['AU', 'AFG', 'NZ', 'RU', 'KE', 'JP', 'US', 'ID', 'AFG', 'AFG'],
+      z: [519,217,334,835,511,633,134,181,960],
+      locations: ['Australia', 'South Africa', 'New Zealand', 'Russia', 'Kenya', 'Japan', 'United States', 'Indonesia', 'Paraguay', 'Brazil'],
       locationmode: 'country names',
-      text: ['Australia', 'Afghanistan', 'New Zealand', 'Russia', 'Kenya', 'Japan', 'United States', 'Indonesia', 'Afghanistan', 'Afghanistan'],
-      colorscale: [[0,"rgb(5, 10, 172)"],[0.35,"rgb(40, 60, 190)"],[0.5,"rgb(70, 100, 245)"],[0.6,"rgb(90, 120, 245)"],[0.7,"rgb(106, 137, 247)"],[1,"rgb(220, 220, 220)"]],
-      autocolorscale: false,
-      reversescale: true,
+      text: ['Australia', 'South Africa', 'New Zealand', 'Russia', 'Kenya', 'Japan', 'United States', 'Indonesia', 'Paraguay', 'Brazil'],
+      // colorscale: [[0,"rgb(5, 10, 172)"],[0.35,"rgb(40, 60, 190)"],[0.5,"rgb(70, 100, 245)"],[0.6,"rgb(90, 120, 245)"],[0.7,"rgb(106, 137, 247)"],[1,"rgb(220, 220, 220)"]],
+      autocolorscale: true,
+      reversescale: false,
       name: 'Global Check-in',
       marker: {
         line: {
