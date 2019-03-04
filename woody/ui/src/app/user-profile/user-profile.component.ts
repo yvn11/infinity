@@ -239,6 +239,9 @@ export class UserProfileComponent implements OnInit {
     Plotly.plot('container_city_geo', data, layout, {showlink: false});
   }
 
+  /**
+   * TODO(zex): Request for city check-in count metrix
+   */
   city_checkin_heapmap() {
     const layout = {
       title: 'Global Check-in Event',
@@ -255,8 +258,6 @@ export class UserProfileComponent implements OnInit {
         projection: { type: 'mercator' },
         showcoastlines: false,
         showframe: false,
-        // showland: true,
-        // landcolor: 'rgb(8, 10, 70)',
         showlakes: false,
         showcountries: true,
         countrywidth: 0.5,
