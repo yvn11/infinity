@@ -1,4 +1,5 @@
 #!/bin/bash
+# run as root
 
 export TAR_PREFIX=var-jenkins_home
 export MAX_KEEP=2
@@ -7,33 +8,43 @@ export JENKINS_ROOT_HOST=/home/jenkins
 export BACKUP_ROOT=$JENKINS_ROOT_HOST/backup
 export JENKINS_TAR="$BACKUP_ROOT/$TAR_PREFIX-`date +%d%m%Y`.tar.bz2"
 
-echo "creating $JENKINS_TAR"
-pushd $JENKINS_ROOT_HOST
-sudo tar cfj $JENKINS_TAR $JENKINS_ROOT_HOST/var/jenkins_home
-popd
+function create_archive() {
+  echo "creating $JENKINS_TAR"
+  pushd $JENKINS_ROOT_HOST
+  tar cfj $JENKINS_TAR $JENKINS_ROOT_HOST/var/jenkins_home
+  popd
 
-echo "testing $JENKINS_TAR"
-sudo tar tf $JENKINS_TAR 1> /dev/null 2> /tmp/$JOB_NAME.err
+  echo "testing $JENKINS_TAR"
+  tar tf $JENKINS_TAR 1> /dev/null 2> /tmp/$JOB_NAME.err
+}
 
+function cleanup_archive() {
+  count=`ls $BACKUP_ROOT/$TAR_PREFIX* | wc -l`
+  echo "found $count backup"
+  du -h $BACKUP_ROOT/$TAR_PREFIX*
+
+  if [[ $count -gt $MAX_KEEP ]] ;then
+    echo "Total keep exceeded, found $count, cleanup"
+    ls $BACKUP_ROOT/$TAR_PREFIX* -t|tail -n $((${count}-${MAX_KEEP}))|xargs rm -f
+  fi
+}
+
+function transfer_archive() {
+  echo "transfer backup to larger storage"
+  dest=192.168.70.94
+  target=/home/jenkins
+  src=/home/jenkins/backup
+
+  res=`ssh $dest "mkdir -p $target"`
+  if [[ $res -ne 0 ]] ;then echo "pre-transfer failed: $res"; exit; fi
+
+  res=`rsync -a $src $dest:$target`
+  echo "transfer result: $res"
+  if [[ $res -eq 0 ]] ;then echo "clean up local copies"; rm -f $BACKUP_ROOT/*;
+  else echo "transfer failed: $res"; fi
+}
+
+create_archive
 set -e
-count=`sudo ls $BACKUP_ROOT/$TAR_PREFIX* | wc -l`
-echo "found $count backup"
-du -h $BACKUP_ROOT/$TAR_PREFIX*
-
-if [[ $count -gt $MAX_KEEP ]] ;then
-	echo "Total keep exceeded, found $count, cleanup"
-	sudo ls $BACKUP_ROOT/$TAR_PREFIX* -t|tail -n $((${count}-${MAX_KEEP}))|xargs sudo rm -f
-fi
-
-echo "transfer backup to larger storage"
-dest=192.168.70.94
-target=/home/jenkins
-src=/home/jenkins/backup
-
-res=`ssh $dest "mkdir -p $target"`
-if [[ $res -ne 0 ]] ;then echo "pre-transfer failed: $res"; exit; fi
-
-res=`rsync -a $src $dest:$target`
-echo "transfer result: $res"
-if [[ $res -eq 0 ]] ;then echo "clean up local copies"; rm -f $BACKUP_ROOT/*;
-else echo "transfer failed: $res"; fi
+cleanup_archive
+transfer_archive

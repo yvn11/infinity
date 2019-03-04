@@ -9,6 +9,7 @@ import (
   "woody/common"
   "time"
   "strings"
+  "strconv"
   "encoding/csv"
   "encoding/json"
 )
@@ -31,23 +32,29 @@ type CheckinEvent struct {
   VenueID string `json:"venue_id,omitempty"`
   UtcTime string `json:"utc_time,omitempty"`
   TzOffset string `json:"tz_offset,omitempty"`
+  CreatedAt string `json:"created_at,omitempty"`
+  UpdatedAt string `json:"updated_at,omitempty"`
 }
 
 type CityEvent struct {
   Name string `json:"name,omitempty"`
-  Lat string `json:"lat,omitempty"`
-  Lon string `json:"lon,omitempty"`
+  Lat float64 `json:"lat,omitempty"`
+  Lon float64 `json:"lon,omitempty"`
   CountryCode string `json:"country_code,omitempty"`
   CountryName string `json:"country_name,omitempty"`
   Type string `json:"type,omitempty"`
+  CreatedAt string `json:"created_at,omitempty"`
+  UpdatedAt string `json:"updated_at,omitempty"`
 }
 
 type PoiEvent struct {
   VenueID string `json:"venue_id,omitempty"`
-  Lat string `json:"lat,omitempty"`
-  Lon string `json:"lon,omitempty"`
+  Lat float64 `json:"lat,omitempty"`
+  Lon float64 `json:"lon,omitempty"`
   VenueCate string `json:"venue_cate,omitempty"`
   CountryCode string `json:"country_code,omitempty"`
+  CreatedAt string `json:"created_at,omitempty"`
+  UpdatedAt string `json:"updated_at,omitempty"`
 }
 
 func NewCheckinStreamProducer() *CheckinStreamProducer {
@@ -75,11 +82,15 @@ func NewCheckinStreamProducer() *CheckinStreamProducer {
 
 /** create ProducerMessage from TSV value */
 func (p *CheckinStreamProducer) checkin_msg(val []string) (*sarama.ProducerMessage, error) {
+  now := strconv.FormatInt(time.Now().Unix(), 10)
+
   jdata, err := json.Marshal(&CheckinEvent{
     UserID: val[0],
     VenueID: val[1],
     UtcTime: val[2],
     TzOffset: val[3],
+    CreatedAt: now,
+    UpdatedAt: now,
   })
   if err != nil {
     glog.Error("failed to marshal click event: ", err)
@@ -96,13 +107,19 @@ func (p *CheckinStreamProducer) checkin_msg(val []string) (*sarama.ProducerMessa
 }
 
 func (p *CheckinStreamProducer) city_msg(val []string) (*sarama.ProducerMessage, error) {
+  lat, _ := strconv.ParseFloat(val[1], 64)
+  lon, _ := strconv.ParseFloat(val[2], 64)
+  now := strconv.FormatInt(time.Now().Unix(), 10)
+
   jdata, err := json.Marshal(&CityEvent{
     Name: val[0],
-    Lat: val[1],
-    Lon: val[2],
+    Lat: lat,
+    Lon: lon,
     CountryCode: val[3],
     CountryName: val[4],
     Type: val[5],
+    CreatedAt: now,
+    UpdatedAt: now,
   })
   if err != nil {
     glog.Error("failed to marshal buy event: ", err)
@@ -118,12 +135,18 @@ func (p *CheckinStreamProducer) city_msg(val []string) (*sarama.ProducerMessage,
 }
 
 func (p *CheckinStreamProducer) poi_msg(val []string) (*sarama.ProducerMessage, error) {
+  lat, _ := strconv.ParseFloat(val[1], 64)
+  lon, _ := strconv.ParseFloat(val[2], 64)
+  now := strconv.FormatInt(time.Now().Unix(), 10)
+
   jdata, err := json.Marshal(&PoiEvent{
     VenueID: val[0],
-    Lat: val[1],
-    Lon: val[2],
+    Lat: lat,
+    Lon: lon,
     VenueCate: val[3],
     CountryCode: val[4],
+    CreatedAt: now,
+    UpdatedAt: now,
   })
   if err != nil {
     glog.Error("failed to marshal buy event: ", err)

@@ -8,8 +8,8 @@ CREATE TABLE IF NOT EXISTS city (
   ctype varchar, /** city type */
   country_code varchar,
   country_name varchar,
-  lat float,
-  lon float,
+  lat double,
+  lon double,
   created_at timestamp,
   updated_at timestamp,
   PRIMARY KEY (country_code, country_name, name, updated_at)
@@ -20,8 +20,8 @@ CREATE TABLE IF NOT EXISTS poi (
   venue_id varchar,
   venue_cate varchar, /** venue category */
   country_code varchar,
-  lat float,
-  lon float,
+  lat double,
+  lon double,
   created_at timestamp,
   updated_at timestamp,
   PRIMARY KEY (venue_id, country_code, venue_cate, updated_at)
@@ -41,8 +41,8 @@ CREATE TABLE IF NOT EXISTS checkin (
 CREATE TABLE IF NOT EXISTS city_checkin_count (
   city_name varchar,
   checkin_count int,
-  lat float,
-  lon float,
+  lat double,
+  lon double,
   created_at timestamp,
   updated_at timestamp,
   PRIMARY KEY (city_name, checkin_count, updated_at)
@@ -51,8 +51,8 @@ CREATE TABLE IF NOT EXISTS city_checkin_count (
 CREATE TABLE IF NOT EXISTS venue_checkin_count (
   venue_id varchar,
   checkin_count int,
-  lat float,
-  lon float,
+  lat double,
+  lon double,
   created_at timestamp,
   updated_at timestamp,
   PRIMARY KEY (venue_id, checkin_count, updated_at)
@@ -61,8 +61,8 @@ CREATE TABLE IF NOT EXISTS venue_checkin_count (
 CREATE TABLE IF NOT EXISTS user_checkin_count (
   user_id varchar,
   checkin_count int,
-  lat float,
-  lon float,
+  lat double,
+  lon double,
   created_at timestamp,
   updated_at timestamp,
   PRIMARY KEY (user_id, checkin_count, updated_at)
