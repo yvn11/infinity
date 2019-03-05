@@ -14,7 +14,7 @@ COPY config/nginx.conf $WOODY_UI_ROOT/config/nginx.conf
 
 RUN dnf update -y && dnf install -y python3 npm nginx && dnf clean all
 RUN cd $WOODY_UI_ROOT && ln -s $WOODY_UI_ROOT/node_modules/@angular/cli/bin/ng /usr/bin && \
-  npm install && /usr/bin/ng build $PRODUCTION &&\
+  npm install && npm audit fix && /usr/bin/ng build $PRODUCTION &&\
   mv dist config /tmp && rm -rf * && mv /tmp/dist /tmp/config .
 
 ENTRYPOINT /usr/sbin/nginx -c config/nginx.conf -p /$WOODY_UI_ROOT

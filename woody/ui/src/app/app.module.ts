@@ -7,13 +7,15 @@ import { AppComponent } from './app.component';
 import { ClickstreamComponent } from './clickstream/clickstream.component';
 import { UserProfileComponent } from './user-profile/user-profile.component';
 import { IndexComponent } from './index/index.component';
+import { VehicleComponent } from './vehicle/vehicle.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     ClickstreamComponent,
     UserProfileComponent,
-    IndexComponent
+    IndexComponent,
+    VehicleComponent
   ],
   imports: [
     BrowserModule,

@@ -254,11 +254,11 @@ func (p *ClickstreamApi) MetricsEventStream(w http.ResponseWriter, r *http.Reque
 }
 
 func (p *ClickstreamApi) SetHandler(mux *http.ServeMux) {
-  mux.HandleFunc("/v1/metrics/item_click", p.MetricsItemClick)
-  mux.HandleFunc("/v1/metrics/session_click", p.MetricsSessionClick)
-  mux.HandleFunc("/v1/metrics/category_click", p.MetricsCategoryClick)
-  mux.HandleFunc("/v1/metrics/event_stream", p.MetricsEventStream)
-  mux.HandleFunc("/v1/metrics/item_quan", p.MetricsItemQuan)
-  mux.HandleFunc("/v1/metrics/session_quan", p.MetricsSessionQuan)
+  mux.HandleFunc("/v1/metrics/click/item_click", p.MetricsItemClick)
+  mux.HandleFunc("/v1/metrics/click/session_click", p.MetricsSessionClick)
+  mux.HandleFunc("/v1/metrics/click/category_click", p.MetricsCategoryClick)
+  mux.HandleFunc("/v1/metrics/click/event_stream", p.MetricsEventStream)
+  mux.HandleFunc("/v1/metrics/click/item_quan", p.MetricsItemQuan)
+  mux.HandleFunc("/v1/metrics/click/session_quan", p.MetricsSessionQuan)
   //mux.HandleFunc("/v1/metrics/purchase_delta", p.MetricsPurchaseDelta)
 }

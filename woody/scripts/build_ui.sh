@@ -1,6 +1,6 @@
 #!/bin/bash
 
-image_tag=1.0
+image_tag=1.1
 image_name=zlynch/woody-ui
 image=$image_name:$image_tag
 

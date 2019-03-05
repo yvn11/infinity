@@ -77,7 +77,7 @@ export class ClickstreamComponent implements OnInit {
   }
 
   private fetchItemClick() {
-    const url = environment.woody_apiserver + '/v1/metrics/item_click'
+    const url = environment.woody_apiserver + '/v1/metrics/click/item_click'
       + '?' + 'gt=' + this.itemClickConf.gt + '&limit=' + this.itemClickConf.limit;
     this.http_cli.get(url)
       .subscribe(rsp => { this.onItemClick(rsp); });
@@ -160,7 +160,7 @@ export class ClickstreamComponent implements OnInit {
   }
 
   private fetchItemQuan() {
-    const url = environment.woody_apiserver + '/v1/metrics/item_quan'
+    const url = environment.woody_apiserver + '/v1/metrics/click/item_quan'
       + '?' + 'gt=' + this.itemQuanConf.gt + '&limit=' + this.itemQuanConf.limit;
     this.http_cli.get(url)
       .subscribe(rsp => { this.onItemQuan(rsp); });
@@ -243,7 +243,7 @@ export class ClickstreamComponent implements OnInit {
   }
 
   private fetchSessClick() {
-    const url = environment.woody_apiserver + '/v1/metrics/session_click'
+    const url = environment.woody_apiserver + '/v1/metrics/click/session_click'
       + '?' + 'gt=' + this.sessClickConf.gt + '&limit=' + this.sessClickConf.limit;
     this.http_cli.get(url)
       .subscribe(rsp => { this.onSessClick(rsp); });
@@ -326,7 +326,7 @@ export class ClickstreamComponent implements OnInit {
   }
 
   private fetchCateClick() {
-    const url = environment.woody_apiserver + '/v1/metrics/category_click'
+    const url = environment.woody_apiserver + '/v1/metrics/click/category_click'
       + '?' + 'gt=' + this.cateClickConf.gt + '&limit=' + this.cateClickConf.limit;
     this.http_cli.get(url)
       .subscribe(rsp => { this.onCateClick(rsp); });
@@ -409,7 +409,7 @@ export class ClickstreamComponent implements OnInit {
   }
 
   private fetchSessQuan() {
-    const url = environment.woody_apiserver + '/v1/metrics/session_quan'
+    const url = environment.woody_apiserver + '/v1/metrics/click/session_quan'
       + '?' + 'gt=' + this.sessQuanConf.gt + '&limit=' + this.sessQuanConf.limit;
     this.http_cli.get(url)
       .subscribe(rsp => { this.onSessQuan(rsp); });
@@ -492,7 +492,7 @@ export class ClickstreamComponent implements OnInit {
   }
 
   private fetchClickES() {
-    const url = environment.woody_apiserver + '/v1/metrics/event_stream'
+    const url = environment.woody_apiserver + '/v1/metrics/click/event_stream'
                 + '?' + 'ev=click' + '&limit=' + this.eventStreamConf.limit;
     this.http_cli.get(url)
       .subscribe(rsp => { this.onClickES(rsp); });
@@ -524,7 +524,7 @@ export class ClickstreamComponent implements OnInit {
   }
 
   private fetchBuyES() {
-    const url = environment.woody_apiserver + '/v1/metrics/event_stream'
+    const url = environment.woody_apiserver + '/v1/metrics/click/event_stream'
                 + '?' + 'ev=buy' + '&limit=' + this.eventStreamConf.limit;
     this.http_cli.get(url)
       .subscribe(rsp => { this.onBuyES(rsp); });

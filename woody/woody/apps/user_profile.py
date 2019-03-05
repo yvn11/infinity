@@ -3,13 +3,13 @@ from pyspark.context import SparkContext
 from pyspark.conf import SparkConf
 from pyspark.streaming.context import StreamingContext
 from pyspark.streaming.kafka import KafkaUtils
-from pyspark.sql.types import LongType
 
 from woody.common.config import Config
 from woody.common.spark_utils import SparkSessionInstance, create_allocation_file, now_timestamp
 from py4j.protocol import Py4JJavaError
 from random import randint
 import json
+import numpy as np
 
 class ProfileAggr(object):
     """Profile aggregates
@@ -52,9 +52,9 @@ class ProfileAggr(object):
         city = self.city(kfk_params)
         poi = self.poi(kfk_params)
 
-        city.foreachRDD(self.persist_city)
+        #city.foreachRDD(self.persist_city)
         poi.foreachRDD(self.persist_poi)
-        self.aggr_checkin(checkin)
+        #self.aggr_checkin(checkin)
     
     def persist_city(self, time, rdd):
         if rdd.count() == 0: return
@@ -69,7 +69,7 @@ class ProfileAggr(object):
             df.show()
             df.write.format("org.apache.spark.sql.cassandra")\
                 .options(**opts)\
-                .save(mode='append')
+                .save(mode='ignore')
         except Exception as ex:
             print('persist failed: {}: {}'.format(table, ex))
 
@@ -83,6 +83,8 @@ class ProfileAggr(object):
         
         try:
             df = self._sess.createDataFrame(rdd, cols)
+            df = df.withColumn("updated_at", int(df["updated_at"])*1000)
+            df = df.withColumn("created_at", int(df["created_at"])*1000)
             df.show()
             df.write.format("org.apache.spark.sql.cassandra")\
                 .options(**opts)\
@@ -149,7 +151,7 @@ class ProfileAggr(object):
         except Exception as ex:
             print('persist failed: city_checkin: {}'.format(ex))
 
-    def persist_user_checkin(self, time, rdd):
+    def persist_venue_checkin(self, time, rdd):
         if rdd.count() == 0: return
         opts = {"table":"venue_checkin_count", "keyspace":self._keyspace,
                 "spark.cassandra.input.split.size_in_mb": 1}

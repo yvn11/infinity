@@ -39,9 +39,9 @@ func (p *UserProfileApi) MetricsCities(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *UserProfileApi) SetHandler(mux *http.ServeMux) {
-  mux.HandleFunc("/v1/metrics/user_checkin", p.MetricsUserCheckin)
-  mux.HandleFunc("/v1/metrics/venue_checkin", p.MetricsVenueCheckin)
-  mux.HandleFunc("/v1/metrics/city_checkin", p.MetricsCityCheckin)
-  mux.HandleFunc("/v1/metrics/pois", p.MetricsPois)
-  mux.HandleFunc("/v1/metrics/cities", p.MetricsCities)
+  mux.HandleFunc("/v1/metrics/profile/user_checkin", p.MetricsUserCheckin)
+  mux.HandleFunc("/v1/metrics/profile/venue_checkin", p.MetricsVenueCheckin)
+  mux.HandleFunc("/v1/metrics/profile/city_checkin", p.MetricsCityCheckin)
+  mux.HandleFunc("/v1/metrics/profile/pois", p.MetricsPois)
+  mux.HandleFunc("/v1/metrics/profile/cities", p.MetricsCities)
 }
