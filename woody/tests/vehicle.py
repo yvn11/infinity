@@ -42,7 +42,7 @@ class VehicleStat(object):
                 if self.df_vehicle[x].isnull().all()]
 
     def metric_brand_percent(self):
-        # Count for each branc
+        # Count for each brand
         # TODO: Unify same brand, ex: AUDI and AUDI牌 
         """
         self.df_vehicle['车辆品牌2'].replace('AUDI牌','AUDI', inplace=True)
@@ -67,28 +67,28 @@ class VehicleStat(object):
         self.metrics['metric_newenergy'] = {'x': res.keys(), 'y': res.values()}
         grp_ne = self.df_vehicle[self.df_vehicle['是否新能源汽车']=='1'].groupby('新能源汽车种类')
         res = {k: len(grp_ne.groups[k]) for k in grp_ne.groups.keys()}
-        self.metrics['metric_newenergy_each'] = {'x': res.keys(), 'y': res.values()}
+        self.metrics['metric_newenergy_kind'] = {'x': res.keys(), 'y': res.values()}
 
-    def metric_source_percent(self):
+    def metric_venture_percent(self):
         # self.df_vehicle['国产/进口'], 国产(A)/进口(B)
-        grp_source = self.df_vehicle.groupby('国产/进口')
-        res = {k: len(grp_source.groups[k]) for k in grp_source.groups.keys()}
-        self.metrics['metric_source'] = {'x': res.keys(), 'y': res.values()}
+        grp_venture = self.df_vehicle.groupby('国产/进口')
+        res = {k: len(grp_venture.groups[k]) for k in grp_venture.groups.keys()}
+        self.metrics['metric_venture'] = {'x': res.keys(), 'y': res.values()}
 
     def metric_color_percent(self):
         grp_color = self.df_vehicle.groupby('车身颜色')
         res = {k: len(grp_color.groups[k]) for k in grp_color.groups.keys()}
         self.metrics['metric_color'] = {'x': res.keys(), 'y': res.values()}
 
-    def metric_country_made_percent(self):
+    def metric_production_country_percent(self):
         self.df_vehicle['制造国'] = self.df_vehicle['制造国'][\
                 ~self.df_vehicle['制造国'].isnull()].apply(\
                     lambda x: self.df_3166['country'][self.df_3166.code==x].values[0])
-        grp_country_made = self.df_vehicle.groupby('制造国')
-        res = {k: len(grp_country_made.groups[k]) for k in grp_country_made.groups.keys()}
-        self.metrics['metric_country_made'] = {'x': res.keys(), 'y': res.values()}
+        grp_production_country = self.df_vehicle.groupby('制造国')
+        res = {k: len(grp_production_country.groups[k]) for k in grp_production_country.groups.keys()}
+        self.metrics['metric_production_country'] = {'x': res.keys(), 'y': res.values()}
 
-    def metric_output(self):
+    def metric_capacity(self):
         #grp_output = self.df_vehicle('排量')
         pass
 
@@ -97,7 +97,7 @@ if __name__ == '__main__':
     stat.cleanup_stage1() 
     stat.metric_brand_percent()
     stat.metric_newenergy_percent()
-    stat.metric_source_percent()
+    stat.metric_venture_percent()
     stat.metric_color_percent()
-    stat.metric_country_made_percent()
+    stat.metric_production_country_percent()
     stat.dump_metrics()

@@ -30,9 +30,9 @@ export class VehicleComponent implements OnInit {
 
     this.newenergy_percent(rsp['metric_newenergy']);
     this.brand_percent(rsp['metric_brand']);
-    this.country_made_percent(rsp['metric_country_made']);
-    this.newenergy_each_percent(rsp['metric_newenergy_each']);
-    this.source_percent(rsp['metric_source']);
+    this.production_country_percent(rsp['metric_production_country']);
+    this.newenergy_kind_percent(rsp['metric_newenergy_kind']);
+    this.venture_percent(rsp['metric_venture']);
     this.color_percent(rsp['metric_color']);
   }
 
@@ -42,7 +42,7 @@ export class VehicleComponent implements OnInit {
     }
 
     const layout = {
-      title: 'Brand Percentage',
+      title: 'Brand',
       titlefont: {
         size: 20
       },
@@ -60,7 +60,6 @@ export class VehicleComponent implements OnInit {
       labels: metric['x'],
       autocolorscale: true,
       reversescale: false,
-      name: 'Brand Percentage',
       marker: {
         line: {
           color: 'rgb(180,180,180)',
@@ -72,13 +71,13 @@ export class VehicleComponent implements OnInit {
     Plotly.plot('container_brand', data, layout, {showlink: false});
   }
 
-  country_made_percent(metric) {
+  production_country_percent(metric) {
     if (metric == null || metric['x'] == null || metric['y'] == null) {
       return;
     }
 
     const layout = {
-      title: 'Country Made Percentage',
+      title: 'Production Country',
       titlefont: {
         size: 20
       },
@@ -104,7 +103,7 @@ export class VehicleComponent implements OnInit {
       }
     }];
 
-    Plotly.plot('container_country_made', data, layout, {showlink: false});
+    Plotly.plot('container_production_country', data, layout, {showlink: false});
   }
 
   newenergy_percent(metric) {
@@ -113,7 +112,7 @@ export class VehicleComponent implements OnInit {
     }
 
     const layout = {
-      title: 'Newenergy Percentage',
+      title: 'New Energy Vehicle',
       titlefont: {
         size: 20
       },
@@ -142,13 +141,13 @@ export class VehicleComponent implements OnInit {
     Plotly.plot('container_newenergy', data, layout, {showlink: false});
   }
 
-  newenergy_each_percent(metric) {
+  newenergy_kind_percent(metric) {
     if (metric == null || metric['x'] == null || metric['y'] == null) {
       return;
     }
 
     const layout = {
-      title: 'Newenergy Kind Percentage',
+      title: 'New Energy Kind',
       titlefont: {
         size: 20
       },
@@ -174,7 +173,7 @@ export class VehicleComponent implements OnInit {
       }
     }];
 
-    Plotly.plot('container_newenergy_each', data, layout, {showlink: false});
+    Plotly.plot('container_newenergy_kind', data, layout, {showlink: false});
   }
 
   color_percent(metric) {
@@ -212,13 +211,13 @@ export class VehicleComponent implements OnInit {
     Plotly.plot('container_color', data, layout, {showlink: false});
   }
 
-  source_percent(metric) {
+  venture_percent(metric) {
     if (metric == null || metric['x'] == null || metric['y'] == null) {
       return;
     }
 
     const layout = {
-      title: 'Source Percentage',
+      title: 'Venture',
       titlefont: {
         size: 20
       },
@@ -244,6 +243,6 @@ export class VehicleComponent implements OnInit {
       }
     }];
 
-    Plotly.plot('container_source', data, layout, {showlink: false});
+    Plotly.plot('container_venture', data, layout, {showlink: false});
   }
 }
