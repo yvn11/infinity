@@ -63,7 +63,8 @@ class VehicleStat(object):
         # self.df_vehicle.是否新能源汽车, yes(1)/no(2)
         # A:纯电动 B: 燃料电池 C: 插电式混合动力
         grp_ne_total = self.df_vehicle.groupby('是否新能源汽车')
-        self.metrics['metric_newenergy'] = {k: len(grp_ne_total.get_group(k)) for k in grp_ne_total.groups.keys()}
+        res = {k: len(grp_ne_total.get_group(k)) for k in grp_ne_total.groups.keys()}
+        self.metrics['metric_newenergy'] = {'x': res.keys(), 'y': res.values()}
         grp_ne = self.df_vehicle[self.df_vehicle['是否新能源汽车']=='1'].groupby('新能源汽车种类')
         res = {k: len(grp_ne.groups[k]) for k in grp_ne.groups.keys()}
         self.metrics['metric_newenergy_each'] = {'x': res.keys(), 'y': res.values()}
