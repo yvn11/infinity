@@ -23,18 +23,11 @@ export class UserProfileComponent implements OnInit {
   title = 'The BoringUI for Woody';
   autoRefresh: boolean;
   refreshInterval: number; // ms
-  geojson_world_url: string;
-  // geo_world: Array<object>; // Highcharts.MapDataObject>;
-  raw_geo_world: object;
 
   constructor(private http_cli: HttpClient) {
     console.log(this.title);
     this.refreshInterval = 2000;
     this.autoRefresh = true;
-    // this.geojson_world_url = 'https://code.highcharts.com/mapdata/custom/world.geo.json';
-    // this.geojson_world_url = 'https://code.highcharts.com/mapdata/custom/world-palestine-highres.geo.json';
-    // this.geojson_world_url = 'https://code.highcharts.com/mapdata/countries/gb/gb-all.geo.json';
-    this.geojson_world_url = 'https://code.highcharts.com/mapdata/countries/cn/cn-all.geo.json';
   }
 
   ngOnInit() {
@@ -46,139 +39,17 @@ export class UserProfileComponent implements OnInit {
       }
     });
 
-    this.fetchGeoWorld();
-    // this.fetchGeo();
-  }
-
-  private fetchGeoWorld() {
-    this.http_cli.get(this.geojson_world_url)
-      .subscribe(rsp => { this.onGeoWorld(rsp); });
-  }
-
-  onGeoWorld(rsp) {
-    if (rsp === null) { return; }
-    this.raw_geo_world = rsp;
-
-    const data = [{
-        name: 'London',
-        lat: 51.507222,
-        lon: -0.1275
-    }, {
-        name: 'Birmingham',
-        lat: 52.483056,
-        lon: -1.893611
-    }, {
-        name: 'Leeds',
-        lat: 53.799722,
-        lon: -1.549167
-    }, {
-        name: 'Glasgow',
-        lat: 55.858,
-        lon: -4.259
-    }, {
-        name: 'Sheffield',
-        lat: 53.383611,
-        lon: -1.466944
-    }, {
-        name: 'Liverpool',
-        lat: 53.4,
-        lon: -3
-    }, {
-        name: 'Bristol',
-        lat: 51.45,
-        lon: -2.583333
-    }, {
-        name: 'Belfast',
-        lat: 54.597,
-        lon: -5.93
-    }, {
-        name: 'Lerwick',
-        lat: 60.155,
-        lon: -1.145
-    }]
-
-    // this.refresh_event_geo(data);
     this.cities_geo();
     this.city_checkin_heapmap();
   }
 
-  private convXYfromLatLon(data) {
-    
-  }
-
-  private fetchGeo() {
+  private fetchUserCheckin() {
     /**
-    const url = environment.woody_apiserver + '/v1/metrics/item_click'
+    const url = environment.woody_apiserver + '/v1/metrics/user_checkin'
       + '?' + 'gt=' + this.itemClickConf.gt + '&limit=' + this.itemClickConf.limit;
     this.http_cli.get(url)
       .subscribe(rsp => { this.onItemClick(rsp); });
     */
-  }
-
-  onGeo(rsp) {
-    if (this.autoRefresh) {
-      setTimeout(() => this.fetchGeo(), this.refreshInterval);
-    }
-
-    const item_ids = [];
-    const counts = [];
-
-    if (rsp != null && rsp['response'] != null) {
-      for (let i = 0; i < rsp['response'].length; i++) {
-        item_ids.push(rsp['response'][i]['item_id']);
-        counts.push(rsp['response'][i]['click_count']);
-      }
-    }
-
-    // this.refresh_event_geo(data);
-  }
-
-  refresh_event_geo(data) {
-    console.log(this.raw_geo_world);
-    // console.log(Highcharts.geojson(this.raw_geo_world, 'mappoint'));
-    Highcharts.mapChart('container_city_geo', {
-      /** chart: {
-        map: 'countries/gb/gb-all'
-      }, */
-      title: {
-        text: 'Event Geo'
-      },
-      mapNavigation: {
-        enabled: true
-      },
-      series: [ {
-          type: 'map',
-          // mapData: Highcharts.geojson(this.raw_geo_world, 'map') as Highcharts.MapDataObject[],
-          // mapData: Highcharts.maps['countries/gb/gb-all'],
-          data: Highcharts.geojson(this.raw_geo_world, 'map'),
-          name: 'Base',
-          borderColor: '#707070',
-          nullColor: 'rgba(200, 200, 200, 0.3)',
-          tooltip: {
-            headerFormat: '',
-            // pointFormat: '<b>{point.name}</b><br>Lat: {point.properties.latitude}, Lon: {point.properties.longitude}'
-            pointFormat: '<b>{point.name}</b><br>Lat: {point.properties.latitude}, Lon: {point.properties.longitude}'
-          }, 
-          showInLegend: false
-          }, {
-          type: 'mapline',
-          name: 'Separators',
-          data: Highcharts.geojson(this.raw_geo_world, 'mapline'), // as Highcharts.MapDataObject[],
-          nullColor: '#707070',
-          showInLegend: false,
-          enableMouseTracking: false
-          }, {
-          type: 'mappoint',
-          name: 'Events',
-          color: 'darkblue', // Highcharts.getOptions().colors[2],
-          // data: data,//Highcharts.geojson(jdata, 'mappoint'),
-          data: data,
-          tooltip: {
-            headerFormat: '',
-            pointFormat: '<b>{point.name}</b><br>Lat: {point.x}, Lon: {point.y}'
-          }
-        }]
-    });
   }
 
   cities_geo() {
@@ -273,12 +144,10 @@ export class UserProfileComponent implements OnInit {
 
     const data: Plotly.ScatterData[] = [{
       type: 'choropleth',
-      // mode: 'markers',
       z: [519,217,334,835,511,633,134,181,960],
       locations: ['Australia', 'South Africa', 'New Zealand', 'Russia', 'Kenya', 'Japan', 'United States', 'Indonesia', 'Paraguay', 'Brazil'],
       locationmode: 'country names',
       text: ['Australia', 'South Africa', 'New Zealand', 'Russia', 'Kenya', 'Japan', 'United States', 'Indonesia', 'Paraguay', 'Brazil'],
-      // colorscale: [[0,"rgb(5, 10, 172)"],[0.35,"rgb(40, 60, 190)"],[0.5,"rgb(70, 100, 245)"],[0.6,"rgb(90, 120, 245)"],[0.7,"rgb(106, 137, 247)"],[1,"rgb(220, 220, 220)"]],
       autocolorscale: true,
       reversescale: false,
       name: 'Global Check-in',

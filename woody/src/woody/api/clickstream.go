@@ -4,8 +4,8 @@ import (
   "encoding/json"
   "net/http"
   "fmt"
-  //"sort"
-  "strings"
+  // "sort"
+  // "strings"
   "github.com/golang/glog"
   cql "github.com/gocql/gocql"
   "woody/common"
@@ -50,34 +50,13 @@ func (by ByUpdatedAt) Len() int { return len(by) }
 */
 
 type ClickstreamApi struct {
-  cass_conf *cql.ClusterConfig
   cass_sess *cql.Session
 }
 
 func NewClickstreamApi() *ClickstreamApi {
-  srv := strings.Split(*woody.CassCluster, ",")
-  glog.Infof("cass cluster: %v:%d apiserver: %v", srv, *woody.CassPort, *woody.ApiAddr)
-  if len(srv) == 0 { glog.Fatal("cassandra cluster not given") }
-
-  var err error
-  var p ClickstreamApi
-  p.cass_conf = cql.NewCluster()
-  p.cass_conf.Hosts = srv
-  p.cass_conf.CQLVersion = *woody.CQLVersion
-  p.cass_conf.Keyspace = "woody_clickstream"
-  p.cass_conf.Port = *woody.CassPort
-  p.cass_conf.IgnorePeerAddr = true
-  p.cass_conf.Consistency = cql.One
-  p.cass_conf.Authenticator = cql.PasswordAuthenticator{
-    Username: *woody.CassUser,
-    Password: *woody.CassPass,
+  return &ClickstreamApi{
+    cass_sess: CassSession("woody_clickstream"),
   }
-
-  if p.cass_sess, err = p.cass_conf.CreateSession(); err != nil {
-    glog.Fatal("failed to create cassandra session: ", err)
-  }
-
-  return &p
 }
 
 func (p *ClickstreamApi) map_scan(q string) (metrics []map[string]interface{}) {

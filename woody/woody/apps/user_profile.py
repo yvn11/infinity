@@ -52,10 +52,9 @@ class ProfileAggr(object):
         city = self.city(kfk_params)
         poi = self.poi(kfk_params)
 
-        #city.foreachRDD(self.persist_city)
-        #poi.foreachRDD(self.persist_poi)
-        self.aggr_user_checkin(checkin)
-        #self.aggr_city_checkin(checkin)
+        city.foreachRDD(self.persist_city)
+        poi.foreachRDD(self.persist_poi)
+        self.aggr_checkin(checkin)
     
     def persist_city(self, time, rdd):
         if rdd.count() == 0: return
@@ -91,87 +90,87 @@ class ProfileAggr(object):
         except Exception as ex:
             print('persist failed: {}: {}'.format(table, ex))
 
-    def aggr_user_checkin(self, checkin):
-        def persist(time, rdd):
-            if rdd.count() == 0: return
-            opts = {"table":"user_checkin_count", "keyspace":self._keyspace}
-                    #"spark.cassandra.input.split.size_in_mb": 1
-            now = now_timestamp()
-            store_df = self._sess.read.format("org.apache.spark.sql.cassandra")\
-                    .options(**opts)\
-                    .load()
-            try:
-                df = self._sess.createDataFrame(rdd, ["uid", "new_count"])
-                df = df.join(store_df, store_df.user_id==df.uid, "outer")\
-                    .withColumnRenamed("checkin_count", "old_count")\
-                    .na.fill({"old_count":0,"updated_at":now,"created_at":now,"lat":0.0,"lon":0.0})
-                df = df.withColumn("checkin_count", df["new_count"] + df["old_count"])\
-                        .drop("user_id").withColumnRenamed("uid", "user_id")\
-                        .drop("new_count").drop("old_count").na.drop()
-                df.show(100)
-                df.write.format("org.apache.spark.sql.cassandra")\
-                        .options(**opts)\
-                        .save(mode='append')
-            except Exception as ex:
-                print('persist failed: user_checkin: {}'.format(ex))
-
+    def aggr_checkin(self, checkin):
         checkin.map(lambda x: (x['user_id'], 1)).reduceByKey(lambda x, y: x+y)\
-            .foreachRDD(persist)
-
-    def aggr_city_checkin(self, checkin):
-        def persist(time, rdd):
-            if rdd.count() == 0: return
-
-            opts = {"table":"city_checkin_count", "keyspace":self._keyspace,
-                    "spark.cassandra.input.split.size_in_mb": 1}
-        
-            now = now_timestamp()
-            store_df = self._sess.read.format("org.apache.spark.sql.cassandra")\
-                    .options(**opts)\
-                    .load()
-            try: 
-                df = self._sess.createDataFrame(rdd, ["cname", "new_count"])
-                df = df.join(store_df, store_df.city_name==df.cname, "outer")\
-                    .withColumnRenamed("checkin_count", "old_count")\
-                    .na.fill({"old_count":0,"updated_at":now,"created_at":now,"lat":0.0,"lon":0.0})
-                df = df.withColumn("checkin_count", df["new_count"] + df["old_count"])\
-                    .drop("city_name").withColumnRenamed("cname", "city_name")\
-                    .drop("new_count").drop("old_count").na.drop()\
-                    .write.format("org.apache.spark.sql.cassandra")\
-                        .options(**opts)\
-                        .save(mode='append')
-            except Exception as ex:
-                print('persist failed: city_checkin: {}'.format(ex))
-        # TODO(zex): map to city
-        checkin.map(lambda x: 1).reduceByKey(lambda x, y: x+y)\
-            .foreachRDD(persist)
-
-    def aggr_venue_checkin(self, checkin):
-        def persist(time, rdd):
-            if rdd.count() == 0: return
-            opts = {"table":"venue_checkin_count", "keyspace":self._keyspace,
-                    "spark.cassandra.input.split.size_in_mb": 1}
-        
-            now = now_timestamp()
-            store_df = self._sess.read.format("org.apache.spark.sql.cassandra")\
-                    .options(**opts)\
-                    .load()
-            try:
-                df = self._sess.createDataFrame(rdd, ["vid", "new_count"])
-                df = df.join(store_df, store_df.venue_id==df.vid, "outer")\
-                    .withColumnRenamed("checkin_count", "old_count")\
-                    .na.fill({"old_count":0,"updated_at":now,"created_at":now,"lat":0.0,"lon":0.0})
-                df = df.withColumn("checkin_count", df["new_count"] + df["old_count"])\
-                    .drop("venue_id").withColumnRenamed("vid", "venue_id")\
-                    .drop("new_count").drop("old_count").drop("vid").na.drop()\
-                    .write.format("org.apache.spark.sql.cassandra")\
-                        .options(**opts)\
-                        .save(mode='append')
-            except Exception as ex:
-                print('persist failed: venue_checkin: {}'.format(ex))
+            .foreachRDD(self.persist_user_checkin)
 
         checkin.map(lambda x: (x['venue_id'], 1)).reduceByKey(lambda x, y: x+y)\
-            .foreachRDD(persist)
+            .foreachRDD(self.persist_venue_checkin)
+
+        # TODO(zex): map to city
+        #checkin.map(lambda x: 1).reduceByKey(lambda x, y: x+y)\
+        #    .foreachRDD(persist)
+
+    def persist_user_checkin(self, time, rdd):
+        if rdd.count() == 0: return
+
+        opts = {"table":"user_checkin_count", "keyspace":self._keyspace}
+                #"spark.cassandra.input.split.size_in_mb": 1
+        now = now_timestamp()
+        store_df = self._sess.read.format("org.apache.spark.sql.cassandra")\
+                .options(**opts)\
+                .load()
+        try:
+            df = self._sess.createDataFrame(rdd, ["uid", "new_count"])
+            df = df.join(store_df, store_df.user_id==df.uid, "outer")\
+                .withColumnRenamed("checkin_count", "old_count")\
+                .na.fill({"old_count":0,"updated_at":now,"created_at":now,"lat":0.0,"lon":0.0})
+            df = df.withColumn("checkin_count", df["new_count"] + df["old_count"])\
+                    .drop("user_id").withColumnRenamed("uid", "user_id")\
+                    .drop("new_count").drop("old_count").na.drop()
+            df.show(100)
+            df.write.format("org.apache.spark.sql.cassandra")\
+                    .options(**opts)\
+                    .save(mode='append')
+        except Exception as ex:
+            print('persist failed: user_checkin: {}'.format(ex))
+
+    def persist_city_checkin(self, checkin):
+        if rdd.count() == 0: return
+
+        opts = {"table":"city_checkin_count", "keyspace":self._keyspace,
+                "spark.cassandra.input.split.size_in_mb": 1}
+    
+        now = now_timestamp()
+        store_df = self._sess.read.format("org.apache.spark.sql.cassandra")\
+                .options(**opts)\
+                .load()
+        try: 
+            df = self._sess.createDataFrame(rdd, ["cname", "new_count"])
+            df = df.join(store_df, store_df.city_name==df.cname, "outer")\
+                .withColumnRenamed("checkin_count", "old_count")\
+                .na.fill({"old_count":0,"updated_at":now,"created_at":now,"lat":0.0,"lon":0.0})
+            df = df.withColumn("checkin_count", df["new_count"] + df["old_count"])\
+                .drop("city_name").withColumnRenamed("cname", "city_name")\
+                .drop("new_count").drop("old_count").na.drop()\
+                .write.format("org.apache.spark.sql.cassandra")\
+                    .options(**opts)\
+                    .save(mode='append')
+        except Exception as ex:
+            print('persist failed: city_checkin: {}'.format(ex))
+
+    def persist_user_checkin(self, time, rdd):
+        if rdd.count() == 0: return
+        opts = {"table":"venue_checkin_count", "keyspace":self._keyspace,
+                "spark.cassandra.input.split.size_in_mb": 1}
+    
+        now = now_timestamp()
+        store_df = self._sess.read.format("org.apache.spark.sql.cassandra")\
+                .options(**opts)\
+                .load()
+        try:
+            df = self._sess.createDataFrame(rdd, ["vid", "new_count"])
+            df = df.join(store_df, store_df.venue_id==df.vid, "outer")\
+                .withColumnRenamed("checkin_count", "old_count")\
+                .na.fill({"old_count":0,"updated_at":now,"created_at":now,"lat":0.0,"lon":0.0})
+            df = df.withColumn("checkin_count", df["new_count"] + df["old_count"])\
+                .drop("venue_id").withColumnRenamed("vid", "venue_id")\
+                .drop("new_count").drop("old_count").drop("vid").na.drop()\
+                .write.format("org.apache.spark.sql.cassandra")\
+                    .options(**opts)\
+                    .save(mode='append')
+        except Exception as ex:
+            print('persist failed: venue_checkin: {}'.format(ex))
 
     def run(self):
         try:

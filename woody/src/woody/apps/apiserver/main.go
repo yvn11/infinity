@@ -12,10 +12,14 @@ import (
 
 type App struct {
   click_api *api.ClickstreamApi
+  profile_api *api.UserProfileApi
 }
 
 func NewApp() *App {
-  return &App{click_api: api.NewClickstreamApi()}
+  return &App{
+    click_api: api.NewClickstreamApi(),
+    profile_api: api.NewUserProfileApi(),
+    }
 }
 
 func (app *App) Start() {
