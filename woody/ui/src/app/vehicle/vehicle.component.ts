@@ -10,9 +10,26 @@ import * as Plotly from 'plotly.js';
 })
 export class VehicleComponent implements OnInit {
 
+  venture_map: {};
+  newenergy_kind_map: {};
+  newenergy_map: {};
   title = 'The BoringUI for Woody';
   constructor(private http_cli: HttpClient) {
     console.log(this.title);
+    // TODO: configure
+    this.venture_map = {
+      'A': '国产',
+      'B': '进口'
+    };
+    this.newenergy_kind_map = {
+      'A': '纯电动',
+      'B': '燃料电池',
+      'C': '插电式混合动力'
+    };
+    this.newenergy_map = {
+      '1': 'Yes',
+      '2': 'No',
+    };
   }
 
   ngOnInit() {
@@ -111,6 +128,8 @@ export class VehicleComponent implements OnInit {
       return;
     }
 
+    this.translate(metric['x'], this.newenergy_map);
+
     const layout = {
       title: 'New Energy Vehicle',
       titlefont: {
@@ -145,6 +164,8 @@ export class VehicleComponent implements OnInit {
     if (metric == null || metric['x'] == null || metric['y'] == null) {
       return;
     }
+
+    this.translate(metric['x'], this.newenergy_kind_map);
 
     const layout = {
       title: 'New Energy Kind',
@@ -182,7 +203,7 @@ export class VehicleComponent implements OnInit {
     }
 
     const layout = {
-      title: 'Color Percentage',
+      title: 'Color',
       titlefont: {
         size: 20
       },
@@ -215,6 +236,8 @@ export class VehicleComponent implements OnInit {
     if (metric == null || metric['x'] == null || metric['y'] == null) {
       return;
     }
+    
+    this.translate(metric['x'], this.venture_map);
 
     const layout = {
       title: 'Venture',
@@ -245,4 +268,13 @@ export class VehicleComponent implements OnInit {
 
     Plotly.plot('container_venture', data, layout, {showlink: false});
   }
+
+  private translate(words, translate_map) {
+    for (let i = 0; i < words.length; i++) {
+      const key = words[i];
+      if (translate_map[key] != null) {
+        words[i] = translate_map[key];
+      }
+    }
+   }
 }

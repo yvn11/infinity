@@ -44,13 +44,6 @@ class VehicleStat(object):
     def metric_brand_percent(self):
         # Count for each brand
         # TODO: Unify same brand, ex: AUDI and AUDI牌 
-        """
-        self.df_vehicle['车辆品牌2'].replace('AUDI牌','AUDI', inplace=True)
-        self.df_vehicle['车辆品牌2'].replace('JETTA牌','JETTA', inplace=True)
-        self.df_vehicle['车辆品牌2'].replace('HONDA牌','HONDA', inplace=True)
-        self.df_vehicle['车辆品牌2'].replace('COASTER牌','COASTER', inplace=True)
-        self.df_vehicle['车辆品牌2'].replace('YAMAHA牌','YAMAHA', inplace=True)
-        """
         self.df_vehicle['车辆品牌2'] = self.df_vehicle['车辆品牌2'][\
           ~self.df_vehicle['车辆品牌2'].isnull()].apply(\
             lambda x: x.upper().strip(' .').replace('牌',''))
