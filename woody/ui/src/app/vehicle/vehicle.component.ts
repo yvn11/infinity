@@ -51,6 +51,8 @@ export class VehicleComponent implements OnInit {
     this.newenergy_kind_percent(rsp['metric_newenergy_kind']);
     this.venture_percent(rsp['metric_venture']);
     this.color_percent(rsp['metric_color']);
+    this.capacity_sorted(rsp['metric_cap_sorted']);
+    this.capacity_percent(rsp['metric_cap_dist']);
   }
 
   brand_percent(metric) {
@@ -247,7 +249,7 @@ export class VehicleComponent implements OnInit {
       font: {
         family: 'Droid Serif, serif',
         size: 10,
-        source: '#000999'
+        color: '#000999'
       },
       dragmode: false,
     }
@@ -276,5 +278,75 @@ export class VehicleComponent implements OnInit {
         words[i] = translate_map[key];
       }
     }
-   }
+  }
+
+  capacity_sorted(metric) {
+    if (metric == null || metric['y'] == null) {
+      return;
+    }
+
+    const layout = {
+      title: 'Capacity',
+      titlefont: {
+        size: 20
+      },
+      font: {
+        family: 'Droid Serif, serif',
+        size: 10,
+        color: '#000999'
+      },
+      dragmode: false,
+    }
+
+    const data: Plotly.PlotData[] = [{
+      type: 'bar',
+      y: metric['y'],
+      autosourcescale: true,
+      marker: {
+        line: {
+          source: 'rgb(180,180,180)',
+          width: 1
+        }
+      }
+    }];
+
+    Plotly.plot('container_capacity_sorted', data, layout, {showlink: false});
+  }
+
+  capacity_percent(metric) {
+    if (metric == null) {
+      return;
+    }
+
+    const med = metric['median'].toString();
+    const layout = {
+      title: 'Capacity (median: ' + med + ')',
+      titlefont: {
+        size: 20
+      },
+      font: {
+        family: 'Droid Serif, serif',
+        size: 10,
+        color: '#000999'
+      },
+      dragmode: false,
+    }
+
+    const data: Plotly.PlotData[] = [{
+      type: 'pie',
+      // lables: ['>' + med, '<' + med, '=' + med],
+      text: ['>' + med, '<' + med, '=' + med],
+      values: [metric['>'], metric['<'], metric['=']],
+      autosourcescale: true,
+      reversescale: false,
+      marker: {
+        line: {
+          source: 'rgb(180,180,180)',
+          width: 1
+        }
+      }
+    }];
+
+    Plotly.plot('container_capacity', data, layout, {showlink: false});
+  }
 }

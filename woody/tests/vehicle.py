@@ -82,8 +82,16 @@ class VehicleStat(object):
         self.metrics['metric_production_country'] = {'x': res.keys(), 'y': res.values()}
 
     def metric_capacity(self):
-        #grp_output = self.df_vehicle('排量')
-        pass
+        self.df_vehicle['排量'] = self.df_vehicle['排量'][~self.df_vehicle['排量'].isnull()].astype(int)
+        cap_sorted = self.df_vehicle.sort_values(ascending=False, by='排量')
+        cap_sorted = cap_sorted[~cap_sorted['排量'].isnull()]['排量']
+        self.metrics['metric_cap_sorted'] = {'y': cap_sorted.tolist()}
+
+        med = self.df_vehicle['排量'].median()
+        gt = self.df_vehicle['排量'][self.df_vehicle['排量']>med].count().tolist()
+        lt = self.df_vehicle['排量'][self.df_vehicle['排量']<med].count().tolist()
+        eq = self.df_vehicle['排量'][self.df_vehicle['排量']==med].count().tolist()
+        self.metrics['metric_cap_dist'] = {'median': med, '>': gt, '<': lt, '=': eq}
 
 if __name__ == '__main__':
     stat = VehicleStat()
@@ -93,4 +101,5 @@ if __name__ == '__main__':
     stat.metric_venture_percent()
     stat.metric_color_percent()
     stat.metric_production_country_percent()
+    stat.metric_capacity()
     stat.dump_metrics()
