@@ -3,6 +3,7 @@ from pyspark.context import SparkContext
 from pyspark.conf import SparkConf
 from pyspark.streaming.context import StreamingContext
 from pyspark.streaming.kafka import KafkaUtils
+from pyspark.sql.types import IntegerType, StringType
 
 from woody.common.config import Config
 from woody.common.spark_utils import SparkSessionInstance, create_allocation_file, now_timestamp
@@ -83,9 +84,6 @@ class ProfileAggr(object):
         
         try:
             df = self._sess.createDataFrame(rdd, cols)
-            df = df.withColumn("updated_at", int(df["updated_at"])*1000)
-            df = df.withColumn("created_at", int(df["created_at"])*1000)
-            df.show()
             df.write.format("org.apache.spark.sql.cassandra")\
                 .options(**opts)\
                 .save(mode='ignore')
