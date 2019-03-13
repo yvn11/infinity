@@ -13,7 +13,6 @@ $PREFIX_MIRROR/pause-amd64:3.1
 "
 
 #PREFIX_MIRROR=quay.io/zlynch
-PREFIX_MIRROR=mirrorgooglecontainers
 
 images_1_12="
 $PREFIX_MIRROR/etcd:3.2.24
@@ -25,8 +24,8 @@ $PREFIX_MIRROR/coredns:1.2.2
 $PREFIX_MIRROR/pause:3.1
 "
 #docker.io/coredns/coredns:1.2.2
-#$PREFIX_K8S/etcd:3.2.24
 #coredns/coredns:1.2.6
+#$PREFIX_MIRROR/etcd:3.2.24
 #$PREFIX_MIRROR/kube-apiserver:v1.13.2
 #$PREFIX_MIRROR/kube-scheduler:v1.13.2
 #$PREFIX_MIRROR/kube-proxy:v1.13.2
@@ -34,6 +33,12 @@ $PREFIX_MIRROR/pause:3.1
 #$PREFIX_MIRROR/pause:3.1
 images_1_13="
 coredns/coredns:1.2.6
+$PREFIX_MIRROR/etcd:3.2.24
+$PREFIX_MIRROR/kube-apiserver:v1.13.2
+$PREFIX_MIRROR/kube-scheduler:v1.13.2
+$PREFIX_MIRROR/kube-proxy:v1.13.2
+$PREFIX_MIRROR/kube-controller-manager:v1.13.2
+$PREFIX_MIRROR/pause:3.1
 "
 
 for i in ${images_1_13} ;do
