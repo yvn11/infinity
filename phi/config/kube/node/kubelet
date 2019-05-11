@@ -1,1 +1,0 @@
-KUBELET_ARGS="--bootstrap-kubeconfig /etc/kubernetes/bootstrap-kubelet.conf --kubeconfig /var/lib/config.yaml --fail-swap-on=false --cluster-dns=10.1.0.10 --hostname-override=10.1.10.5 -v 256"

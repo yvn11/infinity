@@ -1,4 +1,0 @@
-#!/bin/bash
-
-docker exec -i `docker ps -f name=influxdb --quiet|head -1` influx -execute 'use telegraf
-delete from cpu,disk,diskio,docker,docker_container_blkio,docker_container_cpu,docker_container_health,docker_container_mem,docker_container_net,docker_container_status,kernel,mem,net,processes,swap,system where time<(now()-10d);'
