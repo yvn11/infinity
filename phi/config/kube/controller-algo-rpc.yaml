@@ -1,0 +1,72 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: algo-grpc-entry
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: algo-grpc-server
+  template:
+    metadata:
+      labels:
+        app: algo-grpc-server
+    spec:
+      serviceAccountName: "grpc-robot"
+      volumes:
+        - name: ext-data
+          hostPath: { path: /algo-rpc-data, type: Directory }
+        - name: ext-data-models
+          hostPath: { path: /algo-rpc-data/models, type: Directory }
+      containers:
+      - name: algo-rpc
+        image: 10.1.10.8:17889/algo-rpc/1_x:1.0.0.49
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: algo-rpc-entry
+          containerPort: 14390
+          hostPort: 14390
+#        resources:
+#          limits:
+#            cpu: "0.1"
+        env:
+         - name: MODELS_VERSION
+           value: "20181109"
+         - name: ALGO_RPC_PORT
+           value: "14390"
+        volumeMounts:
+        - mountPath: /data
+          name: ext-data
+        - mountPath: /opt/algo-rpc/models
+          name: ext-data-models
+        securityContext:
+          allowPrivilegeEscalation: true
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: algo-grpc-server
+spec:
+  selector:
+    app: algo-grpc-server
+  type: NodePort #ClusterIP
+    #  clusterIP: None
+  ports:
+    - name: grpc
+      port: 10000
+      targetPort: algo-rpc-entry
+#---
+#kind: Service
+#apiVersion: v1
+#metadata:
+#  name: algo-grpc-lb
+#spec:
+#  type: LoadBalancer
+##  externalIPs: 
+##    - 10.1.10.30
+#  ports:
+#    - name: algo-rpc-entry
+#      port: 10000
+#  selector:
+#    app: algo-grpc-server
+##  externalTrafficPolicy: Local
