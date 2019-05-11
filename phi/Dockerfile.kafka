@@ -1,0 +1,18 @@
+FROM docker.io/centos:7
+
+ENV KAFKA_VERSION=2.1.0
+ENV SCALA_VERSION=2.11
+ENV KAFKA_ROOT=/opt/kafka
+
+RUN yum upgrade -y && yum update -y && \
+  yum install -y epel-release && \
+  yum update -y && yum install -y \
+  vim python36 python34-pip \
+  java-1.8.0-openjdk java-1.8.0-openjre 
+
+RUN curl http://mirror.bit.edu.cn/apache/kafka/$KAFKA_VERSION/kafka_$SCALA_VERSION-$KAFKA_VERSION.tgz \
+  -o /opt/kafka_$SCALA_VERSION-$KAFKA_VERSION.tgz
+RUN du -h -l /opt/* && tar xf /opt/kafka_$SCALA_VERSION-$KAFKA_VERSION.tgz -C /opt && ln -s /opt/kafka_$SCALA_VERSION-$KAFKA_VERSION $KAFKA_ROOT && \
+  rm -f /opt/kafka_$SCALA_VERSION-$KAFKA_VERSION.tgz 
+
+WORKDIR /opt

@@ -1,0 +1,138 @@
+version: "3.4"
+services:
+  cass1:
+    image: docker.io/cassandra:3.11
+    hostname: cass1
+    networks:
+      #- cassandra-net
+      - zk-net
+    ports:
+      # message service, storage_port
+      - published: 7000
+        target: 7000
+        mode: host
+      - published: 7001
+        target: 7001
+        mode: host
+      # CQL client
+      - published: 17001
+        target: 9042
+        mode: host
+        protocol: tcp
+      # thrift service
+      - published: 9061
+        target: 9061
+        mode: host
+      - published: 7199
+        target: 7199
+        mode: host
+    volumes:
+      - /tmp:/tmp
+      - cassandra-data:/var/lib/cassandra
+      - cassandra-conf:/etc/cassandra
+    environment:
+      - TZ=Asia/Hong_Kong
+      - CASSANDRA_CLUSTER_NAME=core
+      - CASSANDRA_DC=datacenter1
+      - CASSANDRA_START_RPC=true
+#      - CASSANDRA_RPC_ADDRESS=
+#      - CASSANDRA_LISTEN_ADDRESS=cass1
+#      - CASSANDRA_BROADCAST_ADDRESS=cass1
+      - CASSANDRA_SEEDS=cass1
+    deploy:
+      placement:
+        constraints: [node.labels.cassnode == 1]
+  cass2:
+    image: docker.io/cassandra:3.11
+    hostname: cass2
+    networks:
+      #- cassandra-net
+      - zk-net
+    ports:
+      # message service, storage_port
+      - published: 7000
+        target: 7000
+        mode: host
+      - published: 7001
+        target: 7001
+        mode: host
+      # CQL client
+      - published: 17001
+        target: 9042
+        mode: host
+        protocol: tcp
+      # thrift service
+      - published: 9061
+        target: 9061
+        mode: host
+      - published: 7199
+        target: 7199
+        mode: host
+    volumes:
+      - /tmp:/tmp
+      - cassandra-data:/var/lib/cassandra
+      - cassandra-conf:/etc/cassandra
+    environment:
+      - TZ=Asia/Hong_Kong
+      - CASSANDRA_CLUSTER_NAME=core
+      - CASSANDRA_DC=datacenter1
+      - CASSANDRA_START_RPC=true
+#      - CASSANDRA_RPC_ADDRESS=cass2
+#      - CASSANDRA_LISTEN_ADDRESS=cass2
+#      - CASSANDRA_BROADCAST_ADDRESS=cass2
+      - CASSANDRA_SEEDS=cass1
+    deploy:
+      placement:
+        constraints: [node.labels.cassnode == 2]
+  cass3:
+    image: docker.io/cassandra:3.11
+    hostname: cass3
+    networks:
+      #- cassandra-net
+      - zk-net
+    ports:
+      # message service, storage_port
+      - published: 7000
+        target: 7000
+        mode: host
+#      - published: 7001
+#        target: 7001
+#        mode: host
+      # CQL client
+      - published: 17001
+        target: 9042
+        mode: host
+        protocol: tcp
+      # thrift service
+      - published: 9061
+        target: 9061
+        mode: host
+      - published: 7199
+        target: 7199
+        mode: host
+    volumes:
+      - /tmp:/tmp
+      - cassandra-data:/var/lib/cassandra
+      - cassandra-conf:/etc/cassandra
+    environment:
+      - TZ=Asia/Hong_Kong
+      - CASSANDRA_CLUSTER_NAME=core
+      - CASSANDRA_DC=datacenter1
+      - CASSANDRA_START_RPC=true
+#      - CASSANDRA_RPC_ADDRESS=cass3
+#      - CASSANDRA_LISTEN_ADDRESS=cass3
+#      - CASSANDRA_BROADCAST_ADDRESS=cass3
+      - CASSANDRA_SEEDS=cass1
+    deploy:
+      placement:
+        constraints: [node.labels.cassnode == 3]
+
+volumes:
+  cassandra-data:
+  cassandra-conf:
+
+networks:
+  cassandra-net:
+  zk-net:
+    external:
+      name: kfk_zk-net

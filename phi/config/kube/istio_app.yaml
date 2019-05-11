@@ -1,0 +1,41 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: algo-grpc
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: algo-grpc
+        app: algo-grpc
+        version: 1.0.0
+    spec:
+      serviceAccountName: "grpc-robot"
+      volumes:
+        - name: ext-data
+          hostPath: { path: /algo-grpc-data, type: Directory }
+      containers:
+      - name: algo-grpc
+        image: quay.io/go-server:1.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 14390
+          name: algo-grpc-entry
+        volumeMounts:
+        - name: ext-data
+          mountPath: /data
+#        securityContext:
+#          privileged: true
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: algo-grpc
+spec:
+  ports:
+    - name: algo-grpc-entry
+      port: 1783
+      targetPort: 1783
+  selector:
+    name: algo-grpc

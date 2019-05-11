@@ -1,0 +1,41 @@
+version: "3.4"
+
+services:
+  aggregator:
+    image: zlynch/profile:1.0
+    hostname: profile-aggregator
+    networks:
+      - zk-net
+    environment:
+      PYTHONPATH: /opt/phi
+      CASSANDRA_SERVERS: 10.1.10.5,10.1.10.6,10.1.10.9
+      CASSANDRA_PORT: 17001
+      CASSANDRA_USER: dev
+      CASSANDRA_PASS: dcb5c69fedb78e9a29a3
+      KAFKA_BROKERS: 10.1.10.5:17812,10.1.10.9:17812,10.1.10.8:17812
+      SPARK_HOME: /opt/spark-2.4.0-bin-hadoop2.7
+      SPARK_MASTER: spark://spark1:7077
+      SPARK_SCHED_MODE: FAIR
+      SPARK_SCHED_POOL: dev
+      SPARK_SCHED_FILE: /opt/spark/conf/fairscheduler.xml
+    ports:
+      - published: 18881
+        target: 4040
+        mode: host
+    command: /opt/spark/bin/spark-submit --master spark://spark1:7077 --jars /opt/spark-extern/spark-streaming-kafka-0-8-assembly_2.11-2.4.0.jar phi/apps/profile.py
+  producer:
+    image: zlynch/producer:1.0
+    hostname: profile-producer
+    networks:
+      - zk-net
+    # outside cluster: 10.1.10.5:17812,10.1.10.9:17812,10.1.10.8:17812
+    command: build/producer -brokers k1:17812,k2:17812,k3:17812 -alsologtostderr
+    deploy:
+      placement:
+        constraints: [node.hostname != core.master]
+      replicas: 0
+
+networks:
+  zk-net:
+    external:
+      name: kfk_zk-net

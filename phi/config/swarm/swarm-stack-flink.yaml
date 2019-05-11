@@ -1,0 +1,32 @@
+version: "3.4"
+services:
+  jobmanager:
+    image: docker.io/flink:1.7
+    hostname: flink-jobmanager
+    ports:
+      - "18081:8081"
+      - "16123:6123"
+    command: jobmanager
+    volumes:
+      - /tmp:/tmp
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+    deploy:
+      placement:
+        constraints: [node.labels.zknode == 1]
+
+  taskmanager:
+    image: docker.io/flink:1.7
+    hostname: flink-taskmanager-1
+    depends_on:
+      - jobmanager
+    command: taskmanager
+    volumes:
+      - /tmp:/tmp
+    links:
+      - "jobmanager:jobmanager"
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+    deploy:
+      placement:
+        constraints: [node.labels.zknode == 1]

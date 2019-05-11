@@ -1,2 +1,12 @@
 *.out
 */build
+
+/target
+**/*.rs.bk
+Cargo.lock
+*/target
+*/*.pb.*
+*/*.swp
+*/build
+*.pyc
+.*_pass

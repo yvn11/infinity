@@ -1,0 +1,42 @@
+FROM docker.io/centos:7
+
+ENV SPARK_VERSION=2.4.0
+ENV HADOOP_VERSION=2.7
+ENV SPARK_HOME=/opt/spark
+ENV SCALA_VERSION=2.11
+ENV SPARK_EXTERN=/opt/spark-extern
+
+RUN yum upgrade -y && yum update -y && \
+  yum install -y epel-release && \
+  yum update -y && yum install -y \
+  vim python36 python34-pip redhat-rpm-config python3-devel \
+  java-1.8.0-openjdk java-1.8.0-openjre &&\
+  pip3 install -U pip
+
+RUN curl http://mirror.bit.edu.cn/apache/spark/spark-$SPARK_VERSION/spark-$SPARK_VERSION-bin-hadoop$HADOOP_VERSION.tgz \
+  -o /opt/spark_$HADOOP_VERSION-$SPARK_VERSION.tgz
+RUN tar xf /opt/spark_$HADOOP_VERSION-$SPARK_VERSION.tgz -C /opt && ln -s /opt/spark-$SPARK_VERSION-bin-hadoop$HADOOP_VERSION $SPARK_HOME && \
+  rm -f /opt/spark_$HADOOP_VERSION-$SPARK_VERSION.tgz  && \
+  mkdir -p ${SPARK_EXTERN} && curl "https://search.maven.org/remotecontent?filepath=org/apache/spark/spark-streaming-kafka-0-8-assembly_${SCALA_VERSION}/${SPARK_VERSION}/spark-streaming-kafka-0-8-assembly_${SCALA_VERSION}-${SPARK_VERSION}.jar" -o ${SPARK_EXTERN}/spark-streaming-kafka-0-8-assembly_${SCALA_VERSION}-${SPARK_VERSION}.jar &&\
+  curl "http://dl.bintray.com/spark-packages/maven/datastax/spark-cassandra-connector/${SPARK_VERSION}-s_${SCALA_VERSION}/spark-cassandra-connector-${SPARK_VERSION}-s_${SCALA_VERSION}.jar" -o ${SPARK_EXTERN}/spark-cassandra-connector-${SPARK_VERSION}-s_${SCALA_VERSION}.jar
+
+COPY requirements.txt /tmp/requirements.txt
+RUN pip3 install -r /tmp/requirements.txt && rm -f /tmp/requirements.txt
+
+#RUN cp /opt/spark/conf/fairscheduler.xml.template /opt/spark/conf/fairscheduler.xml && \
+#  sed -e 's/FIFO/FAIR/g' /opt/spark/conf/fairscheduler.xml -i
+RUN echo "<?xml version=\"1.0\"?> \
+<allocations> \
+  <pool name=\"production\"> \
+    <schedulingMode>FAIR</schedulingMode> \
+    <weight>1</weight> \
+    <minShare>2</minShare> \
+  </pool> \
+  <pool name=\"dev\"> \
+    <schedulingMode>FAIR</schedulingMode> \
+    <weight>1</weight> \
+    <minShare>2</minShare> \
+  </pool> \
+</allocations>" > /opt/spark/conf/fairscheduler.xml
+
+WORKDIR /opt/spark
