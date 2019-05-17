@@ -1,0 +1,31 @@
+body{
+  min-height: 100%;
+  /*background-image: url("/static/img/black-pikachu.jpg");,linear-gradient(rgba(0,0,0,0.2),rgba(0,0,0,0.3));*/
+  background-color: #000;
+  background-blend-mode: screen;
+  background-size: cover;
+}
+
+.index{
+  font-family: 'SegoeUI','Tahoma','Geneva','Verdana','sans-serif';
+  font-size: 3rem;
+  color: #007960;
+}
+
+.center{
+  height: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.about{
+  font-size: 12;
+  color: #ffa500;
+  margin: 2%;
+}
+
+#social{
+  position: absolute;
+  bottom: 0;
+}
