@@ -1,7 +1,7 @@
 body{
   min-height: 100%;
   /*background-image: url("/static/img/black-pikachu.jpg");,linear-gradient(rgba(0,0,0,0.2),rgba(0,0,0,0.3));*/
-  background-color: #000;
+  background-color: #fff;
   background-blend-mode: screen;
   background-size: cover;
 }
@@ -22,10 +22,40 @@ body{
 .about{
   font-size: 12;
   color: #ffa500;
-  margin: 2%;
+  margin: 5%;
 }
 
-#social{
+.barnner{
+  background-color: #065a61;
+  height: 3.0rem;
+  width: 100%;
+  color: #ffa500;
+}
+
+.barnner-font{
+  background-color: transparent;
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 2em;
+  color: #ffa500;
+  font-weight: 900;
+  vertical-align: middle;
+  outline: 0;
+  border: 0;
+  @include transition(background-color 0.3s ease);
+}
+
+#footer {
   position: absolute;
   bottom: 0;
+  width: 98%;
+  height: 2.5rem;
+}
+
+#single-board{
+  width: 100px;
+  margin: 0 auto;
+}
+
+.content{
+  margin: 3%;
 }
