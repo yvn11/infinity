@@ -57,7 +57,8 @@ body{
 }
 
 .vid-table{
-/**  background-color: #071c42; */
+  /**background-color: #071c42; */
+  border-spacing: 2em;
 }
 
 #copyright-footer{
