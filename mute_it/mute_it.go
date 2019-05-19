@@ -4,6 +4,7 @@ import (
   "html/template"
   "net/http"
   "time"
+  "fmt"
 )
 
 type About struct{
@@ -19,7 +20,7 @@ func handleAbout(w http.ResponseWriter, r *http.Request) {
     LastName: "Li",
   }
 
-  templ := template.Must(template.ParseFiles("templates/about.html"))
+  templ := template.Must(template.ParseFiles("templates/mute_it.html"))
   if err := templ.Execute(w, about); err != nil {
     http.Error(w, err.Error(), http.StatusInternalServerError)
   }
@@ -29,5 +30,7 @@ func main() {
   http.HandleFunc("/", handleAbout)
   http.Handle("/static/",
     http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
-  http.ListenAndServe(":31542", nil)
+  if err := http.ListenAndServe(":31542", nil); err != nil {
+      fmt.Println("[muteit] start failed", err)
+  }
 }
