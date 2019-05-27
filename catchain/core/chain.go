@@ -1,4 +1,4 @@
-package catchain
+package core
 
 import (
   "time"

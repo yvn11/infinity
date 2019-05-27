@@ -1,7 +1,7 @@
 package main
 
 import (
-  "catchain"
+  catchain "github.com/zex/catchain/core"
   "fmt"
 )
 
