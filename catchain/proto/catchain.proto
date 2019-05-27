@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package pb;
+
+message Block {
+  bytes hash = 1;
+  int64 ts = 2;
+  bytes num = 3;
+  bytes prev = 4;
+}
