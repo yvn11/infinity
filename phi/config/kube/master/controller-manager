@@ -1,8 +1,0 @@
-###
-# The following values are used to configure the kubernetes controller-manager
-
-# defaults from config and apiserver should be adequate
-
-# Add your own!
-#KUBE_CONTROLLER_MANAGER_ARGS="--service-account-private-key-file /etc/kubernetes/pki/apiserver.key --allocate-node-cidrs=true --node-cidr-mask-size=28 --cluster-cidr=10.10.3.0/28"
-KUBE_CONTROLLER_MANAGER_ARGS=""
