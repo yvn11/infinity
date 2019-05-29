@@ -12,7 +12,7 @@ body{
   margin: 5%;
 }
 
-.barnner{
+.banner{
   background-color: #000;
   height: 8.0rem;
   width: 100%;
@@ -20,7 +20,7 @@ body{
   margin: 2em;
 }
 
-.barnner-img{
+.banner-img{
   background: url("/static/img/kissclipart-pikachu_128x128.jpg") no-repeat;
   display: block;
   box-sizing: border-box;
@@ -28,7 +28,7 @@ body{
   margin: 2em;
 }
 
-.barnner-font{
+.banner-font{
   background-color: transparent;
   font-family: 'Ubuntu', sans-serif;
   font-size: 2em;
